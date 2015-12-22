@@ -1,0 +1,33 @@
+{% block header %}
+{% include 'header.html' %}
+{% endblock %}
+<div class="side_frame">
+    <form id="ajaxRequest" class="bootstrap-frm">
+        <input type="hidden" id="callBack" value="addExecuteQuestion">
+        <label>
+            <span>Poll Question:</span>
+            <input id="question" name="question" type="text" placeholder="Add poll question here" required>
+        </label>
+        <br>
+        <label>
+            <span>Poll Answers:</span>
+            <a href="#" id="add">Add Answer</a>
+            <a href="#" id="del">Remove Answer</a>
+            <br>
+            <div class="input_fields_wrap">
+                <div><input type="text" name="answer[]" placeholder="Add poll answer 1" required>&nbsp;&nbsp;</div>
+            </div>
+
+        </label>
+        <label>
+            <span>&nbsp;</span>
+            <input type="submit" class="button" value="Send" />
+        </label>
+        <div id="results"></div>
+    </form>
+    
+    <div class="clear"></div>
+</div>
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}

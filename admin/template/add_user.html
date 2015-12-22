@@ -1,0 +1,33 @@
+{% block header %}
+{% include 'header.html' %}
+{% endblock %}
+<div class="side_frame">
+    <form id="ajaxRequest" class="bootstrap-frm">
+        <input type="hidden" id="callBack" value="addExecuteUser">
+        <label>
+            <span>User Name:</span>
+            <input id="user_name" name="user_name" type="text" placeholder="Add user name here" required>
+        </label>
+        <br>
+        <label>
+            <span>User Email:</span>
+            <input id="user_email" name="user_email" type="text" placeholder="Add user email here" required>
+        </label>
+        <br>
+        <label>
+            <span>User Password:</span>
+            <input id="user_password" name="user_password" type="text" placeholder="Add user password here" required>
+        </label>
+        <br>
+        <label>
+            <span>&nbsp;</span>
+            <input type="submit" class="button" value="Send" />
+        </label>
+        <div id="results"></div>
+    </form>
+    
+    <div class="clear"></div>
+</div>
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}

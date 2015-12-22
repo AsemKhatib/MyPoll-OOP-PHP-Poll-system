@@ -1,0 +1,35 @@
+{% block header %}
+    {% include 'header.html' %}
+{% endblock %}
+<a href="index.php?do=addQuestion" class="img_url"><img src="template/images/add.png" style="margin-right: 85%;" width="48" height="48" alt="Add Question" title="Add Question"></a>
+<div class="show_poll">
+    <div class="inner" id="inner1">ID</div>
+    <div class="inner" id="inner2">Question</div>
+    <div class="inner" id="inner3">Edit</div>
+    <div class="inner" id="inner4">Stats</div>
+    <div class="inner" id="inner5">Delete</div>
+    <div class="clear"></div>
+    {% for res in resultsp %}
+    <div class="inner" id="inner1">{{ res.id }}</div>
+    <div class="inner" id="inner2">{{ res.question }}</div>
+    <div class="inner" id="inner3"><a href="index.php?do=editQuestion&id={{ res.id }}" class="img_url"><img src="template/images/edit-property-16.png" width="16" height="16" alt="Edit Question" title="Edit Question"></a></div>
+    <div class="inner stat" id="inner4" data-popcorn="{{ loop.index }}"><img src="template/images/statistics-16.png" width="16" height="16" alt="Statistics" title="Statistics"></div>
+    <div class="inner" id="inner5"><a href="index.php?do=deleteQuestion&id={{ res.id }}" class="img_url" onclick="return confirm('Are you sure , want to delete ?');"><img src="template/images/delete.png" width="16" height="16" alt="Delete Question" title="Delete Question"></a></div>
+    <div class="inner popcorn-{{ loop.index }}" id="inner6">
+            <div class="graph" id="percent_info">Answers Percent %</div>
+            <div class="graph"><iframe src="index.php?do=answersShow&qid={{ res.id }}&is_pie=false" width="700" height="80" style="margin: 0 auto;overflow: hidden;border: 0;" scrolling="no"></iframe></div>
+    </div>
+    <div class="clear"></div>
+    {% endfor %}
+    <br>
+    {% if pagesNumber >= 1 %}
+        {% for i in 0..pagesNumber %}
+            [<a href="index.php?do=questions&startPage={{ i }}" style="text-decoration: none;">{{ i }}</a>]&nbsp;
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div class="clear"></div>
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}

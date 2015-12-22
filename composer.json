@@ -1,0 +1,11 @@
+{
+  "require": {
+    "gabordemooij/redbean": "dev-master",
+    "twig/twig": "1.x-dev"
+  },
+  "autoload": {
+    "classmap": [
+        "classes"
+    ]
+  }
+}

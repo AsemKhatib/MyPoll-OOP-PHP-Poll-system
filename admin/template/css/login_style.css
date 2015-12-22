@@ -1,0 +1,48 @@
+body {
+    background-color: #f2f2f2;
+}
+.gent {
+    width: 380px;
+    height:347px;
+    background-image:url('../images/libg.gif');
+    background-repeat:no-repeat;
+    font-family:tahoma;
+    font-size: 15px;
+    margin:0 auto;
+    margin-top:30px;
+    text-align:right;
+    direction:rtl;
+}
+
+.gent form{
+    padding-top:120px;
+    padding-right:40px;
+}
+
+.logininput{
+    font-family:tahoma;
+    margin-right:58px;
+    width:80px;
+    height:30px;
+}
+
+.rinput{
+    margin-top:8px;
+    width:300px;
+    height:30px;
+    font-size:18px;
+    background-color:#f2f2f2;
+    border:1px #cccccc solid;
+    font-family:tahoma;
+}
+
+.else{
+    margin-top:35px;
+    text-align:left;
+    font-size:12px;
+}
+
+.else a{
+    text-decoration:none;
+    color:#7c7c7c;
+}

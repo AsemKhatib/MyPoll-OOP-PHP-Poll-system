@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <title>Login Page</title>
+    <link rel="stylesheet" type="text/css" href="template/css/login_style.css">
+</head>
+<body>
+<div class="gent">
+    <form name="login" method="POST" action="index.php?do=check">
+        <p>
+            <label>{{ user }}<br />
+                <input type="text" name="username" class="rinput" required>
+            </label>
+        </p>
+        <p>
+            <label>{{ pass }}<br />
+                <input type="password" name="password" class="rinput" required>
+            </label>
+        </p>
+        <p>
+            <!-- <input type="checkbox" name="cookie" id="cookie" value="1"> -->
+            <input type="submit" value="{{ logint }}" class="logininput">
+        </p>
+    </form>
+    <div class="else"><a href="http://www.ebncana.com/" target="_blank">Programmed By EbNCaNa</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+</div>
+</body>
+
+</html>

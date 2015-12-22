@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Poll System</title>
+
+    <script type="text/javascript" src="template/js/jquery-2.1.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="template/css/main_style.css">
+    <link rel="stylesheet" type="text/css" href="template/css/form_style.css">
+
+    <script type="text/javascript">
+        {% autoescape 'js' %}
+        jQuery(document).ready(function(){
+
+            //google.load('visualization', '1.0', {'packages':['corechart']});
+            //google.setOnLoadCallback(drawChart);
+
+            if (typeof(Storage) != "undefined") {
+                sessionStorage.setItem("QQuestions", $('.show_poll #inner6').length);
+                var Questions_num = sessionStorage.getItem("QQuestions");
+                sessionStorage.setItem("QAnswers", $('.input_fields_wrap').find('input:text').length);
+                var Answers_num = sessionStorage.getItem("QAnswers");
+            }else{
+                alert('Your browser does not support local storage , Please Upgrade');
+            }
+
+            $('#add').click(function(){
+                var table = $('.input_fields_wrap');
+                var randNumber = Math.floor((Math.random() * 100000000) + 1);
+                if (table.find('input:text').length < 8 ){
+                    var numbers = table.find('input:text').length+1;
+                    table.append('<div><input style="margin-left: 156px;" type="text" name="answer[' + randNumber + ']" placeholder="Add poll answer ' + numbers + '" required>&nbsp;&nbsp;</div>');
+                }
+            });
+            $('#del').click(function(){
+                var table = $('.input_fields_wrap');
+                if(typeof(Answers_num) == "undefined" && Answers_num !== null) {
+                    Answers_num = 1;
+                }
+                if (table.find('input:text').length > Answers_num) {
+                    table.find('input:text').last().closest('div').remove();
+                }
+            });
+
+            $("#ajaxRequest").submit(function (event) {
+
+                event.preventDefault();
+
+                $("#results").html('');
+
+                var values = $(this).serialize();
+                var callBackMethod = $("#callBack").val();
+
+                /* Send the data using post and put the results in a div */
+                $.ajax({
+                    url: "index.php?do=" + callBackMethod,
+                    type: "post",
+                    data: values,
+                    success: function (data) {
+                        $("#results").html(data);
+                    },
+                    error: function () {
+                        $("#results").html('There is error while submit');
+                    }
+                });
+            });
+
+        $('.stat').click(function() {
+            var popcorn = $(this).data('popcorn');
+            $(".popcorn-" + popcorn).toggle();
+        });
+
+        });
+        {% endautoescape %}
+    </script>
+</head>
+<body>
+    <div class="main_frame">
+        <p>Welcome {{ session.user }}</p>
+        <div class="head_frame">
+            <ul>
+                <li><a href="index.php?do=questions">Main</a></li>
+                <li><a href="index.php?do=users">Users</a></li>
+                <li><a href="index.php?do=settings">Settings</a></li>
+                <li><a href="index.php?do=logout">Logout</a></li>
+            </ul>
+        </div>

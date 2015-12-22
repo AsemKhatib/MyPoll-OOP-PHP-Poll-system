@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        {% autoescape 'js' %}
+
+        google.load('visualization', '1.0', {'packages':['corechart']});
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+
+            {% if is_pie == 'false' %}
+            var data = google.visualization.arrayToDataTable([
+                ['Asnwer', {{ answers_arr|raw }}, { role: 'annotation' } ],
+                ['', {{ percent|raw }}, ''],
+            ]);
+
+            var options = {
+                width: 800,
+                height: 80,
+                legend: { position: 'top', maxLines: 3 },
+                isStacked: true
+            };
+
+            var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+
+            chart.draw(data, options);
+
+        {% else %}
+
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        data.addRows([
+            {{ pie_arr|raw }}
+        ]);
+
+        // Set chart options
+        var options = {'title':'Answers Statistics in Percent',
+            'width':550,
+            'height':400};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+        chart.draw(data, options);
+
+
+        {% endif %}
+        }
+        {% endautoescape %}
+    </script>
+</head>
+<body>
+        {% if is_pie == 'false' %}
+        <div id="chart_div" style="width: 800px; height: 80px;float: left;"></div>
+        {% else %}
+        <div id="piechart"></div>
+        {% endif %}
+</body>
+</html>
