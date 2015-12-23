@@ -28,7 +28,7 @@ $aquery = <<<STR
             )
             ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-            INSERT INTO `users` VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'ebncana@hotmail.com');
+            INSERT INTO `users` VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'your@email.com');
 STR;
 
 try {
