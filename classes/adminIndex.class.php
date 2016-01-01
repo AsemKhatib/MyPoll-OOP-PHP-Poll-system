@@ -21,6 +21,9 @@ class AdminIndex
     /** @var  object */
     protected $loginObj;
 
+    /** @var  object */
+    protected $settingsObj;
+
     /**
      * @param $twigAdmin
      */
@@ -29,6 +32,7 @@ class AdminIndex
         $this->twigAdminObj = $twigAdmin;
         $this->usersObj = new Users($this->twigAdminObj);
         $this->questionsObj = new Questions($this->twigAdminObj);
+        $this->settingsObj = new Settings($this->twigAdminObj);
         $this->loginObj = new Login();
     }
 
@@ -55,6 +59,20 @@ class AdminIndex
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->usersObj->show($startPage);
+        } else {
+            echo General::ref($this->loginObj->getIndexPage());
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function settings()
+    {
+        $id = 1;
+
+        if ($this->loginObj->isLoggedIn()) {
+            echo $this->settingsObj->edit($id);
         } else {
             echo General::ref($this->loginObj->getIndexPage());
         }
@@ -206,6 +224,21 @@ class AdminIndex
 
         if ($this->loginObj->isLoggedIn()) {
             $this->usersObj->editExecute($id, $user, $password, $email);
+        } else {
+            echo General::ref($this->loginObj->getIndexPage());
+        }
+    }
+
+    /**
+     * @return string|void
+     */
+    public function editExecuteSettings()
+    {
+        $id = $_POST['id'];
+        $settingsArr = $_POST['settings'];
+
+        if ($this->loginObj->isLoggedIn()) {
+            $this->settingsObj->editExecute($id, $settingsArr);
         } else {
             echo General::ref($this->loginObj->getIndexPage());
         }
