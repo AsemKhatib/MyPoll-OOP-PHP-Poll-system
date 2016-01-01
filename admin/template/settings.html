@@ -1,0 +1,48 @@
+{% block header %}
+{% include 'header.html' %}
+{% endblock %}
+<div class="side_frame">
+    <form id="ajaxRequest" class="bootstrap-frm">
+        <label>
+            <span>Website Name:</span>
+            <input id="site_name" name="site_name" type="text" placeholder="The name of the website" value="{{ site.name }}" required>
+        </label>
+        <label>
+            <span>Results per pgage:</span>
+            <select name="site_resultsnumber" title="site_resultsnumber">
+                <option value="" selected>Please choose</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+            </select>
+        </label>
+        <label>
+            <span>Use Cookies:</span>
+            <select name="site_cookies" title="site_cookies">
+                <option value="" selected>Please choose</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        </label>
+        <label>
+            <span>Enable Cache:</span>
+            <select name="site_cache" title="site_cache">
+                <option value="" selected>Please choose</option>
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+        </label>
+        <label>
+            <span>&nbsp;</span>
+            <input type="submit" class="button" value="Update" />
+        </label>
+        <div id="results"></div>
+    </form>
+
+    <div class="clear"></div>
+</div>
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}
