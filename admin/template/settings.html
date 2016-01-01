@@ -23,15 +23,15 @@
         <label>
             <span>Use Cookies:</span>
             <select name="settings[site_cookies]" title="settings[site_cookies]">
-                <option value="1">Yes</option>
-                <option value="0">No</option>
+                <option value="1" {{ selected_cookies }}>Yes</option>
+                <option value="0" {{ selected_cookies }}>No</option>
             </select>
         </label>
         <label>
             <span>Enable Cache:</span>
             <select name="settings[site_cache]" title="settings[site_cache]">
-                <option value="1">Yes</option>
-                <option value="0">No</option>
+                <option value="1" {{ selected_cache }}>Yes</option>
+                <option value="0" {{ selected_cache }}>No</option>
             </select>
         </label>
         <label>

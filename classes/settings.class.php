@@ -36,8 +36,8 @@ class Settings
                 'id' => $settings->id,
                 'site_name' => $settings->site_name,
                 'site_resultsnumber' => $settings->site_resultsnumber,
-                'site_cookies' => $settings->site_cookies,
-                'site_cache' => $settings->site_cache
+                'selected_cookies' => General::isSelected($settings->site_cookies),
+                'selected_cache' => General::isSelected($settings->site_cache)
             ));
         } else {
             return General::ref('index.php');
