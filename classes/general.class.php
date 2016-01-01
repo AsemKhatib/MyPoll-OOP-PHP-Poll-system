@@ -78,13 +78,14 @@ class General
     }
 
     /**
-     * @param $var
+     * @param $varToCheck
+     * @param $varToCompare
      *
      * @return string
      */
-    public static function isSelected($var)
+    public static function isSelectedCheck($varToCheck, $varToCompare)
     {
-        $result = ($var == 1) ? 'selected' : '';
+        $result = ($varToCheck == $varToCompare) ? 'selected' : '';
         return $result;
     }
 }

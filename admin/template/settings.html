@@ -12,12 +12,13 @@
         <label>
             <span>Results per pgage:</span>
             <select name="settings[site_resultsnumber]" title="settings[site_resultsnumber]">
-                <option value="" selected>Please choose</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="40">40</option>
-                <option value="50">50</option>
+                {% for i in range (10, 50, 10) %}
+                    <option value="{{ i }}"
+                            {% if selected_resultsnumber == i %}>
+                                selected
+                            {% endif %}
+                        {{ i }}</option>
+                {% endfor %}
             </select>
         </label>
         <label>
