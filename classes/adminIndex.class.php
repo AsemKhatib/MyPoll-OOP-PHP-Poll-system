@@ -69,10 +69,8 @@ class AdminIndex
      */
     public function settings()
     {
-        $id = 1;
-
         if ($this->loginObj->isLoggedIn()) {
-            echo $this->settingsObj->edit($id);
+            echo $this->settingsObj->edit();
         } else {
             echo General::ref($this->loginObj->getIndexPage());
         }
