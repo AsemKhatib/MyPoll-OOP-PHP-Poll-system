@@ -4,7 +4,7 @@
 <div class="side_frame">
     <form id="ajaxRequest" class="bootstrap-frm">
         <input type="hidden" id="callBack" value="editExecuteSettings">
-        <input type="hidden" name="user_id" value="{{ id }}">
+        <input type="hidden" name="settings_id" value="{{ id }}">
         <label>
             <span>Website Name:</span>
             <input id="settings[site_name]" name="settings[site_name]" type="text" placeholder="The name of the website" value="{{ site_name }}" required>
@@ -13,26 +13,22 @@
             <span>Results per pgage:</span>
             <select name="settings[site_resultsnumber]" title="settings[site_resultsnumber]">
                 {% for i in range (10, 50, 10) %}
-                    <option value="{{ i }}"
-                            {% if selected_resultsnumber == i %}>
-                                selected
-                            {% endif %}
-                        {{ i }}</option>
+                    <option value="{{ i }}" {% if site_resultsnumber == i %}selected{% endif %}>{{ i }}</option>
                 {% endfor %}
             </select>
         </label>
         <label>
             <span>Use Cookies:</span>
             <select name="settings[site_cookies]" title="settings[site_cookies]">
-                <option value="1" {{ selected_cookies }}>Yes</option>
-                <option value="0" {{ selected_cookies }}>No</option>
+                <option value="1" {% if site_cookies == 1 %}selected{% endif %}>Yes</option>
+                <option value="0" {% if site_cookies == 0 %}selected{% endif %}>No</option>
             </select>
         </label>
         <label>
             <span>Enable Cache:</span>
             <select name="settings[site_cache]" title="settings[site_cache]">
-                <option value="1" {{ selected_cache }}>Yes</option>
-                <option value="0" {{ selected_cache }}>No</option>
+                <option value="1" {% if site_cache == 1 %}selected{% endif %}>Yes</option>
+                <option value="0" {% if site_cache == 0 %}selected{% endif %}>No</option>
             </select>
         </label>
         <label>

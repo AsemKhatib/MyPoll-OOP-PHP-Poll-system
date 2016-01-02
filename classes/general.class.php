@@ -78,7 +78,7 @@ class General
     }
 
     /**
-     * @param $varToCheck
+     * @param int $varToCheck
      * @param $varToCompare
      *
      * @return string

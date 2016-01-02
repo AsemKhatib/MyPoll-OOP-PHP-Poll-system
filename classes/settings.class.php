@@ -4,7 +4,6 @@ namespace MyPoll\Classes;
 
 use RedBeanPHP\Facade;
 
-
 /**
  * Class Settings
  *
@@ -36,8 +35,8 @@ class Settings
                 'id' => $settings->id,
                 'site_name' => $settings->site_name,
                 'site_resultsnumber' => $settings->site_resultsnumber,
-                'selected_cookies' => General::isSelected($settings->site_cookies, 1),
-                'selected_cache' => General::isSelected($settings->site_cache, 1)
+                'selected_cookies' => $settings->site_cookies,
+                'selected_cache' => $settings->site_cache
             ));
         } else {
             return General::ref('index.php');

@@ -29,6 +29,18 @@ $aquery = <<<STR
             ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
             INSERT INTO `users` VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 'your@email.com');
+
+            CREATE table `settings` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `site_name` varchar (300) NOT NULL,
+            `site_resultsnumber` int (11) NOT NULL,
+            `site_cookies` int (11) NOT NULL,
+            `site_cache` int (11) NOT NULL,
+            PRIMARY KEY (`id`)
+            )
+            ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+
+            INSERT INTO `settings` VALUES (1, 'MyPoll System V 0.1', '10', '0', '0');
 STR;
 
 try {

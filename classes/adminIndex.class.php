@@ -234,7 +234,7 @@ class AdminIndex
      */
     public function editExecuteSettings()
     {
-        $id = $_POST['id'];
+        $id = $_POST['settings_id'];
         $settingsArr = $_POST['settings'];
 
         if ($this->loginObj->isLoggedIn()) {
