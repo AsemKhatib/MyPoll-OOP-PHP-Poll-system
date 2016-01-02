@@ -11,19 +11,24 @@ use RedBeanPHP\Facade;
  */
 class Users
 {
-
     /** @var  \Twig_Environment */
-    public $twig;
+    protected $twig;
+
+    /** @var  Settings */
+    protected $settingsObj;
 
     /** @var int  */
-    protected $maxResults = 10;
+    protected $maxResults;
 
     /**
      * @param object $twig
+     * @param object $settingsObj
      */
-    public function __construct($twig)
+    public function __construct($twig, $settingsObj)
     {
         $this->twig = $twig;
+        $this->settingsObj = $settingsObj;
+        $this->maxResults = $this->settingsObj->getResultNumber();
     }
 
     /**

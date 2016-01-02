@@ -77,15 +77,4 @@ class General
         return substr($s1, 0, strpos($s1, $s2));
     }
 
-    /**
-     * @param int $varToCheck
-     * @param $varToCompare
-     *
-     * @return string
-     */
-    public static function isSelectedCheck($varToCheck, $varToCompare)
-    {
-        $result = ($varToCheck == $varToCompare) ? 'selected' : '';
-        return $result;
-    }
 }

@@ -12,24 +12,81 @@ use RedBeanPHP\Facade;
 class Settings
 {
     /** @var  \Twig_Environment */
-    public $twig;
+    protected $twig;
+
+    /** @var  int */
+    protected $id;
+
+    /** @var  string */
+    protected $siteName;
+
+    /** @var  int */
+    protected $resultNumber;
+
+    /** @var  int */
+    protected $siteCookies;
+
+    /** @var  int */
+    protected $siteCache;
 
     /**
-     * @param object $twig
+     * @return int
      */
-    public function __construct($twig)
+    public function getSiteCache()
     {
-        $this->twig = $twig;
+        return $this->siteCache;
     }
 
     /**
-     * @param $id
-     *
+     * @return int
+     */
+    public function getSiteCookies()
+    {
+        return $this->siteCookies;
+    }
+
+    /**
+     * @return int
+     */
+    public function getResultNumber()
+    {
+        return $this->resultNumber;
+    }
+
+    /**
      * @return string
      */
-    public function edit($id)
+    public function getSiteName()
     {
-        $settings = Facade::load('settings', $id);
+        return $this->siteName;
+    }
+
+
+
+
+    /**
+     * @param object $twig
+     * @param int $id
+     */
+    public function __construct($twig, $id)
+    {
+        $this->twig = $twig;
+        $this->id = $id;
+
+        $settings = Facade::load('settings', $this->id);
+        $this->siteName = $settings->site_name;
+        $this->resultNumber = $settings->site_resultsnumber;
+        $this->siteCookies = $settings->site_cookies;
+        $this->siteCache = $settings->site_cache;
+
+    }
+
+    /**
+     * @return string
+     */
+    public function edit()
+    {
+        $settings = Facade::load('settings', $this->id);
         if (!$settings->isEmpty()) {
             return $this->twig->render('settings.html', array(
                 'id' => $settings->id,
@@ -44,15 +101,14 @@ class Settings
     }
 
     /**
-     * @param int $id
      * @param array $settingsArr
      *
      * @return void
      */
-    public function editExecute($id, $settingsArr)
+    public function editExecute($settingsArr)
     {
         try {
-            $settings = Facade::load('settings', $id);
+            $settings = Facade::load('settings', $this->id);
             $settings->site_name = $settingsArr['site_name'];
             $settings->site_resultsnumber = $settingsArr['site_resultsnumber'];
             $settings->site_cookies = $settingsArr['site_cookies'];

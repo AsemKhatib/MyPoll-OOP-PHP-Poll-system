@@ -30,10 +30,10 @@ class AdminIndex
     public function __construct($twigAdmin)
     {
         $this->twigAdminObj = $twigAdmin;
-        $this->usersObj = new Users($this->twigAdminObj);
-        $this->questionsObj = new Questions($this->twigAdminObj);
-        $this->settingsObj = new Settings($this->twigAdminObj);
-        $this->loginObj = new Login();
+        $this->settingsObj = new Settings($this->twigAdminObj, 1);
+        $this->usersObj = new Users($this->twigAdminObj, $this->settingsObj);
+        $this->questionsObj = new Questions($this->twigAdminObj, $this->settingsObj);
+        $this->loginObj = new Login($this->settingsObj);
     }
 
     /**
@@ -234,11 +234,10 @@ class AdminIndex
      */
     public function editExecuteSettings()
     {
-        $id = $_POST['settings_id'];
         $settingsArr = $_POST['settings'];
 
         if ($this->loginObj->isLoggedIn()) {
-            $this->settingsObj->editExecute($id, $settingsArr);
+            $this->settingsObj->editExecute($settingsArr);
         } else {
             echo General::ref($this->loginObj->getIndexPage());
         }

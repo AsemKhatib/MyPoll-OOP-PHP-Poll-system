@@ -10,6 +10,8 @@ use RedBeanPHP\Facade;
  */
 class Login
 {
+    /** @var  Settings */
+    protected $settingsObj;
 
     /** @var string */
     private $authMethod = 'Session'; // Session or Cookie
@@ -44,6 +46,15 @@ class Login
     {
         return $this->logPage;
     }
+
+    /**
+     * @param object $settingsObj
+     */
+    public function __construct($settingsObj)
+    {
+        $this->settingsObj = $settingsObj;
+    }
+
     /**
      * @param string $user
      * @param string $pass
