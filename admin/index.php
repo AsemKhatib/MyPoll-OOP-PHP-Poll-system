@@ -1,6 +1,7 @@
 <?php
 
 use MyPoll\Classes\AdminIndex;
+use MyPoll\Classes\General;
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../includes/config.php';
@@ -9,7 +10,7 @@ require __DIR__ . '/../includes/config.php';
 session_start();
 
 $twigAdmin->addGlobal('session', $_SESSION);
-$do = isset($_GET['do']) ? $_GET['do'] : '';
+$do = isset($_GET['do']) ? General::cleanInput('string', $_GET['do']) : null;
 
 $adminIndex = new AdminIndex($twigAdmin);
 

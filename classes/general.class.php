@@ -77,4 +77,30 @@ class General
         return substr($s1, 0, strpos($s1, $s2));
     }
 
+    /**
+     * @param mixed $input
+     * @param string $type
+     *
+     * @return string,int,array,bool
+     */
+    public static function cleanInput($type, $input)
+    {
+        switch ($type) {
+            case 'string':
+                return filter_var($input, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                break;
+            case 'email':
+                return filter_var($input, FILTER_VALIDATE_EMAIL);
+                break;
+            case 'array':
+                return filter_var_array($input, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                break;
+            case 'int':
+                return filter_var($input, FILTER_SANITIZE_NUMBER_INT);
+                break;
+            case 'password':
+                return filter_var($input);
+                break;
+        }
+    }
 }

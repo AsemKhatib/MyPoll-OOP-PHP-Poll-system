@@ -1,3 +1,5 @@
 .idea
 composer.lock
+npm-*
 vendor/
+node_modules/

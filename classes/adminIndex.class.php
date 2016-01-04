@@ -41,7 +41,7 @@ class AdminIndex
      */
     public function questions()
     {
-        $startPage = isset($_GET['startPage']) ? $_GET['startPage'] : '';
+        $startPage = isset($_GET['startPage']) ? General::cleanInput('int', $_GET['startPage']) : null;
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->questionsObj->show($startPage);
@@ -55,7 +55,7 @@ class AdminIndex
      */
     public function users()
     {
-        $startPage = isset($_GET['startPage']) ? $_GET['startPage'] : '';
+        $startPage = isset($_GET['startPage']) ? General::cleanInput('int', $_GET['startPage']) : null;
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->usersObj->show($startPage);
@@ -81,8 +81,8 @@ class AdminIndex
      */
     public function check()
     {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+        $username = General::cleanInput('string', $_POST['username']);
+        $password = General::cleanInput('string', $_POST['password']);
 
         $this->loginObj->check($username, $password);
     }
@@ -140,11 +140,11 @@ class AdminIndex
      */
     public function addExecuteQuestion()
     {
-        $question = $_POST['question'];
-        $answer = $_POST['answer'];
+        $question = General::cleanInput('string', $_POST['question']);
+        $answers = General::cleanInput('array', $_POST['answer']);
 
         if ($this->loginObj->isLoggedIn()) {
-            $this->questionsObj->addExecute($question, $answer);
+            $this->questionsObj->addExecute($question, $answers);
         } else {
             echo General::ref($this->loginObj->getIndexPage());
         }
@@ -155,9 +155,9 @@ class AdminIndex
      */
     public function addExecuteUser()
     {
-        $user = $_POST['user_name'];
-        $password = $_POST['user_password'];
-        $email = $_POST['user_email'];
+        $user = General::cleanInput('string', $_POST['user_name']);
+        $password = General::cleanInput('string', $_POST['user_password']);
+        $email = General::cleanInput('email', $_POST['user_email']);
 
         if ($this->loginObj->isLoggedIn()) {
             $this->usersObj->addExecute($user, $password, $email);
@@ -171,7 +171,7 @@ class AdminIndex
      */
     public function editQuestion()
     {
-        $id = isset($_GET['id']) ? $_GET['id'] : '';
+        $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->questionsObj->edit($id);
@@ -185,7 +185,7 @@ class AdminIndex
      */
     public function editUser()
     {
-        $id = isset($_GET['id']) ? $_GET['id'] : '';
+        $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->usersObj->edit($id);
@@ -199,12 +199,12 @@ class AdminIndex
      */
     public function editExecuteQuestion()
     {
-        $qid = $_POST['qid'];
-        $question = $_POST['question'];
-        $answer = $_POST['answer'];
+        $qid = General::cleanInput('int', $_POST['qid']);
+        $question = General::cleanInput('string', $_POST['question']);
+        $answers = General::cleanInput('array', $_POST['answer']);
 
         if ($this->loginObj->isLoggedIn()) {
-            $this->questionsObj->editExecute($qid, $question, $answer);
+            $this->questionsObj->editExecute($qid, $question, $answers);
         } else {
             echo General::ref($this->loginObj->getIndexPage());
         }
@@ -215,10 +215,10 @@ class AdminIndex
      */
     public function editExecuteUser()
     {
-        $id = $_POST['user_id'];
-        $user = $_POST['user_name'];
-        $password = $_POST['user_password'];
-        $email = $_POST['user_email'];
+        $id = General::cleanInput('int', $_POST['user_id']);
+        $user = General::cleanInput('string', $_POST['user_name']);
+        $password = General::cleanInput('password', $_POST['user_password']);
+        $email = General::cleanInput('email', $_POST['user_email']);
 
         if ($this->loginObj->isLoggedIn()) {
             $this->usersObj->editExecute($id, $user, $password, $email);
@@ -232,7 +232,7 @@ class AdminIndex
      */
     public function editExecuteSettings()
     {
-        $settingsArr = $_POST['settings'];
+        $settingsArr = General::cleanInput('array', $_POST['settings']);
 
         if ($this->loginObj->isLoggedIn()) {
             $this->settingsObj->editExecute($settingsArr);
@@ -246,7 +246,7 @@ class AdminIndex
      */
     public function deleteQuestion()
     {
-        $id = isset($_GET['id']) ? $_GET['id'] : '';
+        $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->questionsObj->delete($id);
@@ -264,7 +264,7 @@ class AdminIndex
      */
     public function deleteUser()
     {
-        $id = isset($_GET['id']) ? $_GET['id'] : '';
+        $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->usersObj->delete($id);
@@ -278,8 +278,8 @@ class AdminIndex
      */
     public function deleteAnswer()
     {
-        $id = isset($_GET['id']) ? $_GET['id'] : '';
-        $questionID = isset($_GET['questionID']) ? $_GET['questionID'] : '';
+        $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
+        $questionID = isset($_GET['questionID']) ? General::cleanInput('int', $_GET['questionID']) : null;
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->questionsObj->deleteAnswer($id);
@@ -297,8 +297,8 @@ class AdminIndex
      */
     public function answersShow()
     {
-        $qid = isset($_GET['qid']) ? $_GET['qid'] : '';
-        $is_pie = isset($_GET['is_pie']) ? $_GET['is_pie'] : '';
+        $qid = isset($_GET['qid']) ? General::cleanInput('int', $_GET['qid']) : null;
+        $is_pie = isset($_GET['is_pie']) ? General::cleanInput('string', $_GET['is_pie']) : null;
 
         if ($this->loginObj->isLoggedIn()) {
             echo $this->questionsObj->showAnswers($qid, $is_pie);

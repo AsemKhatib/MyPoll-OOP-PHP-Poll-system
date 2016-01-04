@@ -41,13 +41,15 @@ class Users
     public function addExecute($user, $password, $email)
     {
         try {
-            if ($this->checkIsExist($user, $email) == false) {
+            if ($this->checkIsExist($user, $email) == false && $email) {
                 $newUser = Facade::dispense('users');
                 $newUser->user_name = $user;
                 $newUser->user_pass = md5($password);
                 $newUser->email = $email;
                 Facade::store($newUser);
                 echo 'User Added successfully';
+            } elseif ($email == false) {
+                echo 'The email address that you are trying to use is invalid';
             } else {
                 echo 'User name or Email that you are trying to use is already Exist in the database';
             }
@@ -123,7 +125,7 @@ class Users
 
         try {
             $userUpdate = Facade::load('users', $id);
-            if ($this->checkIsExist($user, $email, $id) == false) {
+            if ($this->checkIsExist($user, $email, $id) == false && $email) {
                 $userUpdate->user_name = $user;
                 if ($password && !empty($password)) {
                     $userUpdate->user_pass = md5($password);
@@ -131,6 +133,8 @@ class Users
                 $userUpdate->email = $email;
                 Facade::store($userUpdate);
                 echo "User edited successfully";
+            } elseif ($email == false) {
+                echo 'The email address that you are trying to use is invalid';
             } else {
                 echo 'User name or Email that you are trying to use is already Exist in the database';
             }
