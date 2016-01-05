@@ -128,7 +128,7 @@ class Users
             if ($this->checkIsExist($user, $email, $id) == false && $email) {
                 $userUpdate->user_name = $user;
                 if ($password && !empty($password)) {
-                    $userUpdate->user_pass = md5($password);
+                    $userUpdate->user_pass = password_hash($password, PASSWORD_DEFAULT);
                 }
                 $userUpdate->email = $email;
                 Facade::store($userUpdate);

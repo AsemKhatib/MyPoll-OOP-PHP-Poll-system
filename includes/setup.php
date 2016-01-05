@@ -22,7 +22,7 @@ $aquery = <<<STR
             CREATE table `users` (
             `id` int(11) NOT NULL AUTO_INCREMENT,
             `user_name` varchar (300) NOT NULL,
-            `user_pass` varchar (32) NOT NULL,
+            `user_pass` varchar (300) NOT NULL,
             `email` varchar (300) NOT NULL,
             PRIMARY KEY (`id`)
             )

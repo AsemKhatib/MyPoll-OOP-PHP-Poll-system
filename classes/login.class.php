@@ -63,8 +63,8 @@ class Login
     {
         if (isset($user) && !empty($user) && isset($pass) && !empty($pass)) {
             $result = Facade::getRow("SELECT * FROM users WHERE
-            user_name = :user AND user_pass = :pass", [':user' => $user, ':pass' => md5($pass)]);
-            if (!empty($result)) {
+            user_name = :user AND user_pass = :pass", [':user' => $user, ':pass' => $this->getHash($user)]);
+            if (!empty($result) && password_verify($pass, $result['user_pass'])) {
                 $this->userName = $result['user_name'];
                 $this->userID = $result['id'];
                 $this->email = $result['email'];
@@ -72,6 +72,21 @@ class Login
             } else {
                 echo General::messageSent('Wrong Username or Password', $this->indexPage);
             }
+        }
+    }
+
+    /**
+     * @param string $userName
+     *
+     * @return mixed|null
+     */
+    private function getHash($userName)
+    {
+        $result = Facade::findOne('users', 'user_name = :user', [':user' => $userName]);
+        if (!$result->isEmpty()) {
+            return $result['user_pass'];
+        } else {
+            return null;
         }
     }
 
