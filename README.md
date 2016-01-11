@@ -11,4 +11,8 @@ How to install ?
 
 Default user name and password are : admin:admin
 
+<<<<<<< HEAD
 That's you you're good to go :)
+=======
+That's you you're good to go :)
+>>>>>>> 7462641052c111949c80b1e29007fd8201355d94
