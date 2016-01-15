@@ -29,6 +29,9 @@ class Settings
     /** @var  int */
     protected $siteCache;
 
+    /** @var int */
+    protected $siteMaxAnswers;
+
     /**
      * @return int
      */
@@ -61,7 +64,13 @@ class Settings
         return $this->siteName;
     }
 
-
+    /**
+     * @return int
+     */
+    public function getSiteMaxAnswers()
+    {
+        return $this->siteMaxAnswers;
+    }
 
 
     /**
@@ -78,7 +87,7 @@ class Settings
         $this->resultNumber = $settings->site_resultsnumber;
         $this->siteCookies = $settings->site_cookies;
         $this->siteCache = $settings->site_cache;
-
+        $this->siteMaxAnswers = $settings->site_maxanswers;
     }
 
     /**
@@ -92,8 +101,9 @@ class Settings
                 'id' => $settings->id,
                 'site_name' => $settings->site_name,
                 'site_resultsnumber' => $settings->site_resultsnumber,
-                'selected_cookies' => $settings->site_cookies,
-                'selected_cache' => $settings->site_cache
+                'site_cookies' => $settings->site_cookies,
+                'site_cache' => $settings->site_cache,
+                'site_maxanswers' => $settings->site_maxanswers
             ));
         } else {
             return General::ref('index.php');
@@ -113,6 +123,7 @@ class Settings
             $settings->site_resultsnumber = $settingsArr['site_resultsnumber'];
             $settings->site_cookies = $settingsArr['site_cookies'];
             $settings->site_cache = $settingsArr['site_cache'];
+            $settings->site_maxanswers = $settingsArr['site_maxanswers'];
             Facade::store($settings);
 
             echo "Settings edited successfully";

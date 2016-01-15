@@ -9,7 +9,7 @@ namespace MyPoll\Classes;
 
 class AdminIndex
 {
-    /** @var  object */
+    /** @var  \Twig_Environment */
     protected $twigAdminObj;
 
     /** @var  object */
@@ -34,6 +34,10 @@ class AdminIndex
         $this->usersObj = new Users($this->twigAdminObj, $this->settingsObj);
         $this->questionsObj = new Questions($this->twigAdminObj, $this->settingsObj);
         $this->loginObj = new Login($this->settingsObj);
+
+        // add general settings to the global scope of Twig
+        $this->twigAdminObj->addGlobal('site_maxanswers', $this->settingsObj->getSiteMaxAnswers());
+        $this->twigAdminObj->addGlobal('site_name', $this->settingsObj->getSiteName());
     }
 
     /**

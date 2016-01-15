@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Poll System</title>
+    <title>{{ site_name }}</title>
 
     <script type="text/javascript" src="template/js/jquery-2.1.1.min.js"></script>
     <link rel="stylesheet" type="text/css" href="template/css/main_style.css">
@@ -14,6 +14,8 @@
 
             //google.load('visualization', '1.0', {'packages':['corechart']});
             //google.setOnLoadCallback(drawChart);
+
+            var site_maxanswers =  '{{ site_maxanswers }}';
 
             if (typeof(Storage) != "undefined") {
                 sessionStorage.setItem("QQuestions", $('.show_poll #inner6').length);
@@ -27,7 +29,7 @@
             $('#add').click(function(){
                 var table = $('.input_fields_wrap');
                 var randNumber = Math.floor((Math.random() * 100000000) + 1);
-                if (table.find('input:text').length < 8 ){
+                if (table.find('input:text').length < site_maxanswers ){
                     var numbers = table.find('input:text').length+1;
                     table.append('<div><input style="margin-left: 156px;" type="text" name="answer[' + randNumber + ']" placeholder="Add poll answer ' + numbers + '" required>&nbsp;&nbsp;</div>');
                 }
