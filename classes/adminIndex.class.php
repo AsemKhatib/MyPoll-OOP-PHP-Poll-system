@@ -110,7 +110,7 @@ class AdminIndex
         } else {
             echo $this->twigAdminObj->render(
                 'login.html',
-                array('user' => 'שם משתמש', 'pass' => 'סיסמה', 'logint' => 'כניסה')
+                array('user' => 'שם משתמש', 'pass' => 'סיסמה', 'logint' => 'כניסה', 'rememberme' => 'זכור אותי')
             );
         }
     }
