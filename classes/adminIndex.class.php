@@ -31,6 +31,7 @@ class AdminIndex
     {
         $this->twigAdminObj = $twigAdmin;
         $this->settingsObj = new Settings($this->twigAdminObj, 1);
+        $this->checkCache();
         $this->usersObj = new Users($this->twigAdminObj, $this->settingsObj);
         $this->questionsObj = new Questions($this->twigAdminObj, $this->settingsObj);
         $this->loginObj = new Login($this->settingsObj);
@@ -38,6 +39,16 @@ class AdminIndex
         // add general settings to the global scope of Twig
         $this->twigAdminObj->addGlobal('site_maxanswers', $this->settingsObj->getSiteMaxAnswers());
         $this->twigAdminObj->addGlobal('site_name', $this->settingsObj->getSiteName());
+    }
+
+    /**
+     * @return void
+     */
+    private function checkCache()
+    {
+        if ($this->settingsObj->getSiteCache() == 1) {
+            $this->twigAdminObj->setCache('../cache');
+        }
     }
 
     /**
