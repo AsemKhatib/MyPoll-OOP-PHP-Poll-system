@@ -15,7 +15,6 @@ $do = isset($_GET['do']) ? General::cleanInput('string', $_GET['do']) : null;
 $adminIndex = new AdminIndex($twigAdmin);
 
 if (!empty($do) && method_exists($adminIndex, $do)) {
-    echo session_id();
     $adminIndex->$do();
 } else {
     $adminIndex->defaultAction();

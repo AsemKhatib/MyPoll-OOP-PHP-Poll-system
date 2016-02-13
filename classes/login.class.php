@@ -92,15 +92,29 @@ class Login
     }
 
     /**
+     * @return array|boolean
+     */
+    private function getCookieData()
+    {
+        if (!empty($this->cookie)) {
+            list ($userID, $token, $mac) = explode(':', $this->cookie);
+            $cookieArray = array('userID' => $userID, 'token' => $token, 'mac' => $mac);
+            return $cookieArray;
+        }
+
+        return false;
+    }
+
+    /**
      * @return bool
      */
     private function isRememberme()
     {
-        if (!empty($this->cookie)) {
-            list ($userID, $token, $mac) = explode(':', $this->cookie);
-            if (hash_equals(hash_hmac('sha256', $userID . ':' . $token, $this::SECRET_KEY), $mac)) {
-                $userLog = Facade::findOne('rememberme', 'hash = :hash', [':hash' => $token]);
-                if (!empty($userLog) && hash_equals($userLog->hash, $token)) {
+        if ($this->getCookieData() != false) {
+            if (hash_equals(hash_hmac('sha256',
+                $this->getCookieData()['userID'] . ':' . $this->getCookieData()['token'], $this::SECRET_KEY), $this->getCookieData()['mac'])) {
+                $userLog = Facade::findOne('rememberme', 'hash = :hash', [':hash' => $this->getCookieData()['token']]);
+                if (!empty($userLog) && hash_equals($userLog->hash, $this->getCookieData()['token'])) {
                     $this->authLogin();
                     return true;
                 }
@@ -111,20 +125,21 @@ class Login
     }
 
     /**
-     * @return void
+     * @return void|boolean
      */
     private function setupNewCredentials()
     {
-        list ($userID, $token, $mac) = explode(':', $this->cookie);
-        $userLog = Facade::findOne('rememberme', 'hash = :hash', [':hash' => $token]);
-        $user = Facade::load('users', $userID);
-        $this->userName = $user->user_name;
-        $this->userID = $user->id;
-        $this->email = $user->email;
-        Facade::trash($userLog);
-        setcookie($this->cookieName, '', time() - 3600);
-        unset($this->cookie);
-        $this->setRememberme($this->userID);
+        if ($this->getCookieData() != false) {
+            $userLog = Facade::findOne('rememberme', 'hash = :hash', [':hash' => $this->getCookieData()['token']]);
+            $user = Facade::load('users', $this->getCookieData()['userID']);
+            $this->userName = $user->user_name;
+            $this->userID = $user->id;
+            $this->email = $user->email;
+            Facade::trash($userLog);
+            $this->unsetCookie();
+            $this->setRememberme($this->userID);
+        }
+        return false;
     }
 
     /**
@@ -197,16 +212,24 @@ class Login
     }
 
     /**
+     *
+     */
+    private function unsetCookie()
+    {
+        unset($_COOKIE[$this->cookieName]);
+        unset($this->cookie);
+        setcookie($this->cookieName, '', time() - 3600);
+    }
+    /**
      * @return void
      */
     public function logout()
     {
-        list ($userID, $token, $mac) = explode(':', $this->cookie);
-        $userLog = Facade::findOne('rememberme', 'hash = :hash', [':hash' => $token]);
-        Facade::trash($userLog);
-        unset($_COOKIE[$this->cookieName]);
-        unset($this->cookie);
-        setcookie($this->cookieName, '', time() - 3600);
+        if ($this->getCookieData() != false) {
+            $userLog = Facade::findOne('rememberme', 'hash = :hash', [':hash' => $this->getCookieData()['token']]);
+            Facade::trash($userLog);
+        }
+        $this->unsetCookie();
         session_destroy();
     }
 }
