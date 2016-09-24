@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use RedBeanPHP\Facade;
+use Exception;
 
 /**
  * Class Settings
@@ -11,8 +12,8 @@ use RedBeanPHP\Facade;
  */
 class Settings
 {
-    /** @var  \Twig_Environment */
-    protected $twig;
+    /** @var  Factory */
+    protected $factory;
 
     /** @var  int */
     protected $id;
@@ -74,14 +75,13 @@ class Settings
 
 
     /**
-     * @param object $twig
+     * @param Factory $factory
      * @param int $id
      */
-    public function __construct($twig, $id)
+    public function __construct($factory, $id)
     {
-        $this->twig = $twig;
+        $this->factory = $factory;
         $this->id = $id;
-
         $settings = Facade::load('settings', $this->id);
         $this->siteName = $settings->site_name;
         $this->resultNumber = $settings->site_resultsnumber;
@@ -96,18 +96,18 @@ class Settings
     public function edit()
     {
         $settings = Facade::load('settings', $this->id);
-        if (!$settings->isEmpty()) {
-            return $this->twig->render('settings.html', array(
-                'id' => $settings->id,
-                'site_name' => $settings->site_name,
-                'site_resultsnumber' => $settings->site_resultsnumber,
-                'site_cookies' => $settings->site_cookies,
-                'site_cache' => $settings->site_cache,
-                'site_maxanswers' => $settings->site_maxanswers
-            ));
-        } else {
+        if ($settings->isEmpty()) {
             return General::ref('index.php');
         }
+
+        return $this->factory->getTwigAdminObj()->render('settings.html', array(
+            'id' => $settings->id,
+            'site_name' => $settings->site_name,
+            'site_resultsnumber' => $settings->site_resultsnumber,
+            'site_cookies' => $settings->site_cookies,
+            'site_cache' => $settings->site_cache,
+            'site_maxanswers' => $settings->site_maxanswers
+        ));
     }
 
     /**
@@ -133,4 +133,13 @@ class Settings
 
     }
 
+    /**
+     * @return void
+     */
+    public function checkCache()
+    {
+        if ($this->getSiteCache() == 1) {
+            $this->factory->getTwigAdminObj()->setCache('../cache');
+        }
+    }
 }

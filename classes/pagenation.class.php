@@ -25,7 +25,7 @@ class Pagenation
      * @param int $startPage
      * @param int $maxResults
      */
-    public function __construct($DBTable, $maxResults, $startPage)
+    public function setParams($DBTable, $maxResults, $startPage)
     {
         $this->DBTable = $DBTable;
         $this->maxResults = $maxResults;
@@ -39,7 +39,7 @@ class Pagenation
     {
         if ($this->storedNumber > $this->maxResults) {
             $startFrom = $this->maxResults * $this->startPage;
-            $extraSQL = 'ORDER BY id ASC LIMIT ' . $startFrom . ',' . $this->maxResults . '';
+            $extraSQL = 'ORDER BY id ASC LIMIT ' . $startFrom . ',' . $this->maxResults;
             return Facade::findAll($this->DBTable, $extraSQL);
         } else {
             return Facade::findAll($this->DBTable);

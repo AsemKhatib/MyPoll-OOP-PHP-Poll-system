@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use RedBeanPHP\Facade;
+use Exception;
 
 /**
  * Class Users
@@ -11,24 +12,19 @@ use RedBeanPHP\Facade;
  */
 class Users
 {
-    /** @var  \Twig_Environment */
-    protected $twig;
-
-    /** @var  Settings */
-    protected $settingsObj;
+    /** @var  Factory */
+    protected $factory;
 
     /** @var int  */
     protected $maxResults;
 
     /**
-     * @param object $twig
-     * @param object $settingsObj
+     * @param Factory $factory
      */
-    public function __construct($twig, $settingsObj)
+    public function __construct($factory)
     {
-        $this->twig = $twig;
-        $this->settingsObj = $settingsObj;
-        $this->maxResults = $this->settingsObj->getResultNumber();
+        $this->factory = $factory;
+        $this->maxResults = $this->factory->getSettingsObj()->getResultNumber();
     }
 
     /**
@@ -85,10 +81,11 @@ class Users
      */
     public function show($startPage = 0)
     {
-        $Pagenation = new Pagenation('users', $this->maxResults, $startPage);
-        return $this->twig->render(
+        $pagenation = $this->factory->getPagenationObj();
+        $pagenation->setParams('users', $this->maxResults, $startPage);
+        return $this->factory->getTwigAdminObj()->render(
             'show_user.html',
-            array('results' => $Pagenation->getResults(), 'pagesNumber' => $Pagenation->getPagesNumber())
+            array('results' => $pagenation->getResults(), 'pagesNumber' => $pagenation->getPagesNumber())
         );
     }
 
@@ -102,7 +99,7 @@ class Users
 
         $user = Facade::load('users', $id);
         if (!$user->isEmpty()) {
-            return $this->twig->render('edit_user.html', array(
+            return $this->factory->getTwigAdminObj()->render('edit_user.html', array(
                 'id' => $user->id,
                 'user' => $user->user_name,
                 'email' => $user->email
@@ -158,6 +155,20 @@ class Users
             $message = 'the user with the ID ' . $id . ' deleted successfully';
         }
         return General::messageSent($message, 'index.php?do=users');
+    }
+
+    /**
+     * @param string $userName
+     *
+     * @return mixed|null
+     */
+    public function getHash($userName)
+    {
+        $result = Facade::findOne('users', 'user_name = :user', [':user' => $userName]);
+        if (empty($result)) {
+            return false;
+        }
+        return $result['user_pass'];
     }
 
 }
