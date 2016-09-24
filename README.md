@@ -1,5 +1,5 @@
 # MyPoll
-A small application to create Polls
+A small PHP Object oriented application to create Polls with the RedBean ORM
 
 How to install ?
 
@@ -12,7 +12,12 @@ How to install ?
 Default user name and password are : admin:admin
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 That's you you're good to go :)
 =======
 That's you you're good to go :)
 >>>>>>> 7462641052c111949c80b1e29007fd8201355d94
+=======
+That's it ... you you're good to go :)
+
+>>>>>>> 55f707650952866f75b05214077b0651e4ee9286

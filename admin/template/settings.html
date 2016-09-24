@@ -17,6 +17,14 @@
             </select>
         </label>
         <label>
+            <span>Questions max answers:</span>
+            <select name="settings[site_maxanswers]" title="settings[site_maxanswers]">
+                {% for i in range (1, 10) %}
+                <option value="{{ i }}" {% if site_maxanswers == i %}selected{% endif %}>{{ i }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
             <span>Use Cookies:</span>
             <select name="settings[site_cookies]" title="settings[site_cookies]">
                 <option value="1" {% if site_cookies == 1 %}selected{% endif %}>Yes</option>

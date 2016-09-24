@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use RedBeanPHP\Facade;
+use Exception;
 
 /**
  * Class Questions
@@ -12,11 +13,8 @@ use RedBeanPHP\Facade;
 class Questions
 {
 
-    /** @var  \Twig_Environment */
-    protected $twig;
-
-    /** @var  Settings */
-    protected $settingsObj;
+    /** @var  Factory */
+    protected $factory;
 
     /** @var  array */
     protected $votesArray = array();
@@ -30,18 +28,24 @@ class Questions
     /** @var  array */
     protected $pieArray = array();
 
-    /** @var int  */
+    /** @var int */
     protected $maxResults;
 
     /**
-     * @param object $twig
-     * @param object $settingsObj
+     * @param Factory $factory
      */
-    public function __construct($twig, $settingsObj)
+    public function __construct($factory)
     {
-        $this->twig = $twig;
-        $this->settingsObj = $settingsObj;
-        $this->maxResults = $this->settingsObj->getResultNumber();
+        $this->factory = $factory;
+        $this->maxResults = $this->factory->getSettingsObj()->getResultNumber();
+    }
+
+    /**
+     * @return string
+     */
+    public function add()
+    {
+        return $this->factory->getTwigAdminObj()->display('add_poll.html');
     }
 
     /**
@@ -81,10 +85,11 @@ class Questions
      */
     public function show($startPage = 0)
     {
-        $Pagenation = new Pagenation('questions', $this->maxResults, $startPage);
-        return $this->twig->render(
+        $pagenation = $this->factory->getPagenationObj();
+        $pagenation->setParams('questions', $this->maxResults, $startPage);
+        return $this->factory->getTwigAdminObj()->render(
             'show_poll.html',
-            array('resultsp' => $Pagenation->getResults(), 'pagesNumber' => $Pagenation->getPagesNumber())
+            array('resultsp' => $pagenation->getResults(), 'pagesNumber' => $pagenation->getPagesNumber())
         );
     }
 
@@ -113,7 +118,7 @@ class Questions
         $this->votesPercent = implode(',', $this->votesPercent);
         $this->pieArray = implode(',', $this->pieArray);
 
-        return $this->twig->render('chat_bar.html', array(
+        return $this->factory->getTwigAdminObj()->render('chat_bar.html', array(
             'answers_arr' => $this->answersArray,
             'percent' => $this->votesPercent,
             'is_pie' => $is_pie,
@@ -133,7 +138,7 @@ class Questions
         if (!$question->isEmpty()) {
             $answers = Facade::getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
 
-            return $this->twig->render('edit_poll.html', array(
+            return $this->factory->getTwigAdminObj()->render('edit_poll.html', array(
                 'qid' => $qid,
                 'question' => $question->question,
                 'answers' => $answers

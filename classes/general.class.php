@@ -102,5 +102,7 @@ class General
                 return filter_var($input);
                 break;
         }
+
+        return false;
     }
 }

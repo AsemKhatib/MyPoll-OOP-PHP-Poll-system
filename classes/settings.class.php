@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use RedBeanPHP\Facade;
+use Exception;
 
 /**
  * Class Settings
@@ -11,8 +12,8 @@ use RedBeanPHP\Facade;
  */
 class Settings
 {
-    /** @var  \Twig_Environment */
-    protected $twig;
+    /** @var  Factory */
+    protected $factory;
 
     /** @var  int */
     protected $id;
@@ -28,6 +29,9 @@ class Settings
 
     /** @var  int */
     protected $siteCache;
+
+    /** @var int */
+    protected $siteMaxAnswers;
 
     /**
      * @return int
@@ -61,24 +65,29 @@ class Settings
         return $this->siteName;
     }
 
-
+    /**
+     * @return int
+     */
+    public function getSiteMaxAnswers()
+    {
+        return $this->siteMaxAnswers;
+    }
 
 
     /**
-     * @param object $twig
+     * @param Factory $factory
      * @param int $id
      */
-    public function __construct($twig, $id)
+    public function __construct($factory, $id)
     {
-        $this->twig = $twig;
+        $this->factory = $factory;
         $this->id = $id;
-
         $settings = Facade::load('settings', $this->id);
         $this->siteName = $settings->site_name;
         $this->resultNumber = $settings->site_resultsnumber;
         $this->siteCookies = $settings->site_cookies;
         $this->siteCache = $settings->site_cache;
-
+        $this->siteMaxAnswers = $settings->site_maxanswers;
     }
 
     /**
@@ -87,17 +96,18 @@ class Settings
     public function edit()
     {
         $settings = Facade::load('settings', $this->id);
-        if (!$settings->isEmpty()) {
-            return $this->twig->render('settings.html', array(
-                'id' => $settings->id,
-                'site_name' => $settings->site_name,
-                'site_resultsnumber' => $settings->site_resultsnumber,
-                'selected_cookies' => $settings->site_cookies,
-                'selected_cache' => $settings->site_cache
-            ));
-        } else {
+        if ($settings->isEmpty()) {
             return General::ref('index.php');
         }
+
+        return $this->factory->getTwigAdminObj()->render('settings.html', array(
+            'id' => $settings->id,
+            'site_name' => $settings->site_name,
+            'site_resultsnumber' => $settings->site_resultsnumber,
+            'site_cookies' => $settings->site_cookies,
+            'site_cache' => $settings->site_cache,
+            'site_maxanswers' => $settings->site_maxanswers
+        ));
     }
 
     /**
@@ -113,6 +123,7 @@ class Settings
             $settings->site_resultsnumber = $settingsArr['site_resultsnumber'];
             $settings->site_cookies = $settingsArr['site_cookies'];
             $settings->site_cache = $settingsArr['site_cache'];
+            $settings->site_maxanswers = $settingsArr['site_maxanswers'];
             Facade::store($settings);
 
             echo "Settings edited successfully";
@@ -122,4 +133,13 @@ class Settings
 
     }
 
+    /**
+     * @return void
+     */
+    public function checkCache()
+    {
+        if ($this->getSiteCache() == 1) {
+            $this->factory->getTwigAdminObj()->setCache('../cache');
+        }
+    }
 }
