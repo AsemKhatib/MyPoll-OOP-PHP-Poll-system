@@ -12,10 +12,10 @@
         {% autoescape 'js' %}
         jQuery(document).ready(function(){
 
+            var site_maxanswers =  '{{ site_maxanswers }}';
+
             //google.load('visualization', '1.0', {'packages':['corechart']});
             //google.setOnLoadCallback(drawChart);
-
-            var site_maxanswers =  '{{ site_maxanswers }}';
 
             if (typeof(Storage) != "undefined") {
                 sessionStorage.setItem("QQuestions", $('.show_poll #inner6').length);

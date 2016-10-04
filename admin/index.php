@@ -12,7 +12,7 @@ session_start();
 
 $do = isset($_GET['do']) ? General::cleanInput('string', $_GET['do']) : null;
 
-$systemFactory = new Factory();
+$systemFactory = new Factory($templatePathDir);
 $adminIndex = new AdminIndex($systemFactory);
 
 if (!empty($do) && method_exists($adminIndex, $do)) {

@@ -12,5 +12,4 @@ $db_options = array(
 
 RedBeanPHP\Facade::setup($db_dsn, $db_user, $db_pass);
 
-$loaderAdmin = new Twig_Loader_Filesystem('../admin/template/');
-$twigAdmin = new Twig_Environment($loaderAdmin, array());
+$templatePathDir = 'template/';
