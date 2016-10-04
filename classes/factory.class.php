@@ -29,9 +29,13 @@ class Factory
     /** @var Pagenation  */
     protected $pagenationObj;
 
-    public function __construct()
+    /**
+     * Factory constructor.
+     * @param string $templatePathDir
+     */
+    public function __construct($templatePathDir)
     {
-        $loaderAdmin = new Twig_Loader_Filesystem('../admin/template/');
+        $loaderAdmin = new Twig_Loader_Filesystem($templatePathDir);
         $this->twigAdminObj = new Twig_Environment($loaderAdmin, array());
         $this->settingsObj = new Settings($this, 1);
         $this->usersObj = new Users($this);
