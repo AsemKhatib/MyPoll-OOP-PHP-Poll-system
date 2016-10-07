@@ -5,10 +5,10 @@ namespace MyPoll\Classes;
 use RedBeanPHP\Facade;
 
 /**
- * Class Pagenation
+ * Class Pagination
  * @package MyPoll\Classes
  */
-class Pagenation
+class Pagination
 {
 
     /** @var  string */

@@ -12,9 +12,14 @@ use RedBeanPHP\Facade;
  */
 class Questions extends FeaturesAbstract
 {
+    /** @var \Twig_Environment */
+    protected $twig;
 
-    /** @var  Factory */
-    protected $factory;
+    /** @var Pagination */
+    protected $pagination;
+
+    /** @var  Settings */
+    protected $settings;
 
     /** @var  array */
     protected $votesArray = array();
@@ -36,8 +41,10 @@ class Questions extends FeaturesAbstract
      */
     public function __construct($factory)
     {
-        $this->factory = $factory;
-        $this->maxResults = $this->factory->getSettingsObj()->getResultNumber();
+        $this->twig = $factory->getTwigAdminObj();
+        $this->pagination = $factory->getPaginationObj();
+        $this->settings = $factory->getSettingsObj();
+        $this->maxResults = $this->settings->getResultNumber();
     }
 
     /**
@@ -45,13 +52,13 @@ class Questions extends FeaturesAbstract
      */
     public function add()
     {
-        return $this->factory->getTwigAdminObj()->display('add_poll.html');
+        return $this->twig->display('add_poll.html');
     }
 
     /**
      * @param array $paramsArray
      *
-     * @return void
+     * @return string
      */
     public function addExecute($paramsArray)
     {
@@ -60,20 +67,28 @@ class Questions extends FeaturesAbstract
             $questionToAdd = Facade::dispense('question');
             $questionToAdd->question = $paramsArray['question'];
             Facade::store($questionToAdd);
-
             $qid = $questionToAdd->getID();
-
             // Now we gonna add the Answers for this question :)
-            foreach ($paramsArray['answers'] as $newAnswer) {
-                $answersToAdd = Facade::dispense('answers');
-                $answersToAdd->answer = $newAnswer;
-                $answersToAdd->qid = $qid;
-                Facade::store($answersToAdd);
-            }
-
+            $this->addAnswers($paramsArray['answers'], $qid);
             echo 'Question Added successfully';
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();
+        }
+    }
+
+    /**
+     * @param array $answers
+     * @param int   $qid
+     *
+     * @return void
+     */
+    private function addAnswers($answers, $qid)
+    {
+        foreach ($answers as $newAnswer) {
+            $answersToAdd = Facade::dispense('answers');
+            $answersToAdd->answer = $newAnswer;
+            $answersToAdd->qid = $qid;
+            Facade::store($answersToAdd);
         }
     }
 
@@ -84,11 +99,11 @@ class Questions extends FeaturesAbstract
      */
     public function show($startPage = 0)
     {
-        $pagenation = $this->factory->getPagenationObj();
-        $pagenation->setParams('questions', $this->maxResults, $startPage);
-        return $this->factory->getTwigAdminObj()->render(
+        $pagination = $this->pagination;
+        $pagination->setParams('questions', $this->maxResults, $startPage);
+        return $this->twig->render(
             'show_poll.html',
-            array('resultsp' => $pagenation->getResults(), 'pagesNumber' => $pagenation->getPagesNumber())
+            array('resultsp' => $pagination->getResults(), 'pagesNumber' => $pagination->getPagesNumber())
         );
     }
 
@@ -117,7 +132,7 @@ class Questions extends FeaturesAbstract
         $this->votesPercent = implode(',', $this->votesPercent);
         $this->pieArray = implode(',', $this->pieArray);
 
-        return $this->factory->getTwigAdminObj()->render('chat_bar.html', array(
+        return $this->twig->render('chat_bar.html', array(
             'answers_arr' => $this->answersArray,
             'percent' => $this->votesPercent,
             'is_pie' => $is_pie,
@@ -132,19 +147,18 @@ class Questions extends FeaturesAbstract
      */
     public function edit($qid)
     {
-
         $question = Facade::load('questions', $qid);
-        if (!$question->isEmpty()) {
-            $answers = Facade::getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
-
-            return $this->factory->getTwigAdminObj()->render('edit_poll.html', array(
-                'qid' => $qid,
-                'question' => $question->question,
-                'answers' => $answers
-            ));
-        } else {
+        if ($question->isEmpty()) {
             return General::ref('index.php');
+
         }
+        $answers = Facade::getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
+
+        return $this->twig->render('edit_poll.html', array(
+            'qid' => $qid,
+            'question' => $question->question,
+            'answers' => $answers
+        ));
     }
 
     /**
@@ -154,7 +168,6 @@ class Questions extends FeaturesAbstract
      */
     public function editExecute($paramsArray)
     {
-
         try {
             $questionUpdate = Facade::load('questions', $paramsArray['qid']);
             $questionUpdate->question = $paramsArray['question'];
@@ -162,25 +175,34 @@ class Questions extends FeaturesAbstract
 
             // New answers will have always a random key generated to avoid interference with
             // existed keys => id's in the database
-
-            foreach ($paramsArray['answers_old'] as $key => $value) {
-                $answer = Facade::load('answers', $key);
-                if ($answer->isEmpty()) {
-                    $newAnswer = Facade::dispense('answers');
-                    $newAnswer->answer = $value;
-                    $newAnswer->qid = $paramsArray['qid'];
-                    Facade::store($newAnswer);
-                } else {
-                    if ($answer->answer != $value) {
-                        $answer->answer = $value;
-                        Facade::store($answer);
-                    }
-                }
-            }
-
+            $this->editAnswers($paramsArray['answers_old'], $paramsArray['qid']);
             echo "Question edited successfully";
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();
+        }
+    }
+
+    /**
+     * @param array $answers
+     * @param int   $qid
+     *
+     * @return void
+     */
+    private function editAnswers($answers, $qid)
+    {
+        foreach ($answers as $key => $value) {
+            $answer = Facade::load('answers', $key);
+            if ($answer->isEmpty()) {
+                $newAnswer = Facade::dispense('answers');
+                $newAnswer->answer = $value;
+                $newAnswer->qid = $qid;
+                Facade::store($newAnswer);
+            }
+
+            if ($answer->answer != $value) {
+                $answer->answer = $value;
+                Facade::store($answer);
+            }
         }
     }
 

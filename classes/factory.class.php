@@ -30,8 +30,8 @@ class Factory
     /** @var  Settings */
     protected $settingsObj;
 
-    /** @var Pagenation */
-    protected $pagenationObj;
+    /** @var Pagination */
+    protected $paginationObj;
 
     /**
      * Factory constructor.
@@ -47,7 +47,7 @@ class Factory
         $this->questionsObj = new Questions($this);
         $this->loginObj = new Login($this);
         $this->cookieObj = new Cookie();
-        $this->pagenationObj = new Pagenation();
+        $this->paginationObj = new Pagination();
     }
 
     /**
@@ -99,11 +99,11 @@ class Factory
     }
 
     /**
-     * @return Pagenation
+     * @return Pagination
      */
-    public function getPagenationObj()
+    public function getPaginationObj()
     {
-        return $this->pagenationObj;
+        return $this->paginationObj;
     }
 
 
