@@ -2,15 +2,15 @@
 
 namespace MyPoll\Classes;
 
-use RedBeanPHP\Facade;
 use Exception;
+use RedBeanPHP\Facade;
 
 /**
  * Class Questions
  *
  * @package MyPoll\Classes
  */
-class Questions
+class Questions extends FeaturesAbstract
 {
 
     /** @var  Factory */
@@ -49,23 +49,22 @@ class Questions
     }
 
     /**
-     * @param string $question
-     * @param array $answers
+     * @param array $paramsArray
      *
      * @return void
      */
-    public function addExecute($question, $answers)
+    public function addExecute($paramsArray)
     {
         try {
             // Adding the question first
-            $questionToAdd = Facade::dispense('questions');
-            $questionToAdd->question = $question;
+            $questionToAdd = Facade::dispense('question');
+            $questionToAdd->question = $paramsArray['question'];
             Facade::store($questionToAdd);
 
             $qid = $questionToAdd->getID();
 
             // Now we gonna add the Answers for this question :)
-            foreach ($answers as $newAnswer) {
+            foreach ($paramsArray['answers'] as $newAnswer) {
                 $answersToAdd = Facade::dispense('answers');
                 $answersToAdd->answer = $newAnswer;
                 $answersToAdd->qid = $qid;
@@ -94,7 +93,7 @@ class Questions
     }
 
     /**
-     * @param int $qid
+     * @param int    $qid
      * @param string $is_pie
      *
      * @return string
@@ -149,29 +148,27 @@ class Questions
     }
 
     /**
-     * @param  int $qid
-     * @param  string $question
-     * @param  array $answers_old
+     * @param array $paramsArray
      *
-     * @return void
+     * @return string
      */
-    public function editExecute($qid, $question, $answers_old)
+    public function editExecute($paramsArray)
     {
 
         try {
-            $questionUpdate = Facade::load('questions', $qid);
-            $questionUpdate->question = $question;
+            $questionUpdate = Facade::load('questions', $paramsArray['qid']);
+            $questionUpdate->question = $paramsArray['question'];
             Facade::store($questionUpdate);
 
             // New answers will have always a random key generated to avoid interference with
             // existed keys => id's in the database
 
-            foreach ($answers_old as $key => $value) {
+            foreach ($paramsArray['answers_old'] as $key => $value) {
                 $answer = Facade::load('answers', $key);
                 if ($answer->isEmpty()) {
                     $newAnswer = Facade::dispense('answers');
                     $newAnswer->answer = $value;
-                    $newAnswer->qid = $qid;
+                    $newAnswer->qid = $paramsArray['qid'];
                     Facade::store($newAnswer);
                 } else {
                     if ($answer->answer != $value) {
@@ -185,7 +182,6 @@ class Questions
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();
         }
-
     }
 
     /**

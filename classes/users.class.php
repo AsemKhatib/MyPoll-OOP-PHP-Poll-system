@@ -28,23 +28,29 @@ class Users
     }
 
     /**
-     * @param string $user
-     * @param string $password
-     * @param string $email
-     *
-     * @return void
+     * @return string
      */
-    public function addExecute($user, $password, $email)
+    public function add()
+    {
+        return $this->factory->getTwigAdminObj()->display('add_user.html');
+    }
+
+    /**
+     * @param array $paramsArray
+     *
+     * @return string
+     */
+    public function addExecute($paramsArray)
     {
         try {
-            if ($this->checkIsExist($user, $email) == false && $email) {
+            if ($this->checkIsExist($paramsArray['user'], $paramsArray['email']) == false && $paramsArray['email']) {
                 $newUser = Facade::dispense('users');
-                $newUser->user_name = $user;
-                $newUser->user_pass = md5($password);
-                $newUser->email = $email;
+                $newUser->user_name = $paramsArray['user'];
+                $newUser->user_pass = md5($paramsArray['password']);
+                $newUser->email = $paramsArray['email'];
                 Facade::store($newUser);
                 echo 'User Added successfully';
-            } elseif ($email == false) {
+            } elseif ($paramsArray['email'] == false) {
                 echo 'The email address that you are trying to use is invalid';
             } else {
                 echo 'User name or Email that you are trying to use is already Exist in the database';
@@ -110,27 +116,25 @@ class Users
     }
 
     /**
-     * @param int $id
-     * @param string $user
-     * @param string $password
-     * @param string $email
+     * @param array $paramsArray
      *
-     * @return void
+     * @return string
      */
-    public function editExecute($id, $user, $password, $email)
+    public function editExecute($paramsArray)
     {
 
         try {
-            $userUpdate = Facade::load('users', $id);
-            if ($this->checkIsExist($user, $email, $id) == false && $email) {
-                $userUpdate->user_name = $user;
-                if ($password && !empty($password)) {
+            $userUpdate = Facade::load('users', $paramsArray['id']);
+            if ($this->checkIsExist($paramsArray['user'], $paramsArray['email'], $paramsArray['id']) == false
+                && $paramsArray['email']) {
+                $userUpdate->user_name = $paramsArray['user'];
+                if ($paramsArray['password'] && !empty($password)) {
                     $userUpdate->user_pass = password_hash($password, PASSWORD_DEFAULT);
                 }
-                $userUpdate->email = $email;
+                $userUpdate->email = $paramsArray['email'];
                 Facade::store($userUpdate);
                 echo "User edited successfully";
-            } elseif ($email == false) {
+            } elseif ($paramsArray['email'] == false) {
                 echo 'The email address that you are trying to use is invalid';
             } else {
                 echo 'User name or Email that you are trying to use is already Exist in the database';
@@ -138,7 +142,6 @@ class Users
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();
         }
-
     }
 
     /**

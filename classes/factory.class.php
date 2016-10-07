@@ -2,11 +2,12 @@
 
 namespace MyPoll\Classes;
 
-use Twig_Loader_Filesystem;
 use Twig_Environment;
+use Twig_Loader_Filesystem;
 
 /**
  * Class Factory
+ *
  * @package MyPoll\Classes
  */
 class Factory
@@ -23,14 +24,18 @@ class Factory
     /** @var  Login */
     protected $loginObj;
 
+    /** @var Cookie */
+    protected $cookieObj;
+
     /** @var  Settings */
     protected $settingsObj;
 
-    /** @var Pagenation  */
+    /** @var Pagenation */
     protected $pagenationObj;
 
     /**
      * Factory constructor.
+     *
      * @param string $templatePathDir
      */
     public function __construct($templatePathDir)
@@ -41,7 +46,16 @@ class Factory
         $this->usersObj = new Users($this);
         $this->questionsObj = new Questions($this);
         $this->loginObj = new Login($this);
+        $this->cookieObj = new Cookie();
         $this->pagenationObj = new Pagenation();
+    }
+
+    /**
+     * @return Cookie
+     */
+    public function getCookieObj()
+    {
+        return $this->cookieObj;
     }
 
     /**
@@ -91,6 +105,6 @@ class Factory
     {
         return $this->pagenationObj;
     }
-    
-    
+
+
 }

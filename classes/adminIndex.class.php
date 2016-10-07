@@ -4,26 +4,46 @@ namespace MyPoll\Classes;
 
 /**
  * Class AdminIndex
+ *
  * @package MyPoll\Classes
  */
 
 class AdminIndex
 {
-    /** @var  Factory */
-    protected $factory;
+    /** @var \Twig_Environment */
+    protected $twig;
+
+    /** @var Settings */
+    protected $settings;
+
+    /** @var Login */
+    protected $login;
+
+    /** @var Questions */
+    protected $questions;
+
+    /** @var Users */
+    protected $users;
 
     /**
-     * @param $factory
+     * AdminIndex constructor.
+     *
+     * @param Factory $factory
      */
     public function __construct($factory)
     {
-        $this->factory = $factory;
+        $this->twig = $factory->getTwigAdminObj();
+        $this->settings = $factory->getSettingsObj();
+        $this->login = $factory->getLoginObj();
+        $this->questions = $factory->getQuestionsObj();
+        $this->users = $factory->getUsersObj();
 
-        $this->factory->getTwigAdminObj()->addGlobal('session', $_SESSION);
-        $this->factory->getSettingsObj()->checkCache();
+        $this->twig->addGlobal('session', $_SESSION);
+        $this->settings->checkCache();
+
         // add general settings to the global scope of Twig
-        $this->factory->getTwigAdminObj()->addGlobal('site_maxanswers', $this->factory->getSettingsObj()->getSiteMaxAnswers());
-        $this->factory->getTwigAdminObj()->addGlobal('site_name', $this->factory->getSettingsObj()->getSiteName());
+        $this->twig->addGlobal('site_maxanswers', $this->settings->getSiteMaxAnswers());
+        $this->twig->addGlobal('site_name', $this->settings->getSiteName());
     }
 
     /**
@@ -31,9 +51,9 @@ class AdminIndex
      */
     public function questions()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
         $startPage = isset($_GET['startPage']) ? General::cleanInput('int', $_GET['startPage']) : null;
-        echo $this->factory->getQuestionsObj()->show($startPage);
+        echo $this->questions->show($startPage);
     }
 
     /**
@@ -41,9 +61,9 @@ class AdminIndex
      */
     public function users()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
         $startPage = isset($_GET['startPage']) ? General::cleanInput('int', $_GET['startPage']) : null;
-        echo $this->factory->getUsersObj()->show($startPage);
+        echo $this->users->show($startPage);
     }
 
     /**
@@ -51,8 +71,8 @@ class AdminIndex
      */
     public function settings()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
-        echo $this->factory->getSettingsObj()->edit();
+        $this->login->checkIsLoggedIn();
+        echo $this->settings->edit();
     }
 
     /**
@@ -63,7 +83,11 @@ class AdminIndex
         $username = General::cleanInput('string', $_POST['username']);
         $password = General::cleanInput('string', $_POST['password']);
 
-        $this->factory->getLoginObj()->check($username, $password);
+        if (!$this->login->check($username, $password)) {
+            echo General::messageSent('Wrong Username or Password', $this->login->getIndexPage());
+        } else {
+            echo General::Ref($this->login->getLogPage());
+        }
     }
 
     /**
@@ -71,8 +95,8 @@ class AdminIndex
      */
     public function logout()
     {
-        $this->factory->getLoginObj()->Logout();
-        echo General::ref($this->factory->getLoginObj()->getIndexPage());
+        $this->login->Logout();
+        echo General::ref($this->login->getIndexPage());
     }
 
     /**
@@ -80,15 +104,14 @@ class AdminIndex
      */
     public function defaultAction()
     {
-        if (!$this->factory->getLoginObj()->isLoggedIn()) {
-            echo $this->factory->getTwigAdminObj()->render(
-                'login.html',
-                array('user' => 'שם משתמש', 'pass' => 'סיסמה', 'logint' => 'כניסה', 'rememberme' => 'זכור אותי')
-            );
-        } else {
-            echo General::ref($this->factory->getLoginObj()->getLogPage());
+        if ($this->login->isLoggedIn()) {
+            echo General::ref($this->login->getLogPage());
         }
 
+        echo $this->twig->render(
+            'login.html',
+            array('user' => 'שם משתמש', 'pass' => 'סיסמה', 'logint' => 'כניסה', 'rememberme' => 'זכור אותי')
+        );
     }
 
     /**
@@ -96,8 +119,8 @@ class AdminIndex
      */
     public function addQuestion()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
-        echo $this->factory->getQuestionsObj()->add();
+        $this->login->checkIsLoggedIn();
+        echo $this->questions->add();
     }
 
     /**
@@ -105,8 +128,8 @@ class AdminIndex
      */
     public function addUser()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
-        echo $this->factory->getTwigAdminObj()->display('add_user.html');
+        $this->login->checkIsLoggedIn();
+        echo $this->twig->display('add_user.html');
     }
 
     /**
@@ -114,11 +137,11 @@ class AdminIndex
      */
     public function addExecuteQuestion()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $question = General::cleanInput('string', $_POST['question']);
         $answers = General::cleanInput('array', $_POST['answer']);
-        $this->factory->getQuestionsObj()->addExecute($question, $answers);
+        $this->questions->addExecute(array('question' => $question, 'answers' =>  $answers));
     }
 
     /**
@@ -126,12 +149,12 @@ class AdminIndex
      */
     public function addExecuteUser()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $user = General::cleanInput('string', $_POST['user_name']);
         $password = General::cleanInput('string', $_POST['user_password']);
         $email = General::cleanInput('email', $_POST['user_email']);
-        $this->factory->getUsersObj()->addExecute($user, $password, $email);
+        $this->users->addExecute(array('user' => $user, 'password' => $password, 'email' => $email));
     }
 
     /**
@@ -139,10 +162,10 @@ class AdminIndex
      */
     public function editQuestion()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
-        echo $this->factory->getQuestionsObj()->edit($id);
+        echo $this->questions->edit($id);
     }
 
     /**
@@ -150,9 +173,9 @@ class AdminIndex
      */
     public function editUser()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
-        echo $this->factory->getUsersObj()->edit($id);
+        echo $this->users->edit($id);
     }
 
     /**
@@ -160,12 +183,12 @@ class AdminIndex
      */
     public function editExecuteQuestion()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $qid = General::cleanInput('int', $_POST['qid']);
         $question = General::cleanInput('string', $_POST['question']);
         $answers = General::cleanInput('array', $_POST['answer']);
-        $this->factory->getQuestionsObj()->editExecute($qid, $question, $answers);
+        $this->questions->editExecute(array('qid' => $qid, 'question' => $question, 'answers_old' => $answers));
     }
 
     /**
@@ -173,13 +196,13 @@ class AdminIndex
      */
     public function editExecuteUser()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $id = General::cleanInput('int', $_POST['user_id']);
         $user = General::cleanInput('string', $_POST['user_name']);
         $password = General::cleanInput('password', $_POST['user_password']);
         $email = General::cleanInput('email', $_POST['user_email']);
-        $this->factory->getUsersObj()->editExecute($id, $user, $password, $email);
+        $this->users->editExecute($id, $user, $password, $email);
     }
 
     /**
@@ -187,10 +210,10 @@ class AdminIndex
      */
     public function editExecuteSettings()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $settingsArr = General::cleanInput('array', $_POST['settings']);
-        $this->factory->getSettingsObj()->editExecute($settingsArr);
+        $this->settings->editExecute($settingsArr);
     }
 
     /**
@@ -198,10 +221,10 @@ class AdminIndex
      */
     public function deleteQuestion()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
-        $this->factory->getQuestionsObj()->delete($id);
+        $this->questions->delete($id);
         echo General::messageSent(
             "The question and all it's answers were successfully deleted",
             'index.php?do=questions'
@@ -213,10 +236,10 @@ class AdminIndex
      */
     public function deleteUser()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
-        $this->factory->getUsersObj()->delete($id);
+        $this->users->delete($id);
     }
 
     /**
@@ -224,11 +247,11 @@ class AdminIndex
      */
     public function deleteAnswer()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
         $questionID = isset($_GET['questionID']) ? General::cleanInput('int', $_GET['questionID']) : null;
-        $this->factory->getQuestionsObj()->deleteAnswer($id);
+        $this->questions->deleteAnswer($id);
         echo General::messageSent(
             'Answer deleted successfully',
             'index.php?do=editQuestion&id=' . $questionID
@@ -240,10 +263,10 @@ class AdminIndex
      */
     public function answersShow()
     {
-        $this->factory->getLoginObj()->checkIsLoggedIn();
+        $this->login->checkIsLoggedIn();
 
         $qid = isset($_GET['qid']) ? General::cleanInput('int', $_GET['qid']) : null;
         $is_pie = isset($_GET['is_pie']) ? General::cleanInput('string', $_GET['is_pie']) : null;
-        $this->factory->getQuestionsObj()->showAnswers($qid, $is_pie);
+        $this->questions->showAnswers($qid, $is_pie);
     }
 }

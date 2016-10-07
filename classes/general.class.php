@@ -4,11 +4,25 @@ namespace MyPoll\Classes;
 
 /**
  * Class General
+ *
  * @package MyPoll\Classes
  */
 
 class General
 {
+
+    /**
+     * @param mixed $var
+     *
+     * @return bool
+     */
+    public static function issetAndNotEmpty($var)
+    {
+        if (isset($var) && !empty($var)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * @param array $arrays
@@ -78,7 +92,7 @@ class General
     }
 
     /**
-     * @param mixed $input
+     * @param mixed  $input
      * @param string $type
      *
      * @return string,int,array,bool
