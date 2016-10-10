@@ -202,7 +202,7 @@ class AdminIndex
         $user = General::cleanInput('string', $_POST['user_name']);
         $password = General::cleanInput('password', $_POST['user_password']);
         $email = General::cleanInput('email', $_POST['user_email']);
-        $this->users->editExecute($id, $user, $password, $email);
+        $this->users->editExecute(array('id' => $id, 'user' => $user, 'password' => $password, 'email' => $email));
     }
 
     /**

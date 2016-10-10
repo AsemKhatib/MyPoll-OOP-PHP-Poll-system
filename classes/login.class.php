@@ -82,6 +82,8 @@ class Login extends Cookie
             $this->setRememberme($this->userID);
             return true;
         }
+
+        return false;
     }
 
 

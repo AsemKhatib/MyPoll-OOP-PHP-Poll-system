@@ -99,11 +99,13 @@ class Questions extends FeaturesAbstract
      */
     public function show($startPage = 0)
     {
-        $pagination = $this->pagination;
-        $pagination->setParams('questions', $this->maxResults, $startPage);
+        $this->pagination->setParams('questions', $this->maxResults, $startPage);
         return $this->twig->render(
             'show_poll.html',
-            array('resultsp' => $pagination->getResults(), 'pagesNumber' => $pagination->getPagesNumber())
+            array(
+                'resultsp' => $this->pagination->getResults(),
+                'pagesNumber' => $this->pagination->getPagesNumber()
+            )
         );
     }
 
@@ -150,7 +152,6 @@ class Questions extends FeaturesAbstract
         $question = Facade::load('questions', $qid);
         if ($question->isEmpty()) {
             return General::ref('index.php');
-
         }
         $answers = Facade::getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
 
@@ -227,5 +228,4 @@ class Questions extends FeaturesAbstract
     {
         Facade::trash('answers', $id);
     }
-
 }

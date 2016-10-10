@@ -51,6 +51,6 @@ class Pagination
      */
     public function getPagesNumber()
     {
-        return @(int)ceil($this->storedNumber / $this->maxResults)-1;
+        return @(int)ceil($this->storedNumber / $this->maxResults);
     }
 }

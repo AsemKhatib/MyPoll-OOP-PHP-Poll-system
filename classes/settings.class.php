@@ -2,8 +2,8 @@
 
 namespace MyPoll\Classes;
 
-use RedBeanPHP\Facade;
 use Exception;
+use RedBeanPHP\Facade;
 
 /**
  * Class Settings
@@ -12,8 +12,11 @@ use Exception;
  */
 class Settings
 {
-    /** @var  Factory */
-    protected $factory;
+    /** @var \Twig_Environment */
+    protected $twig;
+
+    /** @var  Login */
+    protected $login;
 
     /** @var  int */
     protected $id;
@@ -76,18 +79,58 @@ class Settings
 
     /**
      * @param Factory $factory
-     * @param int $id
+     * @param int     $id
      */
     public function __construct($factory, $id)
     {
-        $this->factory = $factory;
+        $this->twig = $factory->getTwigAdminObj();
+        $this->login = $factory->getLoginObj();
         $this->id = $id;
-        $settings = Facade::load('settings', $this->id);
-        $this->siteName = $settings->site_name;
-        $this->resultNumber = $settings->site_resultsnumber;
-        $this->siteCookies = $settings->site_cookies;
-        $this->siteCache = $settings->site_cache;
-        $this->siteMaxAnswers = $settings->site_maxanswers;
+
+        $settings = $this->processSettings($this->id);
+        $this->setProperties($settings);
+    }
+
+    /**
+     * @param  int $id
+     *
+     * @return boolean|Facade::load
+     */
+    private function checkSettingsExist($id)
+    {
+        $queryResult = Facade::load('settings', $id);
+        if ($queryResult->isEmpty()) {
+            return false;
+        }
+        return $queryResult;
+    }
+
+    /**
+     * @param  int $id
+     *
+     * @return string|Facade::load
+     */
+    private function processSettings($id)
+    {
+        $settings = $this->checkSettingsExist($id);
+        if (!$settings) {
+            echo General::ref($this->login->getIndexPage());
+        }
+        return $settings;
+    }
+
+    /**
+     * @param Facade ::load $queryResult
+     *
+     * @return void
+     */
+    private function setProperties($queryResult)
+    {
+        $this->siteName = $queryResult->site_name;
+        $this->resultNumber = $queryResult->site_resultsnumber;
+        $this->siteCookies = $queryResult->site_cookies;
+        $this->siteCache = $queryResult->site_cache;
+        $this->siteMaxAnswers = $queryResult->site_maxanswers;
     }
 
     /**
@@ -95,12 +138,9 @@ class Settings
      */
     public function edit()
     {
-        $settings = Facade::load('settings', $this->id);
-        if ($settings->isEmpty()) {
-            return General::ref('index.php');
-        }
+        $settings = $this->processSettings($this->id);
 
-        return $this->factory->getTwigAdminObj()->render('settings.html', array(
+        return $this->twig->render('settings.html', array(
             'id' => $settings->id,
             'site_name' => $settings->site_name,
             'site_resultsnumber' => $settings->site_resultsnumber,
@@ -138,7 +178,7 @@ class Settings
     public function checkCache()
     {
         if ($this->getSiteCache() == 1) {
-            $this->factory->getTwigAdminObj()->setCache('../cache');
+            $this->twig->setCache('../cache');
         }
     }
 }

@@ -16,9 +16,9 @@
     <div class="clear"></div>
     {% endfor %}
     <br>
-    {% if pagesNumber >= 1 %}
-        {% for i in 0..pagesNumber %}
-            [<a href="index.php?do=users&startPage={{ i }}" style="text-decoration: none;">{{ i }}</a>]&nbsp;
+    {% if pagesNumber > 1 %}
+        {% for i in 1..pagesNumber %}
+            [<a href="index.php?do=users&startPage={{ i-1 }}" style="text-decoration: none;">{{ i }}</a>]&nbsp;
         {% endfor %}
     {% endif %}
 </div>

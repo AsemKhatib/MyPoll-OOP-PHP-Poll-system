@@ -37,17 +37,18 @@ class Factory
      * Factory constructor.
      *
      * @param string $templatePathDir
+     * @param int $settingsId
      */
-    public function __construct($templatePathDir)
+    public function __construct($templatePathDir, $settingsId)
     {
         $loaderAdmin = new Twig_Loader_Filesystem($templatePathDir);
         $this->twigAdminObj = new Twig_Environment($loaderAdmin, array());
-        $this->settingsObj = new Settings($this, 1);
+        $this->paginationObj = new Pagination();
+        $this->settingsObj = new Settings($this, $settingsId);
         $this->usersObj = new Users($this);
         $this->questionsObj = new Questions($this);
         $this->loginObj = new Login($this);
         $this->cookieObj = new Cookie();
-        $this->paginationObj = new Pagination();
     }
 
     /**

@@ -2,8 +2,8 @@
 
 namespace MyPoll\Classes;
 
-use RedBeanPHP\Facade;
 use Exception;
+use RedBeanPHP\Facade;
 
 /**
  * Class Users
@@ -12,19 +12,30 @@ use Exception;
  */
 class Users
 {
-    /** @var  Factory */
-    protected $factory;
+    /** @var \Twig_Environment */
+    protected $twig;
 
-    /** @var int  */
+    /** @var Pagination */
+    protected $pagination;
+
+    /** @var  Settings */
+    protected $settings;
+
+    /** @var int */
     protected $maxResults;
+
+    /** @var  int */
+    protected $adminID = 1;
 
     /**
      * @param Factory $factory
      */
     public function __construct($factory)
     {
-        $this->factory = $factory;
-        $this->maxResults = $this->factory->getSettingsObj()->getResultNumber();
+        $this->twig = $factory->getTwigAdminObj();
+        $this->pagination = $factory->getPaginationObj();
+        $this->settings = $factory->getSettingsObj();
+        $this->maxResults = $this->settings->getResultNumber();
     }
 
     /**
@@ -32,28 +43,23 @@ class Users
      */
     public function add()
     {
-        return $this->factory->getTwigAdminObj()->display('add_user.html');
+        return $this->twig->display('add_user.html');
     }
 
     /**
      * @param array $paramsArray
      *
-     * @return string
+     * @return string|Exception
      */
     public function addExecute($paramsArray)
     {
         try {
-            if ($this->checkIsExist($paramsArray['user'], $paramsArray['email']) == false && $paramsArray['email']) {
-                $newUser = Facade::dispense('users');
-                $newUser->user_name = $paramsArray['user'];
-                $newUser->user_pass = md5($paramsArray['password']);
-                $newUser->email = $paramsArray['email'];
-                Facade::store($newUser);
-                echo 'User Added successfully';
-            } elseif ($paramsArray['email'] == false) {
-                echo 'The email address that you are trying to use is invalid';
-            } else {
+            if (!$paramsArray['email']) {
+                echo 'The email address that you are trying to use is invalid or empty';
+            } elseif ($this->checkIsExist($paramsArray['user'], $paramsArray['email'])) {
                 echo 'User name or Email that you are trying to use is already Exist in the database';
+            } else {
+                $this->addUser($paramsArray['user'], $paramsArray['password'], $paramsArray['email']);
             }
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();
@@ -61,22 +67,35 @@ class Users
     }
 
     /**
-     * @param int $id
+     * @param string $user
+     * @param string $password
+     * @param string $email
+     */
+    private function addUser($user, $password, $email)
+    {
+        $newUser = Facade::dispense('users');
+        $newUser->user_name = $user;
+        $newUser->user_pass = password_hash($password, PASSWORD_DEFAULT);
+        $newUser->email = $email;
+        Facade::store($newUser);
+        echo 'User Added successfully';
+    }
+
+    /**
+     * @param int    $id
      * @param string $user
      * @param string $email
      *
      * @return bool
      */
-    private function checkIsExist($user, $email, $id = 0)
+    private function checkIsExist($user, $email, $id = -1)
     {
         $checkIskExist = Facade::find(
             'users',
             'id != :id AND (user_name = :user OR email = :email)',
             array(':user' => $user, ':email' => $email, ':id' => $id)
         );
-
         $result = empty($checkIskExist) ? false : true;
-
         return $result;
     }
 
@@ -87,11 +106,10 @@ class Users
      */
     public function show($startPage = 0)
     {
-        $pagenation = $this->factory->getPagenationObj();
-        $pagenation->setParams('users', $this->maxResults, $startPage);
-        return $this->factory->getTwigAdminObj()->render(
+        $this->pagination->setParams('users', $this->maxResults, $startPage);
+        return $this->twig->render(
             'show_user.html',
-            array('results' => $pagenation->getResults(), 'pagesNumber' => $pagenation->getPagesNumber())
+            array('results' => $this->pagination->getResults(), 'pagesNumber' => $this->pagination->getPagesNumber())
         );
     }
 
@@ -102,17 +120,15 @@ class Users
      */
     public function edit($id)
     {
-
         $user = Facade::load('users', $id);
-        if (!$user->isEmpty()) {
-            return $this->factory->getTwigAdminObj()->render('edit_user.html', array(
-                'id' => $user->id,
-                'user' => $user->user_name,
-                'email' => $user->email
-            ));
-        } else {
+        if ($user->isEmpty()) {
             return General::ref('index.php');
         }
+        return $this->twig->render('edit_user.html', array(
+            'id' => $user->id,
+            'user' => $user->user_name,
+            'email' => $user->email
+        ));
     }
 
     /**
@@ -122,26 +138,40 @@ class Users
      */
     public function editExecute($paramsArray)
     {
-
         try {
-            $userUpdate = Facade::load('users', $paramsArray['id']);
-            if ($this->checkIsExist($paramsArray['user'], $paramsArray['email'], $paramsArray['id']) == false
-                && $paramsArray['email']) {
-                $userUpdate->user_name = $paramsArray['user'];
-                if ($paramsArray['password'] && !empty($password)) {
-                    $userUpdate->user_pass = password_hash($password, PASSWORD_DEFAULT);
-                }
-                $userUpdate->email = $paramsArray['email'];
-                Facade::store($userUpdate);
-                echo "User edited successfully";
-            } elseif ($paramsArray['email'] == false) {
-                echo 'The email address that you are trying to use is invalid';
-            } else {
+            if (!$paramsArray['email']) {
+                echo 'The email address that you are trying to use is invalid or empty';
+            } elseif ($this->checkIsExist($paramsArray['user'], $paramsArray['email'], $paramsArray['id'])) {
                 echo 'User name or Email that you are trying to use is already Exist in the database';
+            } else {
+                $this->editUser(
+                    $paramsArray['id'],
+                    $paramsArray['user'],
+                    $paramsArray['password'],
+                    $paramsArray['email']
+                );
             }
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();
         }
+    }
+
+    /**
+     * @param int    $id
+     * @param string $user
+     * @param string $password
+     * @param string $email
+     */
+    private function editUser($id, $user, $password, $email)
+    {
+        $userUpdate = Facade::load('users', $id);
+        $userUpdate->user_name = $user;
+        if (!empty($password)) {
+            $userUpdate->user_pass = password_hash($password, PASSWORD_DEFAULT);
+        }
+        $userUpdate->email = $email;
+        Facade::store($userUpdate);
+        echo "User edited successfully";
     }
 
     /**
@@ -151,13 +181,13 @@ class Users
      */
     public function delete($id)
     {
-        if ($id == 1) {
+        if ($id == $this->adminID) {
             $message = 'Admin user could not be deleted';
         } else {
             Facade::trash('users', $id);
             $message = 'the user with the ID ' . $id . ' deleted successfully';
         }
-        return General::messageSent($message, 'index.php?do=users');
+        echo General::messageSent($message, 'index.php?do=users');
     }
 
     /**
