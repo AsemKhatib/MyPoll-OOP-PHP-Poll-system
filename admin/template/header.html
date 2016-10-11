@@ -3,7 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>{{ site_name }}</title>
-
     <script type="text/javascript" src="template/js/jquery-2.1.1.min.js"></script>
     <link rel="stylesheet" type="text/css" href="template/css/main_style.css">
     <link rel="stylesheet" type="text/css" href="template/css/form_style.css">
@@ -13,9 +12,6 @@
         jQuery(document).ready(function(){
 
             var site_maxanswers =  '{{ site_maxanswers }}';
-
-            //google.load('visualization', '1.0', {'packages':['corechart']});
-            //google.setOnLoadCallback(drawChart);
 
             if (typeof(Storage) != "undefined") {
                 sessionStorage.setItem("QQuestions", $('.show_poll #inner6').length);

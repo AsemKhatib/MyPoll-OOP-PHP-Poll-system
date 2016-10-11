@@ -17,7 +17,7 @@
     <div class="inner" id="inner5"><a href="index.php?do=deleteQuestion&id={{ res.id }}" class="img_url" onclick="return confirm('Are you sure , want to delete ?');"><img src="template/images/delete.png" width="16" height="16" alt="Delete Question" title="Delete Question"></a></div>
     <div class="inner popcorn-{{ loop.index }}" id="inner6">
             <div class="graph" id="percent_info">Answers Percent %</div>
-            <div class="graph"><iframe src="index.php?do=answersShow&qid={{ res.id }}&is_pie=false" width="700" height="80" style="margin: 0 auto;overflow: hidden;border: 0;" scrolling="no"></iframe></div>
+            <div class="graph"><iframe src="index.php?do=answersShow&qid={{ res.id }}&is_pie=false" width="840" height="80" style="margin: 0 auto;overflow: hidden;border: 0;" scrolling="no"></iframe></div>
     </div>
     <div class="clear"></div>
     {% endfor %}

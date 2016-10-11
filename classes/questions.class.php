@@ -151,7 +151,7 @@ class Questions extends FeaturesAbstract
     {
         $question = Facade::load('questions', $qid);
         if ($question->isEmpty()) {
-            return General::ref('index.php');
+            return General::ref($this->settings->getIndexPage());
         }
         $answers = Facade::getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
 

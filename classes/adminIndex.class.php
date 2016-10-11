@@ -84,9 +84,9 @@ class AdminIndex
         $password = General::cleanInput('string', $_POST['password']);
 
         if (!$this->login->check($username, $password)) {
-            echo General::messageSent('Wrong Username or Password', $this->login->getIndexPage());
+            echo General::messageSent('Wrong Username or Password', $this->settings->getIndexPage());
         } else {
-            echo General::Ref($this->login->getLogPage());
+            echo General::Ref($this->settings->getLogPage());
         }
     }
 
@@ -96,7 +96,7 @@ class AdminIndex
     public function logout()
     {
         $this->login->Logout();
-        echo General::ref($this->login->getIndexPage());
+        echo General::ref($this->settings->getIndexPage());
     }
 
     /**
@@ -105,7 +105,7 @@ class AdminIndex
     public function defaultAction()
     {
         if ($this->login->isLoggedIn()) {
-            echo General::ref($this->login->getLogPage());
+            echo General::ref($this->settings->getLogPage());
         }
 
         echo $this->twig->render(
@@ -227,7 +227,7 @@ class AdminIndex
         $this->questions->delete($id);
         echo General::messageSent(
             "The question and all it's answers were successfully deleted",
-            'index.php?do=questions'
+            $this->settings->getIndexPage() . '?do=questions'
         );
     }
 
@@ -254,7 +254,7 @@ class AdminIndex
         $this->questions->deleteAnswer($id);
         echo General::messageSent(
             'Answer deleted successfully',
-            'index.php?do=editQuestion&id=' . $questionID
+            $this->settings->getIndexPage() . '?do=editQuestion&id=' . $questionID
         );
     }
 
@@ -267,6 +267,6 @@ class AdminIndex
 
         $qid = isset($_GET['qid']) ? General::cleanInput('int', $_GET['qid']) : null;
         $is_pie = isset($_GET['is_pie']) ? General::cleanInput('string', $_GET['is_pie']) : null;
-        $this->questions->showAnswers($qid, $is_pie);
+        echo $this->questions->showAnswers($qid, $is_pie);
     }
 }

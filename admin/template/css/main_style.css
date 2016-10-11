@@ -1,141 +1,143 @@
-    .main_frame{
-        width: 950px;
-        margin: 0 auto;
-        padding: 10px;
-        border-style: solid;
-        border-width: 1px;
-        border-color: #000000;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        border-radius: 5px;
-        text-align: center;
-    }
+.main_frame {
+    width: 950px;
+    margin: 0 auto;
+    padding: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #000000;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    text-align: center;
+}
 
-    .main_frame .head_frame{
-        width: 90%;
-        margin: 0 auto;
-        border-color: #000000;
-        border-width: 1px;
-        border-style: solid;
-        margin-bottom: 20px;
-    }
+.main_frame .head_frame {
+    width: 90%;
+    margin: 0 auto;
+    border-color: #000000;
+    border-width: 1px;
+    border-style: solid;
+    margin-bottom: 20px;
+}
 
-    .main_frame .side_frame{
-        width: 90%;
-        margin: 0 auto;
-    }
+.main_frame .side_frame {
+    width: 90%;
+    margin: 0 auto;
+}
 
-    .main_frame .head_frame ul{
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-    }
+.main_frame .head_frame ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
 
-    .main_frame .head_frame ul li{
-        float: left;
-    }
+.main_frame .head_frame ul li {
+    float: left;
+}
 
-    .main_frame .head_frame ul li a:link,a:visited{
-        display: block;
-        background-color: #f2dca6;
-        width: 150px;
-        text-align: center;
-        padding: 5px;
-        color: #000000;
-        text-decoration: none;
-    }
+.main_frame .head_frame ul li a:link, a:visited {
+    display: block;
+    background-color: #f2dca6;
+    width: 150px;
+    text-align: center;
+    padding: 5px;
+    color: #000000;
+    text-decoration: none;
+}
 
-    .main_frame .head_frame ul li a:active,a:hover{
-        background-color: #808080;
-    }
-    
-    .show_poll{
-        width: 90%;
-        margin: 0 auto;
-    }
-    
-    .show_poll .inner{
-        border: 1px #000000 solid;
-        text-align: center;
-        font-family: tahoma;
-        color: #000000;
-        float:left;
-        padding: 5px 0px 5px 0px;
-        
-    }
-    
-    #inner1{
-        width: 6%;
-    }
-    
-    #inner2{
-        width: 59%;
-    }
-    
-    #inner3{
-        width: 11%;
-    }
-    
-    #inner4{
-        width: 11%;
-    }
+.main_frame .head_frame ul li a:active, a:hover {
+    background-color: #808080;
+}
 
-    .stat{
-        cursor: pointer;
-    }
+.show_poll {
+    width: 90%;
+    margin: 0 auto;
+}
 
-    #inner5{
-        width: 11%;
-    }
-    #inner6{
-        width: 99.7%;
-        display: none;
+.show_poll .inner {
+    border: 1px #000000 solid;
+    text-align: center;
+    font-family: tahoma;
+    color: #000000;
+    float: left;
+    padding: 5px 0px 5px 0px;
 
-    }
+}
 
-    #inner6 span{
-        vertical-align: middle;
-        display: table-cell;
-    }
+#inner1 {
+    width: 6%;
+}
 
-    #inner7{
-        width: 6%;
-    }
+#inner2 {
+    width: 59%;
+}
 
-    #inner8{
-        width: 71%;
-    }
+#inner3 {
+    width: 11%;
+}
 
-    #inner9{
-        width: 11%;
-    }
+#inner4 {
+    width: 11%;
+}
 
-    #inner10{
-        width: 11%;
-    }
+.stat {
+    cursor: pointer;
+}
 
-    .graph{
-        float: left;width: auto;
-    }
+#inner5 {
+    width: 11%;
+}
 
-    #percent_info{
-        padding-top: 35px;
-        padding-left: 12px;
-    }
-    .clear{
-        clear: both;
-    }
+#inner6 {
+    width: 99.0%;
+    display: none;
 
-    #results{
-        margin:15px 190px;
-        width: 560px;
-    }
+}
 
-    .delete_icon{
-        padding-top: 5px;
-    }
+#inner6 span {
+    vertical-align: middle;
+    display: table-cell;
+}
 
-    .img_url:hover{
-        background-color: transparent;
-    }
+#inner7 {
+    width: 6%;
+}
+
+#inner8 {
+    width: 71%;
+}
+
+#inner9 {
+    width: 11%;
+}
+
+#inner10 {
+    width: 11%;
+}
+
+.graph {
+    float: left;
+    width: auto;
+}
+
+#percent_info {
+    padding-left: 10px;
+}
+
+.clear {
+    clear: both;
+}
+
+#results {
+    margin: 15px 190px;
+    width: 560px;
+}
+
+.delete_icon {
+    padding-top: 5px;
+}
+
+.img_url:hover {
+    background-color: transparent;
+}

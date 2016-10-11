@@ -13,4 +13,5 @@ $db_options = array(
 RedBeanPHP\Facade::setup($db_dsn, $db_user, $db_pass);
 
 $templatePathDir = 'template/';
+
 $settingsId = 1;

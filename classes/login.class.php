@@ -14,11 +14,8 @@ class Login extends Cookie
     /** @var  Users */
     protected $users;
 
-    /** @var string */
-    private $logPage = "index.php?do=questions";
-
-    /** @var string */
-    private $indexPage = 'index.php';
+    /** @var Settings */
+    protected $settings;
 
     /** @var  string */
     private $userName;
@@ -29,30 +26,14 @@ class Login extends Cookie
     /** @var  string */
     private $email;
 
-
     /**
      * @param Factory $factory
      */
     public function __construct($factory)
     {
         $this->users = $factory->getUsersObj();
+        $this->settings = $factory->getSettingsObj();
         $this->cookie = General::issetAndNotEmpty($_COOKIE[$this->cookieName]) ? $_COOKIE[$this->cookieName] : null;
-    }
-
-    /**
-     * @return string
-     */
-    public function getIndexPage()
-    {
-        return $this->indexPage;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLogPage()
-    {
-        return $this->logPage;
     }
 
     /**
@@ -174,7 +155,7 @@ class Login extends Cookie
     public function checkIsLoggedIn()
     {
         if (!$this->isLoggedIn()) {
-            echo General::ref($this->getIndexPage());
+            echo General::ref($this->settings->getIndexPage());
         }
     }
 }

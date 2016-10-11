@@ -36,6 +36,28 @@ class Settings
     /** @var int */
     protected $siteMaxAnswers;
 
+    /** @var string */
+    private $logPage = 'index.php?do=questions';
+
+    /** @var string */
+    private $indexPage = 'index.php';
+
+    /**
+     * @return string
+     */
+    public function getIndexPage()
+    {
+        return $this->indexPage;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLogPage()
+    {
+        return $this->logPage;
+    }
+
     /**
      * @return int
      */
@@ -114,7 +136,7 @@ class Settings
     {
         $settings = $this->checkSettingsExist($id);
         if (!$settings) {
-            echo General::ref($this->login->getIndexPage());
+            echo General::ref($this->getIndexPage());
         }
         return $settings;
     }

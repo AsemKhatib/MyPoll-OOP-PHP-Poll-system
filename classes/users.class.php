@@ -122,7 +122,7 @@ class Users
     {
         $user = Facade::load('users', $id);
         if ($user->isEmpty()) {
-            return General::ref('index.php');
+            return General::ref($this->settings->getIndexPage());
         }
         return $this->twig->render('edit_user.html', array(
             'id' => $user->id,
@@ -187,7 +187,7 @@ class Users
             Facade::trash('users', $id);
             $message = 'the user with the ID ' . $id . ' deleted successfully';
         }
-        echo General::messageSent($message, 'index.php?do=users');
+        echo General::messageSent($message, $this->settings->getIndexPage() . '?do=users');
     }
 
     /**
