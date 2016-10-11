@@ -49,14 +49,8 @@ class Login extends Cookie
         if (General::issetAndNotEmpty($user) && General::issetAndNotEmpty($pass)) {
             $query = 'SELECT * FROM users WHERE user_name = :user AND user_pass = :pass';
 
-            $result = Facade::getRow(
-                $query,
-                [':user' => $user, ':pass' => $this->users->getHash($user)]
-            );
-
-            if (!password_verify($pass, $result['user_pass'])) {
-                return false;
-            }
+            $result = Facade::getRow($query, [':user' => $user, ':pass' => $this->users->getHash($user)]);
+            if (!password_verify($pass, $result['user_pass'])) return false;
 
             $this->dataSetter(array($result['user_name'], $result['id'],$result['email']));
             $this->authLogin();
@@ -87,15 +81,14 @@ class Login extends Cookie
     {
         $cookie = $this->getCookieData();
 
-        if (!$cookie) {
-            return false;
-        }
+        if (!$cookie) return false;
         $userLog = $this->getRemembermeMeHash($cookie['token']);
         $user = Facade::load('users', $cookie['userID']);
 
         $this->dataSetter(array($user->user_name, $user->id,$user->email));
         Facade::trash($userLog);
         $this->unsetCookie();
+        $this->rememberMe = true;
         $this->setRememberme($user->id);
     }
 
@@ -107,8 +100,8 @@ class Login extends Cookie
         if ($this->isSessionExist()) {
             return true;
         } elseif ($this->isRememberme()) {
-            $this->authLogin();
             $this->setupNewCredentials();
+            $this->authLogin();
             return true;
         }
         return false;

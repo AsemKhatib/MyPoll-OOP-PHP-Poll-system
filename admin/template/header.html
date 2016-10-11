@@ -27,7 +27,7 @@
                 var randNumber = Math.floor((Math.random() * 100000000) + 1);
                 if (table.find('input:text').length < site_maxanswers ){
                     var numbers = table.find('input:text').length+1;
-                    table.append('<div><input style="margin-left: 156px;" type="text" name="answer[' + randNumber + ']" placeholder="Add poll answer ' + numbers + '" required>&nbsp;&nbsp;</div>');
+                    table.append('<div><input style="margin-left: 168px;" type="text" name="answer[' + randNumber + ']" placeholder="Add poll answer ' + numbers + '" required>&nbsp;&nbsp;</div>');
                 }
             });
             $('#del').click(function(){

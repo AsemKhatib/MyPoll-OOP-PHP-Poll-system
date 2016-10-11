@@ -18,6 +18,13 @@ class Cookie
     protected $cookieName = 'rememberme';
 
     /**
+     * Cookie expiry time in minutes
+     *
+     * @var int
+     */
+    protected $cookieExpiryTime = 60;
+
+    /**
      * @return array|boolean
      */
     protected function getCookieData()
@@ -82,7 +89,7 @@ class Cookie
             $newCookie = $userID . ':' . $token;
             $mac = hash_hmac('sha256', $newCookie, $this::SECRET_KEY);
             $newCookie .= ':' . $mac;
-            setcookie($this->cookieName, $newCookie);
+            setcookie($this->cookieName, $newCookie, time()+60*$this->cookieExpiryTime);
         }
     }
 
