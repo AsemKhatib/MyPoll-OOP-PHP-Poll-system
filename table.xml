@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<mysqldump xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<database name="mypoll">
+	<table_data name="answers">
+	<row>
+		<field name="id">33</field>
+		<field name="qid">22</field>
+		<field name="answer">123456789</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">34</field>
+		<field name="qid">22</field>
+		<field name="answer">דגעדגע</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">52</field>
+		<field name="qid">28</field>
+		<field name="answer">aasfaf111</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">29</field>
+		<field name="qid">20</field>
+		<field name="answer">New 1</field>
+		<field name="votes">2</field>
+	</row>
+	<row>
+		<field name="id">51</field>
+		<field name="qid">27</field>
+		<field name="answer">dsgsdg</field>
+		<field name="votes">15</field>
+	</row>
+	<row>
+		<field name="id">50</field>
+		<field name="qid">27</field>
+		<field name="answer">עלי</field>
+		<field name="votes">15</field>
+	</row>
+	<row>
+		<field name="id">35</field>
+		<field name="qid">23</field>
+		<field name="answer">جواب نمرة ثنين</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">36</field>
+		<field name="qid">23</field>
+		<field name="answer">New 1</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">37</field>
+		<field name="qid">23</field>
+		<field name="answer">New one all</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">38</field>
+		<field name="qid">23</field>
+		<field name="answer">Neasdgsag</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">48</field>
+		<field name="qid">27</field>
+		<field name="answer">Answer one</field>
+		<field name="votes">50</field>
+	</row>
+	<row>
+		<field name="id">42</field>
+		<field name="qid">24</field>
+		<field name="answer">Answer 2</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">53</field>
+		<field name="qid">28</field>
+		<field name="answer">aasfasf</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">49</field>
+		<field name="qid">27</field>
+		<field name="answer">عاصم</field>
+		<field name="votes">20</field>
+	</row>
+	<row>
+		<field name="id">45</field>
+		<field name="qid">26</field>
+		<field name="answer">Good</field>
+		<field name="votes">0</field>
+	</row>
+	<row>
+		<field name="id">47</field>
+		<field name="qid">26</field>
+		<field name="answer">12345</field>
+		<field name="votes">0</field>
+	</row>
+	</table_data>
+	<table_data name="questions">
+	<row>
+		<field name="id">26</field>
+		<field name="question">What do you think about the Islamic state in Iraq and Syri ??</field>
+	</row>
+	<row>
+		<field name="id">24</field>
+		<field name="question">First one New</field>
+	</row>
+	<row>
+		<field name="id">23</field>
+		<field name="question">First one New</field>
+	</row>
+	<row>
+		<field name="id">22</field>
+		<field name="question">נמהחי</field>
+	</row>
+	<row>
+		<field name="id">27</field>
+		<field name="question">after refactor question</field>
+	</row>
+	<row>
+		<field name="id">20</field>
+		<field name="question">Xyz</field>
+	</row>
+	<row>
+		<field name="id">28</field>
+		<field name="question">Testdsdf</field>
+	</row>
+	</table_data>
+	<table_data name="rememberme">
+	</table_data>
+	<table_data name="settings">
+	<row>
+		<field name="id">1</field>
+		<field name="site_name">MyPoll System V 0.1</field>
+		<field name="site_resultsnumber">10</field>
+		<field name="site_cookies">0</field>
+		<field name="site_cache">0</field>
+		<field name="site_maxanswers">4</field>
+	</row>
+	</table_data>
+	<table_data name="users">
+	<row>
+		<field name="id">1</field>
+		<field name="user_name">admin</field>
+		<field name="user_pass">$2y$10$NPnqt7lvf52IcncAQA80K.lCP88XERD4d6RZDH3dkF/Icml2N7ggi</field>
+		<field name="email">ebncana@hotmail.com.co</field>
+	</row>
+	</table_data>
+</database>
+</mysqldump>
