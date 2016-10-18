@@ -11,7 +11,7 @@ session_start();
 
 $doAction = isset($_GET['do']) ? General::cleanInput('string', $_GET['do']) : null;
 
-$systemFactory = new Factory($templatePathDir, $settingsId);
+$systemFactory = new Factory($db, $templatePathDir, $settingsId);
 $adminIndex = new AdminIndex($systemFactory);
 
 if (empty($doAction) && !method_exists($adminIndex, $doAction)) {

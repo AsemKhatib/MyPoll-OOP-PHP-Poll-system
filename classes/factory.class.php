@@ -12,6 +12,9 @@ use Twig_Loader_Filesystem;
  */
 class Factory
 {
+    /** @var  mixed */
+    protected $db;
+
     /** @var  Twig_Environment */
     protected $twigAdminObj;
 
@@ -36,19 +39,29 @@ class Factory
     /**
      * Factory constructor.
      *
+     * @param mixed $db
      * @param string $templatePathDir
      * @param int $settingsId
      */
-    public function __construct($templatePathDir, $settingsId)
+    public function __construct($db, $templatePathDir, $settingsId)
     {
+        $this->db = $db;
         $loaderAdmin = new Twig_Loader_Filesystem($templatePathDir);
         $this->twigAdminObj = new Twig_Environment($loaderAdmin, array());
-        $this->paginationObj = new Pagination();
+        $this->paginationObj = new Pagination($this->getDb());
         $this->settingsObj = new Settings($this, $settingsId);
         $this->usersObj = new Users($this);
         $this->questionsObj = new Questions($this);
         $this->loginObj = new Login($this);
         $this->cookieObj = new Cookie();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDb()
+    {
+        return $this->db;
     }
 
     /**

@@ -6,11 +6,13 @@ use RedBeanPHP\Facade;
 
 /**
  * Class Pagination
+ *
  * @package MyPoll\Classes
  */
 class Pagination
 {
-
+    /** @var  RedBeanDB */
+    protected $db;
     /** @var  string */
     protected $DBTable;
     /** @var  int */
@@ -21,28 +23,51 @@ class Pagination
     protected $storedNumber;
 
     /**
-     * @param string $DBTable
-     * @param int $startPage
-     * @param int $maxResults
+     * Pagination constructor.
+     *
+     * @param mixed $db
      */
-    public function setParams($DBTable, $maxResults, $startPage)
+    public function __construct($db)
+    {
+        $this->db = $db;
+    }
+
+    /**
+     * @param string $DBTable
+     * @param int    $startPage
+     * @param int    $maxResults
+     * @param int    $storedNumber
+     */
+    public function setParams($DBTable, $maxResults, $startPage, $storedNumber)
     {
         $this->DBTable = $DBTable;
         $this->maxResults = $maxResults;
         $this->startPage = $startPage;
-        $this->storedNumber = Facade::count($this->DBTable);
+        $this->storedNumber = $storedNumber;
     }
+
+    /**
+     * @return bool
+     */
+    public function prepareQuery()
+    {
+        if ($this->storedNumber > $this->maxResults) {
+            $startFrom = $this->maxResults * $this->startPage;
+            $extraSQL = 'ORDER BY id ASC LIMIT ' . $startFrom . ',' . $this->maxResults;
+            return $extraSQL;
+        }
+        return false;
+    }
+
     /**
      * @return array
      */
     public function getResults()
     {
-        if ($this->storedNumber > $this->maxResults) {
-            $startFrom = $this->maxResults * $this->startPage;
-            $extraSQL = 'ORDER BY id ASC LIMIT ' . $startFrom . ',' . $this->maxResults;
-            return Facade::findAll($this->DBTable, $extraSQL);
+        if (!$this->prepareQuery()) {
+            return $this->db->getFinder()->find($this->DBTable);
         } else {
-            return Facade::findAll($this->DBTable);
+            return $this->db->getFinder()->find($this->DBTable, $this->prepareQuery());
         }
     }
 
