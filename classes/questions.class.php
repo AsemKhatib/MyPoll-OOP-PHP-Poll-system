@@ -4,6 +4,7 @@ namespace MyPoll\Classes;
 
 use Exception;
 use RedBeanPHP\Facade;
+use RedBeanPHP\Finder;
 
 /**
  * Class Questions
@@ -99,7 +100,7 @@ class Questions extends FeaturesAbstract
      */
     public function show($startPage = 0)
     {
-        $this->pagination->setParams('questions', $this->maxResults, $startPage);
+        $this->pagination->setParams('questions', $this->maxResults, $startPage, Facade::count('questions'));
         return $this->twig->render(
             'show_poll.html',
             array(

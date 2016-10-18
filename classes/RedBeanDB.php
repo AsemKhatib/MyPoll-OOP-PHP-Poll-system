@@ -21,7 +21,7 @@ class RedBeanDB implements DBInterface
     protected $db_options;
 
     /** @var  ToolBox */
-    protected $connection;
+    protected $toolBox;
 
     /** @var  Finder */
     protected $finder;
@@ -40,15 +40,18 @@ class RedBeanDB implements DBInterface
         $this->db_user = $db_user;
         $this->db_pass = $db_pass;
         $this->db_options = $db_options;
-
-        $this->setup();
     }
 
-    public function setup()
+    /**
+     * @param array $array
+     *
+     * @return mixed
+     */
+    public function setup($array = [])
     {
         Facade::setup($this->db_dsn, $this->db_user, $this->db_pass);
-        $this->connection = Facade::getToolBox();
-        $this->finder = new Finder($this->connection);
+        $this->toolBox = $array['toolBox'];
+        $this->finder = $array['finder'];
     }
 
     /**
@@ -56,7 +59,7 @@ class RedBeanDB implements DBInterface
      */
     public function getConnection()
     {
-        return $this->connection;
+        return $this->toolBox;
     }
 
     /**
