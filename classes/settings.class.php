@@ -4,6 +4,7 @@ namespace MyPoll\Classes;
 
 use Exception;
 use RedBeanPHP\Facade;
+use Twig_Environment;
 
 /**
  * Class Settings
@@ -100,13 +101,16 @@ class Settings
 
 
     /**
-     * @param Factory $factory
-     * @param int     $id
+     * Settings constructor.
+     *
+     * @param Twig_Environment $twig
+     * @param Login            $login
+     * @param                  $id
      */
-    public function __construct($factory, $id)
+    public function __construct(Twig_Environment $twig, Login $login, $id)
     {
-        $this->twig = $factory->getTwigAdminObj();
-        $this->login = $factory->getLoginObj();
+        $this->twig = $twig;
+        $this->login = $login;
         $this->id = $id;
 
         $settings = $this->processSettings($this->id);

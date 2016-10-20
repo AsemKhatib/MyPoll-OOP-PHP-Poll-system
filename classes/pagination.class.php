@@ -2,8 +2,6 @@
 
 namespace MyPoll\Classes;
 
-use RedBeanPHP\Facade;
-
 /**
  * Class Pagination
  *
@@ -25,9 +23,9 @@ class Pagination
     /**
      * Pagination constructor.
      *
-     * @param mixed $db
+     * @param RedBeanDB $db
      */
-    public function __construct($db)
+    public function __construct(RedBeanDB $db)
     {
         $this->db = $db;
     }
