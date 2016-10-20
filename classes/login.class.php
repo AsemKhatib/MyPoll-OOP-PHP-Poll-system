@@ -27,12 +27,15 @@ class Login extends Cookie
     private $email;
 
     /**
-     * @param Factory $factory
+     * Login constructor.
+     *
+     * @param Users    $users
+     * @param Settings $settings
      */
-    public function __construct($factory)
+    public function __construct(Users $users, Settings $settings)
     {
-        $this->users = $factory->getUsersObj();
-        $this->settings = $factory->getSettingsObj();
+        $this->users = $users;
+        $this->settings = $settings;
         $this->cookie = General::issetAndNotEmpty($_COOKIE[$this->cookieName]) ? $_COOKIE[$this->cookieName] : null;
     }
 

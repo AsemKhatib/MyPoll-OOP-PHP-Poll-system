@@ -13,7 +13,7 @@ use Twig_Environment;
  */
 class Settings
 {
-    /** @var \Twig_Environment */
+    /** @var Twig_Environment */
     protected $twig;
 
     /** @var  Login */

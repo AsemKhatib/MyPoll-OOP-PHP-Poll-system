@@ -9,11 +9,20 @@ use MyPoll\Classes\Login;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\Questions;
 use MyPoll\Classes\Cookie;
+use MyPoll\Classes\AdminIndex;
 
 return [
     RedBeanDB::class => object()->constructor($db_dsn, $db_user, $db_pass),
     Twig_Environment::class => object()->constructor($loaderAdmin, array()),
     Pagination::class => object()->constructor(get(RedBeanDB::class)),
+
+    AdminIndex::class => object(
+        get(Twig_Environment::class),
+        get(Settings::class),
+        get(Login::class),
+        get(Questions::class),
+        get(Users::class)
+    ),
 
     Settings::class => object()->constructor(
         get(Twig_Environment::class),

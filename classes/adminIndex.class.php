@@ -2,6 +2,8 @@
 
 namespace MyPoll\Classes;
 
+use Twig_Environment;
+
 /**
  * Class AdminIndex
  *
@@ -10,7 +12,7 @@ namespace MyPoll\Classes;
 
 class AdminIndex
 {
-    /** @var \Twig_Environment */
+    /** @var Twig_Environment */
     protected $twig;
 
     /** @var Settings */
@@ -28,15 +30,24 @@ class AdminIndex
     /**
      * AdminIndex constructor.
      *
-     * @param Factory $factory
+     * @param Twig_Environment $twig
+     * @param Settings         $settings
+     * @param Login            $login
+     * @param Questions        $questions
+     * @param Users            $users
      */
-    public function __construct($factory)
-    {
-        $this->twig = $factory->getTwigAdminObj();
-        $this->settings = $factory->getSettingsObj();
-        $this->login = $factory->getLoginObj();
-        $this->questions = $factory->getQuestionsObj();
-        $this->users = $factory->getUsersObj();
+    public function __construct(
+        Twig_Environment $twig,
+        Settings $settings,
+        Login $login,
+        Questions $questions,
+        Users $users
+    ) {
+        $this->twig = $twig;
+        $this->settings = $settings;
+        $this->login = $login;
+        $this->questions = $questions;
+        $this->users = $users;
 
         $this->twig->addGlobal('session', $_SESSION);
         $this->settings->checkCache();

@@ -4,7 +4,7 @@ namespace MyPoll\Classes;
 
 use Exception;
 use RedBeanPHP\Facade;
-use RedBeanPHP\Finder;
+use Twig_Environment;
 
 /**
  * Class Questions
@@ -13,7 +13,7 @@ use RedBeanPHP\Finder;
  */
 class Questions extends FeaturesAbstract
 {
-    /** @var \Twig_Environment */
+    /** @var Twig_Environment */
     protected $twig;
 
     /** @var Pagination */
@@ -38,13 +38,17 @@ class Questions extends FeaturesAbstract
     protected $maxResults;
 
     /**
-     * @param Factory $factory
+     * Questions constructor.
+     *
+     * @param Twig_Environment $twig
+     * @param Pagination       $pagination
+     * @param Settings         $settings
      */
-    public function __construct($factory)
+    public function __construct(Twig_Environment $twig, Pagination $pagination, Settings $settings)
     {
-        $this->twig = $factory->getTwigAdminObj();
-        $this->pagination = $factory->getPaginationObj();
-        $this->settings = $factory->getSettingsObj();
+        $this->twig = $twig;
+        $this->pagination = $pagination;
+        $this->settings = $settings;
         $this->maxResults = $this->settings->getResultNumber();
     }
 

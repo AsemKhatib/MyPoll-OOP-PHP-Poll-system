@@ -15,4 +15,3 @@ $loaderAdmin = new Twig_Loader_Filesystem($templatePathDir);
 $containerBuilder = new ContainerBuilder;
 $containerBuilder->addDefinitions(__DIR__ . '/DIConfig.php');
 $container = $containerBuilder->build();
-return $container;

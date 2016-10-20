@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use Exception;
+use Twig_Environment;
 use RedBeanPHP\Facade;
 
 /**
@@ -12,7 +13,7 @@ use RedBeanPHP\Facade;
  */
 class Users
 {
-    /** @var \Twig_Environment */
+    /** @var Twig_Environment */
     protected $twig;
 
     /** @var Pagination */
@@ -28,13 +29,17 @@ class Users
     protected $adminID = 1;
 
     /**
-     * @param Factory $factory
+     * Users constructor.
+     *
+     * @param Twig_Environment $twig
+     * @param Pagination       $pagination
+     * @param Settings         $settings
      */
-    public function __construct($factory)
+    public function __construct(Twig_Environment $twig, Pagination $pagination, Settings $settings)
     {
-        $this->twig = $factory->getTwigAdminObj();
-        $this->pagination = $factory->getPaginationObj();
-        $this->settings = $factory->getSettingsObj();
+        $this->twig = $twig;
+        $this->pagination = $pagination;
+        $this->settings = $settings;
         $this->maxResults = $this->settings->getResultNumber();
     }
 
