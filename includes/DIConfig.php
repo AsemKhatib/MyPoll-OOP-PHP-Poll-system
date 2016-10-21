@@ -3,11 +3,11 @@
 use function DI\get;
 use function DI\object;
 use MyPoll\Classes\AdminIndex;
-use MyPoll\Classes\Cookie;
-use MyPoll\Classes\Login;
+use MyPoll\Classes\Login\Cookie;
+use MyPoll\Classes\Login\Login;
 use MyPoll\Classes\Pagination;
 use MyPoll\Classes\Questions;
-use MyPoll\Classes\RedBeanDB;
+use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\Users;
 
