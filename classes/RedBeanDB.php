@@ -40,6 +40,7 @@ class RedBeanDB implements DBInterface
         $this->db_user = $db_user;
         $this->db_pass = $db_pass;
         $this->db_options = $db_options;
+        Facade::setup($this->db_dsn, $this->db_user, $this->db_pass);
     }
 
     /**
@@ -49,7 +50,6 @@ class RedBeanDB implements DBInterface
      */
     public function setup($array = [])
     {
-        Facade::setup($this->db_dsn, $this->db_user, $this->db_pass);
         $this->toolBox = $array['toolBox'];
         $this->finder = $array['finder'];
     }

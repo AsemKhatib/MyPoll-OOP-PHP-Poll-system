@@ -16,8 +16,8 @@ class Settings
     /** @var Twig_Environment */
     protected $twig;
 
-    /** @var  Login */
-    protected $login;
+    /** @var  RedBeanDB */
+    protected $redBeanDB;
 
     /** @var  int */
     protected $id;
@@ -104,13 +104,13 @@ class Settings
      * Settings constructor.
      *
      * @param Twig_Environment $twig
-     * @param Login            $login
+     * @param RedBeanDB        $redBeanDB
      * @param                  $id
      */
-    public function __construct(Twig_Environment $twig, Login $login, $id)
+    public function __construct(Twig_Environment $twig, RedBeanDB $redBeanDB, $id)
     {
         $this->twig = $twig;
-        $this->login = $login;
+        $this->redBeanDB = $redBeanDB;
         $this->id = $id;
 
         $settings = $this->processSettings($this->id);
