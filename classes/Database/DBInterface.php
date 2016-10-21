@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPoll\Classes;
+namespace MyPoll\Classes\Database;
 
 interface DBInterface
 {
@@ -15,9 +15,12 @@ interface DBInterface
     public function __construct($db_dsn, $db_user, $db_pass, $db_options = '');
 
     /**
-     * @return mixed
+     * @return void
      */
     public function setup();
 
+    /**
+     * @return mixed
+     */
     public function getConnection();
 }

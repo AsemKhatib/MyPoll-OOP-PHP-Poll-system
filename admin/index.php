@@ -4,7 +4,7 @@ use MyPoll\Classes\General;
 use MyPoll\Classes\AdminIndex;
 
 require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../includes/config.php';
+require __DIR__ . '/../includes/Bootstrap.php';
 
 session_start();
 

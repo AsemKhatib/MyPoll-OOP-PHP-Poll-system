@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPoll\Classes;
+namespace MyPoll\Classes\Database;
 
 use RedBeanPHP\Facade;
 use RedBeanPHP\Finder;

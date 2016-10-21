@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPoll\Classes;
+namespace MyPoll\Classes\Login;
 
 use RedBeanPHP\Facade;
 
