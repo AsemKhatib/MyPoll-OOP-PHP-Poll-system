@@ -2,6 +2,8 @@
 
 namespace MyPoll\Classes;
 
+use MyPoll\Classes\Database\RedBeanDB;
+
 /**
  * Class Pagination
  *

@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use Twig_Environment;
+use MyPoll\Classes\Login\Login;
 
 /**
  * Class AdminIndex

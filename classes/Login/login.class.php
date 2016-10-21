@@ -3,6 +3,9 @@
 namespace MyPoll\Classes\Login;
 
 use RedBeanPHP\Facade;
+use MyPoll\Classes\Users;
+use MyPoll\Classes\Settings;
+use MyPoll\Classes\General;
 
 /**
  * Class Login

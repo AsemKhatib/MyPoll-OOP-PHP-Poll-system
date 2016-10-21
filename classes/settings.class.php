@@ -2,6 +2,7 @@
 
 namespace MyPoll\Classes;
 
+use MyPoll\Classes\Database\RedBeanDB;
 use Exception;
 use RedBeanPHP\Facade;
 use Twig_Environment;
