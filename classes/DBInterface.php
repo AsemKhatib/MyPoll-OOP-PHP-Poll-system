@@ -15,11 +15,9 @@ interface DBInterface
     public function __construct($db_dsn, $db_user, $db_pass, $db_options = '');
 
     /**
-     * @param array $array
-     *
      * @return mixed
      */
-    public function setup($array = []);
+    public function setup();
 
     public function getConnection();
 }

@@ -1,5 +1,7 @@
 <?php
 
+use function DI\get;
+use function DI\object;
 use MyPoll\Classes\AdminIndex;
 use MyPoll\Classes\Cookie;
 use MyPoll\Classes\Login;
@@ -8,10 +10,6 @@ use MyPoll\Classes\Questions;
 use MyPoll\Classes\RedBeanDB;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\Users;
-use RedBeanPHP\Finder;
-use RedBeanPHP\ToolBox;
-use function DI\get;
-use function DI\object;
 
 $db_dsn = 'mysql:host=localhost;dbname=mypoll;charset=utf8';
 $db_user = 'root';
@@ -27,15 +25,7 @@ return [
     'db_user' => $db_user,
     'db_pass' => $db_pass,
 
-    RedBeanDB::class => object()
-        ->constructor(
-            get('db_dsn'),
-            get('db_user'),
-            get('db_pass')
-        )->method(
-            'setup',
-            array('toolBox' => get(ToolBox::class), 'finder' => get(Finder::class))
-        ),
+    RedBeanDB::class => object()->constructor(get('db_dsn'), get('db_user'), get('db_pass'))->method('setup'),
 
     Twig_Loader_Filesystem::class => object()->constructor(get('templatePathDir')),
     Twig_Environment::class => object()->constructor(get(Twig_Loader_Filesystem::class), array()),
