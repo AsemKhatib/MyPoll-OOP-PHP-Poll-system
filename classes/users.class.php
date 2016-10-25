@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use Exception;
+use MyPoll\Classes\Database\DBInterface;
 use Twig_Environment;
 use RedBeanPHP\Facade;
 
@@ -13,6 +14,9 @@ use RedBeanPHP\Facade;
  */
 class Users
 {
+    /** @var DBInterface */
+    protected $db;
+
     /** @var Twig_Environment */
     protected $twig;
 
@@ -31,12 +35,14 @@ class Users
     /**
      * Users constructor.
      *
+     * @param DBInterface      $db
      * @param Twig_Environment $twig
      * @param Pagination       $pagination
      * @param Settings         $settings
      */
-    public function __construct(Twig_Environment $twig, Pagination $pagination, Settings $settings)
+    public function __construct(DBInterface $db, Twig_Environment $twig, Pagination $pagination, Settings $settings)
     {
+        $this->db = $db;
         $this->twig = $twig;
         $this->pagination = $pagination;
         $this->settings = $settings;

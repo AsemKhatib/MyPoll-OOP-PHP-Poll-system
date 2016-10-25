@@ -2,6 +2,7 @@
 
 namespace MyPoll\Classes;
 
+use MyPoll\Classes\Database\DBInterface;
 use MyPoll\Classes\Database\RedBeanDB;
 
 /**
@@ -25,9 +26,9 @@ class Pagination
     /**
      * Pagination constructor.
      *
-     * @param RedBeanDB $db
+     * @param DBInterface $db
      */
-    public function __construct(RedBeanDB $db)
+    public function __construct(DBInterface $db)
     {
         $this->db = $db;
     }

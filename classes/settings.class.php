@@ -2,6 +2,7 @@
 
 namespace MyPoll\Classes;
 
+use MyPoll\Classes\Database\DBInterface;
 use MyPoll\Classes\Database\RedBeanDB;
 use Exception;
 use RedBeanPHP\Facade;
@@ -17,8 +18,8 @@ class Settings
     /** @var Twig_Environment */
     protected $twig;
 
-    /** @var  RedBeanDB */
-    protected $redBeanDB;
+    /** @var  DBInterface */
+    protected $db;
 
     /** @var  int */
     protected $id;
@@ -105,13 +106,13 @@ class Settings
      * Settings constructor.
      *
      * @param Twig_Environment $twig
-     * @param RedBeanDB        $redBeanDB
+     * @param DBInterface      $db
      * @param                  $id
      */
-    public function __construct(Twig_Environment $twig, RedBeanDB $redBeanDB, $id)
+    public function __construct(Twig_Environment $twig, DBInterface $db, $id)
     {
+        $this->db = $db;
         $this->twig = $twig;
-        $this->redBeanDB = $redBeanDB;
         $this->id = $id;
 
         $settings = $this->processSettings($this->id);

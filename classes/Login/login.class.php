@@ -3,6 +3,7 @@
 namespace MyPoll\Classes\Login;
 
 use RedBeanPHP\Facade;
+use MyPoll\Classes\Database\DBInterface;
 use MyPoll\Classes\Users;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\General;
@@ -14,6 +15,9 @@ use MyPoll\Classes\General;
  */
 class Login extends Cookie
 {
+    /** @var DBInterface */
+    protected $db;
+
     /** @var  Users */
     protected $users;
 
@@ -32,11 +36,13 @@ class Login extends Cookie
     /**
      * Login constructor.
      *
-     * @param Users    $users
-     * @param Settings $settings
+     * @param DBInterface $db
+     * @param Users       $users
+     * @param Settings    $settings
      */
-    public function __construct(Users $users, Settings $settings)
+    public function __construct(DBInterface $db, Users $users, Settings $settings)
     {
+        $this->db = $db;
         $this->users = $users;
         $this->settings = $settings;
         $this->cookie = General::issetAndNotEmpty($_COOKIE[$this->cookieName]) ? $_COOKIE[$this->cookieName] : null;

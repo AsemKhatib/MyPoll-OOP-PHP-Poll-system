@@ -7,6 +7,7 @@ use MyPoll\Classes\Login\Cookie;
 use MyPoll\Classes\Login\Login;
 use MyPoll\Classes\Pagination;
 use MyPoll\Classes\Questions;
+use MyPoll\Classes\Database\DBInterface;
 use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\Users;
@@ -25,6 +26,7 @@ return [
     'db_user' => $db_user,
     'db_pass' => $db_pass,
 
+    DBInterface::class => get(DBInterface::class),
     RedBeanDB::class => object()->constructor(get('db_dsn'), get('db_user'), get('db_pass'))->method('setup'),
 
     Twig_Loader_Filesystem::class => object()->constructor(get('templatePathDir')),
@@ -46,17 +48,20 @@ return [
     ),
 
     Users::class => object()->constructor(
+        get(RedBeanDB::class),
         get(Twig_Environment::class),
         get(Pagination::class),
         get(Settings::class)
     ),
 
     Questions::class => object()->constructor(
+        get(RedBeanDB::class),
         get(Twig_Environment::class),
         get(Pagination::class),
         get(Settings::class)
     ),
     Login::class => object()->constructor(
+        get(RedBeanDB::class),
         get(Users::class),
         get(Settings::class)
     ),

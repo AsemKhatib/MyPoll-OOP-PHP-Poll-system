@@ -23,4 +23,10 @@ interface DBInterface
      * @return mixed
      */
     public function getConnection();
+
+    /**
+     * @return mixed
+     */
+    public function getFinder();
+
 }
