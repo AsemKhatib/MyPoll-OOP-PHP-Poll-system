@@ -128,7 +128,7 @@ class Questions extends FeaturesAbstract
             $this->db->getConnection()->getRedBean()->count('questions')
         );
         return $this->twig->render(
-            'show_questions',
+            'show_questions.html',
             array(
                 'resultsp' => $this->pagination->getResults(),
                 'pagesNumber' => $this->pagination->getPagesNumber()
