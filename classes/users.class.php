@@ -12,7 +12,7 @@ use RedBeanPHP\Facade;
  *
  * @package MyPoll\Classes
  */
-class Users
+class Users extends FeaturesAbstract
 {
     /** @var DBInterface */
     protected $db;
@@ -58,9 +58,20 @@ class Users
     }
 
     /**
+     * @return array
+     */
+    public function getPostParamsForAddMethod()
+    {
+        $user = General::cleanInput('string', $_POST['user_name']);
+        $password = General::cleanInput('string', $_POST['user_password']);
+        $email = General::cleanInput('email', $_POST['user_email']);
+        return array('user' => $user, 'password' => $password, 'email' => $email);
+    }
+
+    /**
      * @param array $paramsArray
      *
-     * @return string|Exception
+     * @return string|void
      */
     public function addExecute($paramsArray)
     {
@@ -117,7 +128,7 @@ class Users
      */
     public function show($startPage = 0)
     {
-        $this->pagination->setParams('users', $this->maxResults, $startPage);
+        $this->pagination->setParams('users', $this->maxResults, $startPage, Facade::count('users'));
         return $this->twig->render(
             'show_user.html',
             array('results' => $this->pagination->getResults(), 'pagesNumber' => $this->pagination->getPagesNumber())
@@ -143,9 +154,21 @@ class Users
     }
 
     /**
+     * @return array
+     */
+    public function getPostParamsForEditMethod()
+    {
+        $id = General::cleanInput('int', $_POST['user_id']);
+        $user = General::cleanInput('string', $_POST['user_name']);
+        $password = General::cleanInput('password', $_POST['user_password']);
+        $email = General::cleanInput('email', $_POST['user_email']);
+        return array('id' => $id, 'user' => $user, 'password' => $password, 'email' => $email);
+    }
+
+    /**
      * @param array $paramsArray
      *
-     * @return string
+     * @return string|void
      */
     public function editExecute($paramsArray)
     {
@@ -198,7 +221,7 @@ class Users
             Facade::trash('users', $id);
             $message = 'the user with the ID ' . $id . ' deleted successfully';
         }
-        echo General::messageSent($message, $this->settings->getIndexPage() . '?do=users');
+        echo General::messageSent($message, $this->settings->getIndexPage() . '?do=show&route=users');
     }
 
     /**

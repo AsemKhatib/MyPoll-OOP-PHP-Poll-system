@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use Exception;
+use MyPoll\Classes\Database\RedBeanDB;
 use RedBeanPHP\Facade;
 use Twig_Environment;
 use MyPoll\Classes\Database\DBInterface;
@@ -14,7 +15,7 @@ use MyPoll\Classes\Database\DBInterface;
  */
 class Questions extends FeaturesAbstract
 {
-    /** @var DBInterface */
+    /** @var RedBeanDB */
     protected $db;
 
     /** @var Twig_Environment */
@@ -63,13 +64,23 @@ class Questions extends FeaturesAbstract
      */
     public function add()
     {
-        return $this->twig->display('add_poll.html');
+        return $this->twig->display('add_question.html');
+    }
+
+    /**
+     * @return array
+     */
+    public function getPostParamsForAddMethod()
+    {
+        $question = General::cleanInput('string', $_POST['question']);
+        $answers = General::cleanInput('array', $_POST['answer']);
+        return array('question' => $question, 'answers' =>  $answers);
     }
 
     /**
      * @param array $paramsArray
      *
-     * @return string
+     * @return string|void
      */
     public function addExecute($paramsArray)
     {
@@ -110,9 +121,14 @@ class Questions extends FeaturesAbstract
      */
     public function show($startPage = 0)
     {
-        $this->pagination->setParams('questions', $this->maxResults, $startPage, Facade::count('questions'));
+        $this->pagination->setParams(
+            'questions',
+            $this->maxResults,
+            $startPage,
+            $this->db->getConnection()->getRedBean()->count('questions')
+        );
         return $this->twig->render(
-            'show_poll.html',
+            'show_questions',
             array(
                 'resultsp' => $this->pagination->getResults(),
                 'pagesNumber' => $this->pagination->getPagesNumber()
@@ -166,7 +182,7 @@ class Questions extends FeaturesAbstract
         }
         $answers = Facade::getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
 
-        return $this->twig->render('edit_poll.html', array(
+        return $this->twig->render('edit_question.html', array(
             'qid' => $qid,
             'question' => $question->question,
             'answers' => $answers
@@ -174,9 +190,20 @@ class Questions extends FeaturesAbstract
     }
 
     /**
+     * @return array
+     */
+    public function getPostParamsForEditMethod()
+    {
+        $qid = General::cleanInput('int', $_POST['qid']);
+        $question = General::cleanInput('string', $_POST['question']);
+        $answers = General::cleanInput('array', $_POST['answer']);
+        return array('qid' => $qid, 'question' => $question, 'answers_old' => $answers);
+    }
+
+    /**
      * @param array $paramsArray
      *
-     * @return string
+     * @return string|void
      */
     public function editExecute($paramsArray)
     {
@@ -221,13 +248,17 @@ class Questions extends FeaturesAbstract
     /**
      * @param int $qid
      *
-     * @return void
+     * @return string
      */
     public function delete($qid)
     {
         Facade::trash('questions', $qid);
         $answersToDelete = Facade::findAll('answers', 'qid = :qid', [':qid' => $qid]);
         Facade::trashAll($answersToDelete);
+        echo General::messageSent(
+            "The question and all it's answers were successfully deleted",
+            $this->settings->getIndexPage()
+        );
     }
 
     /**

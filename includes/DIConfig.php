@@ -1,16 +1,16 @@
 <?php
 
-use function DI\get;
-use function DI\object;
 use MyPoll\Classes\AdminIndex;
+use MyPoll\Classes\Database\DBInterface;
+use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Login\Cookie;
 use MyPoll\Classes\Login\Login;
 use MyPoll\Classes\Pagination;
 use MyPoll\Classes\Questions;
-use MyPoll\Classes\Database\DBInterface;
-use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\Users;
+use function DI\get;
+use function DI\object;
 
 $db_dsn = 'mysql:host=localhost;dbname=mypoll;charset=utf8';
 $db_user = 'root';
@@ -20,6 +20,11 @@ $templatePathDir = 'template/';
 $settingsId = 1;
 
 return [
+    'routerArray' => array(
+        'questions' => get(Questions::class),
+        'users' => get(Users::class),
+        'settings' => get(Settings::class)
+    ),
     'templatePathDir' => $templatePathDir,
     'settingsId' => $settingsId,
     'db_dsn' => $db_dsn,
@@ -36,9 +41,7 @@ return [
     AdminIndex::class => object()->constructor(
         get(Twig_Environment::class),
         get(Settings::class),
-        get(Login::class),
-        get(Questions::class),
-        get(Users::class)
+        get(Login::class)
     ),
 
     Settings::class => object()->constructor(
