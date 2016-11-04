@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use Exception;
+use MyPoll\Classes\Database\RedBeanDB;
 use RedBeanPHP\Facade;
 use Twig_Environment;
 use MyPoll\Classes\Database\DBInterface;
@@ -14,7 +15,7 @@ use MyPoll\Classes\Database\DBInterface;
  */
 class Questions extends FeaturesAbstract
 {
-    /** @var DBInterface */
+    /** @var RedBeanDB */
     protected $db;
 
     /** @var Twig_Environment */
@@ -124,7 +125,7 @@ class Questions extends FeaturesAbstract
             'questions',
             $this->maxResults,
             $startPage,
-            $this->db->count('questions')
+            $this->db->getConnection()->getRedBean()->count('questions')
         );
         return $this->twig->render(
             'show_questions.html',
