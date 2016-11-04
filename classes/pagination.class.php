@@ -4,6 +4,7 @@ namespace MyPoll\Classes;
 
 use MyPoll\Classes\Database\DBInterface;
 use MyPoll\Classes\Database\RedBeanDB;
+use RedBeanPHP\Facade;
 
 /**
  * Class Pagination
@@ -66,9 +67,9 @@ class Pagination
     public function getResults()
     {
         if (!$this->prepareQuery()) {
-            return $this->db->getFinder()->find($this->DBTable);
+            return Facade::find($this->DBTable);
         } else {
-            return $this->db->getFinder()->find($this->DBTable, $this->prepareQuery());
+            return Facade::find($this->DBTable, $this->prepareQuery());
         }
     }
 
