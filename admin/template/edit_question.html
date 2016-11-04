@@ -1,0 +1,42 @@
+{% block header %}
+{% include 'header.html' %}
+{% endblock %}
+<div class="side_frame">
+    <form id="ajaxRequest" class="bootstrap-frm">
+        <input type="hidden" id="callBack" value="editExecute">
+        <input type="hidden" id="route" value="questions">
+        <label>
+            <span>Poll Question EDIT:</span>
+            <input id="question" name="question" type="text" value="{{ question }}" required>
+            <input type="hidden" name="qid" value="{{ qid }}">
+        </label>
+        <br>
+        <label>
+            <span>Poll Answers:</span>
+            <a href="#" id="add">Add Answer</a>
+            <a href="#" id="del">Remove Answer</a>
+            <br>
+            <div class="input_fields_wrap">
+                {% for answer in answers %}
+                {% if loop.first %}
+                <div><input type="text" name="answer[{{ answer.id }}]" value="{{ answer.answer }}" required><a href="index.php?do=deleteAnswer&route=questions&id={{ answer.id }}&questionID={{ qid }}" class="img_url" onclick="return confirm('Are you sure , want to delete this answer?');"><img src="template/images/delete.png" class="delete_icon" width="16" height="16" alt="Delete Answer" title="Delete Answer"></a></div>
+                {% else %}
+                <div><input type="text" style="margin-left: 166px;" name="answer[{{ answer.id }}]" value="{{ answer.answer }}" required><a href="index.php?do=deleteAnswer&route=questions&id={{ answer.id }}&questionID={{ qid }}" class="img_url" onclick="return confirm('Are you sure , want to delete this answer?');"><img src="template/images/delete.png" class="delete_icon" width="16" height="16" alt="Delete Answer" title="Delete Answer"></a></div>
+                {% endif %}
+                {% endfor %}
+            </div>
+
+        </label>
+        <label>
+            <span>&nbsp;</span>
+            <input type="submit" class="button" value="Modify" />
+        </label>
+        <div id="results"></div>
+        <div><iframe src="index.php?do=answersShow&route=questions&qid={{ qid }}&is_pie=true" width="700" height="80" style="width: 560px;height: 370px; margin: 0px auto 0px 150px;border: 0;overflow: hidden;" scrolling="no"></iframe></div>
+    </form>
+    
+    <div class="clear"></div>
+</div>
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock %}

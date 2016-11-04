@@ -3,7 +3,6 @@
 namespace MyPoll\Classes\Database;
 
 use RedBeanPHP\Facade;
-use RedBeanPHP\Finder;
 use RedBeanPHP\ToolBox;
 
 class RedBeanDB implements DBInterface
@@ -22,9 +21,6 @@ class RedBeanDB implements DBInterface
 
     /** @var  ToolBox */
     protected $toolBox;
-
-    /** @var  Finder */
-    protected $finder;
 
     /**
      * RedBeanDB constructor.
@@ -49,7 +45,6 @@ class RedBeanDB implements DBInterface
     {
         Facade::setup($this->db_dsn, $this->db_user, $this->db_pass);
         $this->toolBox = Facade::getToolBox();
-        $this->finder = new Finder($this->toolBox);
     }
 
     /**
@@ -61,11 +56,23 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @return Finder
+     * @param string $dbName
+     *
+     * @return int
      */
-    public function getFinder()
+    public function count($dbName)
     {
-        return $this->finder;
+        return Facade::count($dbName);
+    }
+
+    /**
+     * @param array|string $stringOrArray
+     *
+     * @return array|OODBBean
+     */
+    public function addColumn($stringOrArray)
+    {
+        return Facade::dispense($stringOrArray);
     }
 
 }

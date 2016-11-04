@@ -25,8 +25,17 @@ interface DBInterface
     public function getConnection();
 
     /**
+     * @param string $dbName
+     *
+     * @return int
+     */
+    public function count($dbName);
+
+    /**
+     * @param string|array $stringOrArray
+     *
      * @return mixed
      */
-    public function getFinder();
+    public function addColumn($stringOrArray);
 
 }

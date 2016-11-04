@@ -15,9 +15,19 @@ abstract class FeaturesAbstract
     abstract public function add();
 
     /**
+     * @return array
+     */
+    abstract public function getPostParamsForAddMethod();
+
+    /**
+     * @return array
+     */
+    abstract public function getPostParamsForEditMethod();
+
+    /**
      * @param array $paramsArray
      *
-     * @return string
+     * @return string|void
      */
     abstract public function addExecute($paramsArray);
 
@@ -31,7 +41,7 @@ abstract class FeaturesAbstract
     /**
      * @param array $paramsArray
      *
-     * @return mixed
+     * @return string|void
      */
     abstract public function editExecute($paramsArray);
 

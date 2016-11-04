@@ -48,10 +48,11 @@
 
                 var values = $(this).serialize();
                 var callBackMethod = $("#callBack").val();
+                var routeID = $("#route").val();
 
                 /* Send the data using post and put the results in a div */
                 $.ajax({
-                    url: "index.php?do=" + callBackMethod,
+                    url: "index.php?do=" + callBackMethod + "&route=" + routeID,
                     type: "post",
                     data: values,
                     success: function (data) {
@@ -77,9 +78,9 @@
         <p>Welcome {{ session.user }}</p>
         <div class="head_frame">
             <ul>
-                <li><a href="index.php?do=questions">Main</a></li>
-                <li><a href="index.php?do=users">Users</a></li>
-                <li><a href="index.php?do=settings">Settings</a></li>
+                <li><a href="index.php?do=show&route=questions">Main</a></li>
+                <li><a href="index.php?do=show&route=users">Users</a></li>
+                <li><a href="index.php?do=editSettings&route=settings">Settings</a></li>
                 <li><a href="index.php?do=logout">Logout</a></li>
             </ul>
         </div>

@@ -3,7 +3,6 @@
 namespace MyPoll\Classes;
 
 use MyPoll\Classes\Database\DBInterface;
-use MyPoll\Classes\Database\RedBeanDB;
 use Exception;
 use RedBeanPHP\Facade;
 use Twig_Environment;
@@ -40,7 +39,7 @@ class Settings
     protected $siteMaxAnswers;
 
     /** @var string */
-    private $logPage = 'index.php?do=questions';
+    private $logPage = 'index.php?do=show&route=questions';
 
     /** @var string */
     private $indexPage = 'index.php';
@@ -168,7 +167,7 @@ class Settings
     {
         $settings = $this->processSettings($this->id);
 
-        return $this->twig->render('settings.html', array(
+        return $this->twig->render('edit_settings.html', array(
             'id' => $settings->id,
             'site_name' => $settings->site_name,
             'site_resultsnumber' => $settings->site_resultsnumber,
