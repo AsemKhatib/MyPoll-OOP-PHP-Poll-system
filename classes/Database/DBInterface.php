@@ -20,28 +20,28 @@ interface DBInterface
     public function setup();
 
     /**
-     * @param string $dbName   type of bean we are looking for
+     * @param string $table   type of bean we are looking for
      * @param string $addSQL   additional SQL snippet
      * @param array  $bindings parameters to bind to SQL
      *
      * @return int
      */
-    public function count($dbName, $addSQL = '', $bindings = array());
+    public function count($table, $addSQL = '', $bindings = array());
 
     /**
+     * @param string $table
      * @param array $rows
-     * @param string $type
      *
      * @return array
      */
-    public function addRows($rows, $type);
+    public function addRows($table, $rows);
 
     /**
-     * @param array $type
+     * @param array $rows
      *
      * @return integer
      */
-    public function store($type);
+    public function store($rows);
 
     /**
      * Convenience function to execute Queries directly.
@@ -64,12 +64,12 @@ interface DBInterface
     public function getRow($sql, $bindings);
 
     /**
-     * @param string $dbName
+     * @param string $table
      * @param int    $id
      *
      * @return array
      */
-    public function getById($dbName, $id);
+    public function getById($table, $id);
 
     /**
      * @param string $table
@@ -80,27 +80,27 @@ interface DBInterface
     public function deleteById($table, $id = null);
 
     /**
-     * @param array $columns
+     * @param array $rows
      *
      * @return void
      */
-    public function delete($columns);
+    public function delete($rows);
 
     /**
-     * @param string $type
+     * @param string $table
      * @param string $sql
      * @param array  $bindings
      *
      * @return array
      */
-    public function find($type, $sql = null, $bindings = array());
+    public function find($table, $sql = null, $bindings = array());
 
     /**
-     * @param string $type
+     * @param string $table
      * @param string $sql
      * @param array  $bindings
      *
      * @return array
      */
-    public function findOne($type, $sql = null, $bindings = array());
+    public function findOne($table, $sql = null, $bindings = array());
 }

@@ -3,7 +3,6 @@
 namespace MyPoll\Classes\Database;
 
 use RedBeanPHP\Facade;
-use RedBeanPHP\OODBBean;
 
 class RedBeanDB implements DBInterface
 {
@@ -36,7 +35,7 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @return mixed
+     * @return void
      */
     public function setup()
     {
@@ -56,28 +55,28 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @param string $type
+     * @param string $table
      * @param array $rows
      *
      * @return array
      */
-    public function addRows($type, $rows)
+    public function addRows($table, $rows)
     {
         $arrayToSave = array();
         foreach ($rows as $row) {
-            $arrayToSave[] = Facade::dispense($type)->import($row);
+            $arrayToSave[] = Facade::dispense($table)->import($row);
         }
         return $arrayToSave;
     }
 
     /**
-     * @param array $columns
+     * @param array $rows
      *
      * @return integer
      */
-    public function store($columns)
+    public function store($rows)
     {
-        Facade::storeAll($columns);
+        Facade::storeAll($rows);
     }
 
     /**
@@ -92,14 +91,14 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @param string $dbName
+     * @param string $table
      * @param int    $id
      *
      * @return array
      */
-    public function getById($dbName, $id)
+    public function getById($table, $id)
     {
-        array(Facade::load($dbName, $id));
+        array(Facade::load($table, $id));
     }
 
     /**
@@ -125,36 +124,36 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @param array $columns
+     * @param array $rows
      *
      * @return void
      */
-    public function delete($columns)
+    public function delete($rows)
     {
-        Facade::trashAll($columns);
+        Facade::trashAll($rows);
     }
 
     /**
-     * @param string $type
+     * @param string $table
      * @param string   $sql
      * @param array  $bindings
      *
      * @return array
      */
-    public function find($type, $sql = null, $bindings = array())
+    public function find($table, $sql = null, $bindings = array())
     {
-        Facade::find($type, $sql = null, $bindings = array());
+        Facade::find($table, $sql = null, $bindings = array());
     }
 
     /**
-     * @param string $type
+     * @param string $table
      * @param string   $sql
      * @param array  $bindings
      *
      * @return array
      */
-    public function findOne($type, $sql = null, $bindings = array())
+    public function findOne($table, $sql = null, $bindings = array())
     {
-        array(Facade::findOne($type, $sql = null, $bindings = array()));
+        array(Facade::findOne($table, $sql = null, $bindings = array()));
     }
 }
