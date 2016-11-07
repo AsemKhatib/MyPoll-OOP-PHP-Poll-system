@@ -2,6 +2,11 @@
 
 namespace MyPoll\Classes\Entity;
 
+/**
+ * Class Question
+ *
+ * @package MyPoll\Classes\Entity
+ */
 class Question
 {
     /**
