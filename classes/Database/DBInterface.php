@@ -29,14 +29,19 @@ interface DBInterface
     public function count($dbName, $addSQL = '', $bindings = array());
 
     /**
-     * @param AddColumnType $type
+     * @param array $rows
+     * @param string $type
+     *
+     * @return array
      */
-    public function addColumn(AddColumnType $type);
+    public function addRows($rows, $type);
 
     /**
-     * @param StoreType $type
+     * @param array $type
+     *
+     * @return integer
      */
-    public function store(StoreType $type);
+    public function store($type);
 
     /**
      * Convenience function to execute Queries directly.
@@ -50,26 +55,36 @@ interface DBInterface
     public function getAll($sql, $bindings);
 
 
-    public function getRow();
+    /**
+     * @param string $sql      SQL query to execute
+     * @param array  $bindings a list of values to be bound to query parameters
+     *
+     * @return array
+     */
+    public function getRow($sql, $bindings);
 
     /**
      * @param string $dbName
      * @param int    $id
      *
-     * @return mixed
+     * @return array
      */
     public function getById($dbName, $id);
 
     /**
-     * @param mixed $column
+     * @param string $table
      * @param int   $id
+     *
+     * @return void
      */
-    public function delete($column, $id = null);
+    public function deleteById($table, $id = null);
 
     /**
      * @param array $columns
+     *
+     * @return void
      */
-    public function deleteAll($columns);
+    public function delete($columns);
 
     /**
      * @param string $type
@@ -80,5 +95,12 @@ interface DBInterface
      */
     public function find($type, $sql = null, $bindings = array());
 
-    public function findOne();
+    /**
+     * @param string $type
+     * @param string $sql
+     * @param array  $bindings
+     *
+     * @return array
+     */
+    public function findOne($type, $sql = null, $bindings = array());
 }

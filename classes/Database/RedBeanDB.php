@@ -2,9 +2,7 @@
 
 namespace MyPoll\Classes\Database;
 
-use phpDocumentor\Reflection\Types\Array_;
 use RedBeanPHP\Facade;
-use RedBeanPHP\ToolBox;
 use RedBeanPHP\OODBBean;
 
 class RedBeanDB implements DBInterface
@@ -38,7 +36,7 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @return void
+     * @return mixed
      */
     public function setup()
     {
@@ -54,27 +52,32 @@ class RedBeanDB implements DBInterface
      */
     public function count($dbName, $addSQL = '', $bindings = array())
     {
-        return Facade::count($dbName, $addSQL, $bindings);
+        Facade::count($dbName, $addSQL = '', $bindings = array());
     }
 
     /**
-     * @param StoreType $type
+     * @param string $type
+     * @param array $rows
      *
-     * @return int
+     * @return array
      */
-    public function store(StoreType $type)
+    public function addRows($type, $rows)
     {
-        return $type->storeRedBean();
+        $arrayToSave = array();
+        foreach ($rows as $row) {
+            $arrayToSave[] = Facade::dispense($type)->import($row);
+        }
+        return $arrayToSave;
     }
 
     /**
-     * @param AddColumnType $type
+     * @param array $columns
      *
-     * @return array|OODBBean
+     * @return integer
      */
-    public function addColumn(AddColumnType $type)
+    public function store($columns)
     {
-        return $type->addRedBeanColumn();
+        Facade::storeAll($columns);
     }
 
     /**
@@ -92,26 +95,41 @@ class RedBeanDB implements DBInterface
      * @param string $dbName
      * @param int    $id
      *
-     * @return OODBBean
+     * @return array
      */
     public function getById($dbName, $id)
     {
-        Facade::load($dbName, $id);
+        array(Facade::load($dbName, $id));
     }
 
     /**
-     * @param mixed $column
-     * @param int  $id
+     * @param string $sql      SQL query to execute
+     * @param array  $bindings a list of values to be bound to query parameters
+     *
+     * @return array
      */
-    public function delete($column, $id = null)
+    public function getRow($sql, $bindings)
     {
-        Facade::trash($column, $id = null);
+        Facade::getRow($sql, $bindings = array());
+    }
+
+    /**
+     * @param string $table
+     * @param int  $id
+     *
+     * @return void
+     */
+    public function deleteById($table, $id = null)
+    {
+        Facade::trash($table, $id = null);
     }
 
     /**
      * @param array $columns
+     *
+     * @return void
      */
-    public function deleteAll($columns)
+    public function delete($columns)
     {
         Facade::trashAll($columns);
     }
@@ -125,6 +143,18 @@ class RedBeanDB implements DBInterface
      */
     public function find($type, $sql = null, $bindings = array())
     {
-        return Facade::find($type, $sql = null, $bindings = array());
+        Facade::find($type, $sql = null, $bindings = array());
+    }
+
+    /**
+     * @param string $type
+     * @param string   $sql
+     * @param array  $bindings
+     *
+     * @return array
+     */
+    public function findOne($type, $sql = null, $bindings = array())
+    {
+        array(Facade::findOne($type, $sql = null, $bindings = array()));
     }
 }
