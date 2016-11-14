@@ -107,7 +107,7 @@ class AdminIndex
     /**
      * @param FeaturesAbstract $abstract
      *
-     * @return void
+     * @return string
      */
     public function addExecute(FeaturesAbstract $abstract)
     {

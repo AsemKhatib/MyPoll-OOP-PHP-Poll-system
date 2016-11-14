@@ -39,13 +39,13 @@ interface DBInterface
     /**
      * @param array $rows
      *
-     * @return integer
+     * @return array
      */
     public function store($rows);
 
     /**
-     * Convenience function to execute Queries directly.
-     * Executes SQL.
+     * Convenience function to execute Queries directly and returns multidimensional array
+     * Executes SQL
      *
      * @param string $sql      SQL query to execute
      * @param array  $bindings a list of values to be bound to query parameters
@@ -56,6 +56,9 @@ interface DBInterface
 
 
     /**
+     * Convenience function to execute Queries directly and returns multidimensional array
+     * Executes SQL
+     *
      * @param string $sql      SQL query to execute
      * @param array  $bindings a list of values to be bound to query parameters
      *
@@ -103,4 +106,12 @@ interface DBInterface
      * @return array
      */
     public function findOne($table, $sql = null, $bindings = array());
+
+
+    /**
+     * @param array $array
+     *
+     * @return int
+     */
+    public function getID($array);
 }

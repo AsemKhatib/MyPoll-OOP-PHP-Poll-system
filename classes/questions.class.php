@@ -3,8 +3,6 @@
 namespace MyPoll\Classes;
 
 use Exception;
-use MyPoll\Classes\Database\RedBeanDB;
-use RedBeanPHP\Facade;
 use Twig_Environment;
 use MyPoll\Classes\Database\DBInterface;
 
@@ -15,7 +13,7 @@ use MyPoll\Classes\Database\DBInterface;
  */
 class Questions extends FeaturesAbstract
 {
-    /** @var RedBeanDB */
+    /** @var DBInterface */
     protected $db;
 
     /** @var Twig_Environment */
@@ -80,17 +78,14 @@ class Questions extends FeaturesAbstract
     /**
      * @param array $paramsArray
      *
-     * @return string|void
+     * @return string
      */
     public function addExecute($paramsArray)
     {
         try {
-            // Adding the question first
-            $questionToAdd = Facade::dispense('question');
-            $questionToAdd->question = $paramsArray['question'];
-            Facade::store($questionToAdd);
-            $qid = $questionToAdd->getID();
-            // Now we gonna add the Answers for this question :)
+            $questionToAdd = $this->db->addRows('questions', array('question' => $paramsArray['question']));
+            $store = $this->db->store($questionToAdd);
+            $qid = $this->db->getID($store);
             $this->addAnswers($paramsArray['answers'], $qid);
             echo 'Question Added successfully';
         } catch (Exception $e) {
@@ -106,12 +101,12 @@ class Questions extends FeaturesAbstract
      */
     private function addAnswers($answers, $qid)
     {
+        $answersArray = array();
         foreach ($answers as $newAnswer) {
-            $answersToAdd = Facade::dispense('answers');
-            $answersToAdd->answer = $newAnswer;
-            $answersToAdd->qid = $qid;
-            Facade::store($answersToAdd);
+            $answersArray[] = array('qid' => $qid, 'answer' => $newAnswer);
         }
+        $answersToAdd = $this->db->addRows('answers', $answersArray);
+        $this->db->store($answersToAdd);
     }
 
     /**
@@ -125,7 +120,7 @@ class Questions extends FeaturesAbstract
             'questions',
             $this->maxResults,
             $startPage,
-            $this->db->getConnection()->getRedBean()->count('questions')
+            $this->db->count('questions')
         );
         return $this->twig->render(
             'show_questions.html',
@@ -144,7 +139,7 @@ class Questions extends FeaturesAbstract
      */
     public function showAnswers($qid, $is_pie)
     {
-        $answers = Facade::getAll('SELECT * FROM answers WHERE qid=:qid', [':qid' => $qid]);
+        $answers = $this->db->getAll('SELECT * FROM answers WHERE qid=:qid', [':qid' => $qid]);
 
         foreach ($answers as $row) {
             $this->answersArray[] = $row['answer'];
@@ -176,15 +171,15 @@ class Questions extends FeaturesAbstract
      */
     public function edit($qid)
     {
-        $question = Facade::load('questions', $qid);
-        if ($question->isEmpty()) {
+        $question = $this->db->getById('questions', $qid);
+        if ($question[0]->isEmpty()) {
             return General::ref($this->settings->getIndexPage());
         }
-        $answers = Facade::getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
+        $answers = $this->db->getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
 
         return $this->twig->render('edit_question.html', array(
             'qid' => $qid,
-            'question' => $question->question,
+            'question' => $question[0]->question,
             'answers' => $answers
         ));
     }
@@ -203,14 +198,14 @@ class Questions extends FeaturesAbstract
     /**
      * @param array $paramsArray
      *
-     * @return string|void
+     * @return string
      */
     public function editExecute($paramsArray)
     {
         try {
-            $questionUpdate = Facade::load('questions', $paramsArray['qid']);
-            $questionUpdate->question = $paramsArray['question'];
-            Facade::store($questionUpdate);
+            $questionUpdate = $this->db->getById('questions', $paramsArray['qid']);
+            $questionUpdate[0]->import(array('question' => $paramsArray['question']));
+            $this->db->store($questionUpdate);
 
             // New answers will have always a random key generated to avoid interference with
             // existed keys => id's in the database
@@ -230,17 +225,15 @@ class Questions extends FeaturesAbstract
     private function editAnswers($answers, $qid)
     {
         foreach ($answers as $key => $value) {
-            $answer = Facade::load('answers', $key);
+            $answer = $this->db->getById('answers', $key)[0];
             if ($answer->isEmpty()) {
-                $newAnswer = Facade::dispense('answers');
-                $newAnswer->answer = $value;
-                $newAnswer->qid = $qid;
-                Facade::store($newAnswer);
+                $newAnswer = $this->db->addRows('answers', array('qid' => $qid, 'answer' => $value));
+                $this->db->store($newAnswer);
             }
 
             if ($answer->answer != $value) {
                 $answer->answer = $value;
-                Facade::store($answer);
+                $this->db->store(array($answer));
             }
         }
     }
@@ -252,9 +245,9 @@ class Questions extends FeaturesAbstract
      */
     public function delete($qid)
     {
-        Facade::trash('questions', $qid);
-        $answersToDelete = Facade::findAll('answers', 'qid = :qid', [':qid' => $qid]);
-        Facade::trashAll($answersToDelete);
+        $this->db->deleteById('questions', $qid);
+        $answersToDelete = $this->db->find('answers', 'qid = :qid', [':qid' => $qid]);
+        $this->db->delete($answersToDelete);
         echo General::messageSent(
             "The question and all it's answers were successfully deleted",
             $this->settings->getIndexPage()
@@ -268,6 +261,6 @@ class Questions extends FeaturesAbstract
      */
     public function deleteAnswer($id)
     {
-        Facade::trash('answers', $id);
+        $this->db->deleteById('answers', $id);
     }
 }

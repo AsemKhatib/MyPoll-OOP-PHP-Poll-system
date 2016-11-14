@@ -72,7 +72,7 @@ class RedBeanDB implements DBInterface
     /**
      * @param array $rows
      *
-     * @return integer
+     * @return array
      */
     public function store($rows)
     {
@@ -155,5 +155,15 @@ class RedBeanDB implements DBInterface
     public function findOne($table, $sql = null, $bindings = array())
     {
         array(Facade::findOne($table, $sql = null, $bindings = array()));
+    }
+
+    /**
+     * @param array $array
+     *
+     * @return int
+     */
+    public function getID($array)
+    {
+        return (int) $array[0]->getID();
     }
 }

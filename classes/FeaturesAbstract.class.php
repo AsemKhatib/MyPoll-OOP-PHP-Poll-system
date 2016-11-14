@@ -27,7 +27,7 @@ abstract class FeaturesAbstract
     /**
      * @param array $paramsArray
      *
-     * @return string|void
+     * @return string
      */
     abstract public function addExecute($paramsArray);
 
@@ -41,7 +41,7 @@ abstract class FeaturesAbstract
     /**
      * @param array $paramsArray
      *
-     * @return string|void
+     * @return string
      */
     abstract public function editExecute($paramsArray);
 
