@@ -1,6 +1,10 @@
 <?php
 
+use MyPoll\Classes\Database\RedBeanDB;
+
 require __DIR__ . '../includes/Bootstrap.php';
+
+$db = $container->get(RedBeanDB::class);
 
 $aquery = <<<STR
             CREATE table `questions` (
@@ -63,7 +67,7 @@ $aquery = <<<STR
 STR;
 
 try {
-    \RedBeanPHP\Facade::exec($aquery);
+    $db->exec($aquery);
     echo 'Database Created';
 } catch (Exception $e) {
     echo 'Error : ' . $e->getMessage();

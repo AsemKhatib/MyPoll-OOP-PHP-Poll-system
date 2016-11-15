@@ -170,4 +170,9 @@ class RedBeanDB implements DBInterface
     {
         return (int) $array[0];
     }
+
+    public function exec($sql = null, $bindings = array())
+    {
+        Facade::exec($sql, $bindings);
+    }
 }

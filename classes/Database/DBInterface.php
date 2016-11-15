@@ -114,4 +114,12 @@ interface DBInterface
      * @return int
      */
     public function getID($array);
+
+    /**
+     * @param string $sql
+     * @param array  $bindings
+     *
+     * @return int
+     */
+    public function exec($sql, $bindings = array());
 }
