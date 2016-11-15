@@ -69,5 +69,7 @@ return [
         get(Settings::class)
     ),
 
-    Cookie::class => object()->constructor()
+    Cookie::class => object()->constructor(
+        get(RedBeanDB::class)
+    )
 ];

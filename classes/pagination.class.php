@@ -3,8 +3,6 @@
 namespace MyPoll\Classes;
 
 use MyPoll\Classes\Database\DBInterface;
-use MyPoll\Classes\Database\RedBeanDB;
-use RedBeanPHP\Facade;
 
 /**
  * Class Pagination
@@ -13,7 +11,7 @@ use RedBeanPHP\Facade;
  */
 class Pagination
 {
-    /** @var  RedBeanDB */
+    /** @var  DBInterface */
     protected $db;
     /** @var  string */
     protected $DBTable;
@@ -51,7 +49,7 @@ class Pagination
     /**
      * @return bool
      */
-    public function prepareQuery()
+    private function prepareQuery()
     {
         if ($this->storedNumber > $this->maxResults) {
             $startFrom = $this->maxResults * $this->startPage;
@@ -67,9 +65,9 @@ class Pagination
     public function getResults()
     {
         if (!$this->prepareQuery()) {
-            return Facade::find($this->DBTable);
+            return $this->db->find($this->DBTable);
         } else {
-            return Facade::find($this->DBTable, $this->prepareQuery());
+            return $this->db->find($this->DBTable, $this->prepareQuery());
         }
     }
 

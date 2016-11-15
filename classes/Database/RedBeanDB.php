@@ -134,6 +134,8 @@ class RedBeanDB implements DBInterface
     }
 
     /**
+     * Return Array of Beans
+     *
      * @param string $table
      * @param string   $sql
      * @param array  $bindings
@@ -146,6 +148,8 @@ class RedBeanDB implements DBInterface
     }
 
     /**
+     * Return the first Bean only
+     *
      * @param string $table
      * @param string   $sql
      * @param array  $bindings
@@ -164,6 +168,6 @@ class RedBeanDB implements DBInterface
      */
     public function getID($array)
     {
-        return (int) $array[0]->getID();
+        return (int) $array[0];
     }
 }

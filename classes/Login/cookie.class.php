@@ -2,10 +2,13 @@
 
 namespace MyPoll\Classes\Login;
 
-use RedBeanPHP\Facade;
+use MyPoll\Classes\Database\DBInterface;
 
 class Cookie
 {
+    /** @var DBInterface */
+    protected $db;
+
     const SECRET_KEY = 'secretKeyHere';
 
     /** @var  string */
@@ -25,6 +28,16 @@ class Cookie
     protected $cookieExpiryTime = 60;
 
     /**
+     * Cookie constructor.
+     *
+     * @param DBInterface $db
+     */
+    public function __construct(DBInterface $db)
+    {
+        $this->db = $db;
+    }
+
+    /**
      * @return array|boolean
      */
     protected function getCookieData()
@@ -41,11 +54,11 @@ class Cookie
     /**
      * @param string $token
      *
-     * @return \RedBeanPHP\OODBBean
+     * @return array
      */
     protected function getRemembermeMeHash($token)
     {
-        return Facade::findOne('rememberme', 'hash = :hash', [':hash' => $token]);
+        return $this->db->findOne('rememberme', 'hash = :hash', [':hash' => $token]);
     }
 
     /**
@@ -65,6 +78,7 @@ class Cookie
         }
 
         $userLog = $this->getRemembermeMeHash($cookie['token']);
+        $userLog = $userLog[0];
 
         if (!hash_equals($userLog->hash, $cookie['token'])) {
             return false;
@@ -82,10 +96,8 @@ class Cookie
     {
         if ($this->rememberMe) {
             $token = bin2hex(openssl_random_pseudo_bytes(128));
-            $newLog = Facade::dispense('rememberme');
-            $newLog->userid = $userID;
-            $newLog->hash = $token;
-            Facade::store($newLog);
+            $newLog = $this->db->addRows('rememberme', array('userid' => $userID, 'hash' => $token));
+            $this->db->store($newLog);
             $newCookie = $userID . ':' . $token;
             $mac = hash_hmac('sha256', $newCookie, $this::SECRET_KEY);
             $newCookie .= ':' . $mac;

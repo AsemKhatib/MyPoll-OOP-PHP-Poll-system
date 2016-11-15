@@ -71,7 +71,7 @@ class Users extends FeaturesAbstract
     /**
      * @param array $paramsArray
      *
-     * @return string|void
+     * @return string
      */
     public function addExecute($paramsArray)
     {
@@ -95,11 +95,12 @@ class Users extends FeaturesAbstract
      */
     private function addUser($user, $password, $email)
     {
-        $newUser = Facade::dispense('users');
-        $newUser->user_name = $user;
-        $newUser->user_pass = password_hash($password, PASSWORD_DEFAULT);
-        $newUser->email = $email;
-        Facade::store($newUser);
+        $newUser = $this->db->addRows('users', array(
+            'user_name' => $user,
+            'user_pass' => password_hash($password, PASSWORD_DEFAULT),
+            'email' => $email
+        ));
+        $this->db->store($newUser);
         echo 'User Added successfully';
     }
 
@@ -112,11 +113,12 @@ class Users extends FeaturesAbstract
      */
     private function checkIsExist($user, $email, $id = -1)
     {
-        $checkIskExist = Facade::find(
+        $checkIskExist = $this->db->find(
             'users',
             'id != :id AND (user_name = :user OR email = :email)',
             array(':user' => $user, ':email' => $email, ':id' => $id)
         );
+
         $result = empty($checkIskExist) ? false : true;
         return $result;
     }
@@ -128,10 +130,12 @@ class Users extends FeaturesAbstract
      */
     public function show($startPage = 0)
     {
-        $this->pagination->setParams('users', $this->maxResults, $startPage, Facade::count('users'));
+        $this->pagination->setParams('users', $this->maxResults, $startPage, $this->db->count('users'));
         return $this->twig->render(
             'show_user.html',
-            array('results' => $this->pagination->getResults(), 'pagesNumber' => $this->pagination->getPagesNumber())
+            array(
+                'results' => $this->pagination->getResults(),
+                'pagesNumber' => $this->pagination->getPagesNumber())
         );
     }
 
@@ -142,10 +146,11 @@ class Users extends FeaturesAbstract
      */
     public function edit($id)
     {
-        $user = Facade::load('users', $id);
-        if ($user->isEmpty()) {
-            return General::ref($this->settings->getIndexPage());
-        }
+        $user = $this->db->getById('users', $id);
+        $user = $user[0];
+
+        if ($user->isEmpty()) return General::ref($this->settings->getIndexPage());
+
         return $this->twig->render('edit_user.html', array(
             'id' => $user->id,
             'user' => $user->user_name,
@@ -168,7 +173,7 @@ class Users extends FeaturesAbstract
     /**
      * @param array $paramsArray
      *
-     * @return string|void
+     * @return string
      */
     public function editExecute($paramsArray)
     {
@@ -195,16 +200,19 @@ class Users extends FeaturesAbstract
      * @param string $user
      * @param string $password
      * @param string $email
+     *
+     * @return string
      */
     private function editUser($id, $user, $password, $email)
     {
-        $userUpdate = Facade::load('users', $id);
-        $userUpdate->user_name = $user;
-        if (!empty($password)) {
-            $userUpdate->user_pass = password_hash($password, PASSWORD_DEFAULT);
-        }
-        $userUpdate->email = $email;
-        Facade::store($userUpdate);
+        $userUpdate = $this->db->getById('users', $id);
+        $userUpdate = $userUpdate[0];
+
+        $userUpdate['user_name'] = $user;
+        if (!empty($password)) $userUpdate['user_pass'] = password_hash($password, PASSWORD_DEFAULT);
+        $userUpdate['email'] = $email;
+
+        $this->db->store($userUpdate);
         echo "User edited successfully";
     }
 
@@ -218,8 +226,8 @@ class Users extends FeaturesAbstract
         if ($id == $this->adminID) {
             $message = 'Admin user could not be deleted';
         } else {
-            Facade::trash('users', $id);
-            $message = 'the user with the ID ' . $id . ' deleted successfully';
+            $this->db->deleteById('users', $id);
+            $message = 'The user with the ID ' . $id . ' has been deleted successfully';
         }
         echo General::messageSent($message, $this->settings->getIndexPage() . '?do=show&route=users');
     }
@@ -227,14 +235,12 @@ class Users extends FeaturesAbstract
     /**
      * @param string $userName
      *
-     * @return mixed|null
+     * @return string|bool
      */
     public function getHash($userName)
     {
-        $result = Facade::findOne('users', 'user_name = :user', [':user' => $userName]);
-        if (empty($result)) {
-            return false;
-        }
+        $result = $this->db->findOne('users', 'user_name = :user', [':user' => $userName]);
+        if (empty($result)) return false;
         return $result['user_pass'];
     }
 

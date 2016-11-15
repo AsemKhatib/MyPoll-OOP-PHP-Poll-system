@@ -2,7 +2,6 @@
 
 namespace MyPoll\Classes\Login;
 
-use RedBeanPHP\Facade;
 use MyPoll\Classes\Database\DBInterface;
 use MyPoll\Classes\Users;
 use MyPoll\Classes\Settings;
@@ -15,9 +14,6 @@ use MyPoll\Classes\General;
  */
 class Login extends Cookie
 {
-    /** @var DBInterface */
-    protected $db;
-
     /** @var  Users */
     protected $users;
 
@@ -42,7 +38,7 @@ class Login extends Cookie
      */
     public function __construct(DBInterface $db, Users $users, Settings $settings)
     {
-        $this->db = $db;
+        parent::__construct($db);
         $this->users = $users;
         $this->settings = $settings;
         $this->cookie = General::issetAndNotEmpty($_COOKIE[$this->cookieName]) ? $_COOKIE[$this->cookieName] : null;
@@ -60,8 +56,8 @@ class Login extends Cookie
 
         if (General::issetAndNotEmpty($user) && General::issetAndNotEmpty($pass)) {
             $query = 'SELECT * FROM users WHERE user_name = :user AND user_pass = :pass';
+            $result = $this->db->getRow($query, [':user' => $user, ':pass' => $this->users->getHash($user)]);
 
-            $result = Facade::getRow($query, [':user' => $user, ':pass' => $this->users->getHash($user)]);
             if (!password_verify($pass, $result['user_pass'])) return false;
 
             $this->dataSetter(array($result['user_name'], $result['id'],$result['email']));
@@ -76,6 +72,8 @@ class Login extends Cookie
 
     /**
      * @param array $data
+     *
+     * @return void
      */
     protected function dataSetter($data)
     {
@@ -95,10 +93,12 @@ class Login extends Cookie
 
         if (!$cookie) return false;
         $userLog = $this->getRemembermeMeHash($cookie['token']);
-        $user = Facade::load('users', $cookie['userID']);
+        $user = $this->db->getById('users', $cookie['userID']);
+        $user = $user[0];
 
         $this->dataSetter(array($user->user_name, $user->id,$user->email));
-        Facade::trash($userLog);
+
+        $this->db->delete($userLog);
         $this->unsetCookie();
         $this->rememberMe = true;
         $this->setRememberme($user->id);
@@ -124,10 +124,7 @@ class Login extends Cookie
      */
     private function isSessionExist()
     {
-        if (General::issetAndNotEmpty($_SESSION['user']) && General::issetAndNotEmpty($_SESSION['id'])) {
-            return true;
-        }
-
+        if (General::issetAndNotEmpty($_SESSION['user']) && General::issetAndNotEmpty($_SESSION['id'])) return true;
         return false;
     }
 
@@ -148,7 +145,7 @@ class Login extends Cookie
     {
         if ($this->getCookieData()) {
             $userLog = $this->getRemembermeMeHash($this->getCookieData()['token']);
-            Facade::trash($userLog);
+            $this->db->delete($userLog);
         }
         $this->unsetCookie();
         session_destroy();

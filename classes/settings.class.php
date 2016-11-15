@@ -106,7 +106,7 @@ class Settings
      *
      * @param Twig_Environment $twig
      * @param DBInterface      $db
-     * @param                  $id
+     * @param int              $id
      */
     public function __construct(Twig_Environment $twig, DBInterface $db, $id)
     {
@@ -121,11 +121,12 @@ class Settings
     /**
      * @param  int $id
      *
-     * @return boolean|Facade::load
+     * @return bool
      */
     private function checkSettingsExist($id)
     {
-        $queryResult = Facade::load('settings', $id);
+        $queryResult = $this->db->getById('settings', $id);
+        $queryResult = $queryResult[0];
         if ($queryResult->isEmpty()) {
             return false;
         }

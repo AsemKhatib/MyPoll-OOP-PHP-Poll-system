@@ -116,12 +116,7 @@ class Questions extends FeaturesAbstract
      */
     public function show($startPage = 0)
     {
-        $this->pagination->setParams(
-            'questions',
-            $this->maxResults,
-            $startPage,
-            $this->db->count('questions')
-        );
+        $this->pagination->setParams('questions', $this->maxResults, $startPage, $this->db->count('questions'));
         return $this->twig->render(
             'show_questions.html',
             array(
@@ -172,14 +167,15 @@ class Questions extends FeaturesAbstract
     public function edit($qid)
     {
         $question = $this->db->getById('questions', $qid);
-        if ($question[0]->isEmpty()) {
-            return General::ref($this->settings->getIndexPage());
-        }
+        $question = $question[0];
+
+        if ($question->isEmpty()) return General::ref($this->settings->getIndexPage());
+
         $answers = $this->db->getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
 
         return $this->twig->render('edit_question.html', array(
             'qid' => $qid,
-            'question' => $question[0]->question,
+            'question' => $question->question,
             'answers' => $answers
         ));
     }
@@ -204,7 +200,9 @@ class Questions extends FeaturesAbstract
     {
         try {
             $questionUpdate = $this->db->getById('questions', $paramsArray['qid']);
-            $questionUpdate[0]->import(array('question' => $paramsArray['question']));
+            $questionUpdate = $questionUpdate[0];
+
+            $questionUpdate->import(array('question' => $paramsArray['question']));
             $this->db->store($questionUpdate);
 
             // New answers will have always a random key generated to avoid interference with
@@ -225,7 +223,9 @@ class Questions extends FeaturesAbstract
     private function editAnswers($answers, $qid)
     {
         foreach ($answers as $key => $value) {
-            $answer = $this->db->getById('answers', $key)[0];
+            $answer = $this->db->getById('answers', $key);
+            $answer = $answer[0];
+
             if ($answer->isEmpty()) {
                 $newAnswer = $this->db->addRows('answers', array('qid' => $qid, 'answer' => $value));
                 $this->db->store($newAnswer);
