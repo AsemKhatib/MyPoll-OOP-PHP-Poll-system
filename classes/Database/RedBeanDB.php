@@ -51,7 +51,7 @@ class RedBeanDB implements DBInterface
      */
     public function count($dbName, $addSQL = '', $bindings = array())
     {
-        Facade::count($dbName, $addSQL = '', $bindings = array());
+        return Facade::count($dbName, $addSQL = '', $bindings = array());
     }
 
     /**
@@ -76,7 +76,7 @@ class RedBeanDB implements DBInterface
      */
     public function store($rows)
     {
-        Facade::storeAll($rows);
+        return Facade::storeAll($rows);
     }
 
     /**
@@ -87,7 +87,7 @@ class RedBeanDB implements DBInterface
      */
     public function getAll($sql, $bindings)
     {
-        Facade::getAll($sql, $bindings);
+        return Facade::getAll($sql, $bindings);
     }
 
     /**
@@ -98,7 +98,7 @@ class RedBeanDB implements DBInterface
      */
     public function getById($table, $id)
     {
-        array(Facade::load($table, $id));
+        return array(Facade::load($table, $id));
     }
 
     /**
@@ -107,9 +107,9 @@ class RedBeanDB implements DBInterface
      *
      * @return array
      */
-    public function getRow($sql, $bindings)
+    public function getRow($sql, $bindings = array())
     {
-        Facade::getRow($sql, $bindings = array());
+        return Facade::getRow($sql, $bindings = array());
     }
 
     /**
@@ -144,7 +144,7 @@ class RedBeanDB implements DBInterface
      */
     public function find($table, $sql = null, $bindings = array())
     {
-        Facade::find($table, $sql = null, $bindings = array());
+        return Facade::find($table, $sql = null, $bindings = array());
     }
 
     /**
@@ -158,7 +158,7 @@ class RedBeanDB implements DBInterface
      */
     public function findOne($table, $sql = null, $bindings = array())
     {
-        array(Facade::findOne($table, $sql = null, $bindings = array()));
+        return array(Facade::findOne($table, $sql = null, $bindings = array()));
     }
 
     /**
@@ -171,8 +171,14 @@ class RedBeanDB implements DBInterface
         return (int) $array[0];
     }
 
-    public function exec($sql = null, $bindings = array())
+    /**
+     * @param string  $sql
+     * @param array $bindings
+     *
+     * @return int
+     */
+    public function exec($sql, $bindings = array())
     {
-        Facade::exec($sql, $bindings);
+        return Facade::exec($sql, $bindings);
     }
 }

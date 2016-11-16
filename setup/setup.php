@@ -2,7 +2,7 @@
 
 use MyPoll\Classes\Database\RedBeanDB;
 
-require __DIR__ . '../includes/Bootstrap.php';
+require '../includes/Bootstrap.php';
 
 $db = $container->get(RedBeanDB::class);
 

@@ -64,7 +64,7 @@ interface DBInterface
      *
      * @return array
      */
-    public function getRow($sql, $bindings);
+    public function getRow($sql, $bindings = array());
 
     /**
      * @param string $table

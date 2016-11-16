@@ -106,7 +106,7 @@ class Settings
      *
      * @param Twig_Environment $twig
      * @param DBInterface      $db
-     * @param int              $id
+     * @param                  $id
      */
     public function __construct(Twig_Environment $twig, DBInterface $db, $id)
     {
@@ -121,13 +121,12 @@ class Settings
     /**
      * @param  int $id
      *
-     * @return bool
+     * @return boolean|array
      */
     private function checkSettingsExist($id)
     {
         $queryResult = $this->db->getById('settings', $id);
-        $queryResult = $queryResult[0];
-        if ($queryResult->isEmpty()) {
+        if ($queryResult[0]->isEmpty()) {
             return false;
         }
         return $queryResult;
@@ -136,7 +135,7 @@ class Settings
     /**
      * @param  int $id
      *
-     * @return string|Facade::load
+     * @return string|array
      */
     private function processSettings($id)
     {
@@ -148,12 +147,13 @@ class Settings
     }
 
     /**
-     * @param Facade ::load $queryResult
+     * @param array $queryResult
      *
      * @return void
      */
     private function setProperties($queryResult)
     {
+        $queryResult = $queryResult[0];
         $this->siteName = $queryResult->site_name;
         $this->resultNumber = $queryResult->site_resultsnumber;
         $this->siteCookies = $queryResult->site_cookies;
@@ -186,14 +186,14 @@ class Settings
     public function editExecute($settingsArr)
     {
         try {
-            $settings = Facade::load('settings', $this->id);
+            $settings = $this->db->getById('settings', $this->id);
+            $settings = $settings[0];
             $settings->site_name = $settingsArr['site_name'];
             $settings->site_resultsnumber = $settingsArr['site_resultsnumber'];
             $settings->site_cookies = $settingsArr['site_cookies'];
             $settings->site_cache = $settingsArr['site_cache'];
             $settings->site_maxanswers = $settingsArr['site_maxanswers'];
-            Facade::store($settings);
-
+            $this->db->store(array($settings));
             echo "Settings edited successfully";
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();
