@@ -51,7 +51,7 @@ class RedBeanDB implements DBInterface
      */
     public function count($dbName, $addSQL = '', $bindings = array())
     {
-        return Facade::count($dbName, $addSQL = '', $bindings = array());
+        return Facade::count($dbName, $addSQL, $bindings);
     }
 
     /**
@@ -109,7 +109,7 @@ class RedBeanDB implements DBInterface
      */
     public function getRow($sql, $bindings = array())
     {
-        return Facade::getRow($sql, $bindings = array());
+        return Facade::getRow($sql, $bindings);
     }
 
     /**
@@ -120,7 +120,7 @@ class RedBeanDB implements DBInterface
      */
     public function deleteById($table, $id = null)
     {
-        Facade::trash($table, $id = null);
+        Facade::trash($table, $id);
     }
 
     /**
@@ -144,7 +144,7 @@ class RedBeanDB implements DBInterface
      */
     public function find($table, $sql = null, $bindings = array())
     {
-        return Facade::find($table, $sql = null, $bindings = array());
+        return Facade::find($table, $sql, $bindings);
     }
 
     /**
@@ -158,7 +158,7 @@ class RedBeanDB implements DBInterface
      */
     public function findOne($table, $sql = null, $bindings = array())
     {
-        return array(Facade::findOne($table, $sql = null, $bindings = array()));
+        return array(Facade::findOne($table, $sql, $bindings));
     }
 
     /**

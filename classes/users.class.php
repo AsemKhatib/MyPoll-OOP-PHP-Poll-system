@@ -240,8 +240,9 @@ class Users extends FeaturesAbstract
     public function getHash($userName)
     {
         $result = $this->db->findOne('users', 'user_name = :user', [':user' => $userName]);
+        $result = $result[0];
         if (empty($result)) return false;
-        return $result['user_pass'];
+        return (string) $result['user_pass'];
     }
 
 }
