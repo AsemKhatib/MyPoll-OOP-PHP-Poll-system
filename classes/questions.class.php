@@ -200,9 +200,7 @@ class Questions extends FeaturesAbstract
     {
         try {
             $questionUpdate = $this->db->getById('questions', $paramsArray['qid']);
-            $questionUpdate = $questionUpdate[0];
-
-            $questionUpdate->import(array('question' => $paramsArray['question']));
+            $this->db->editRow($questionUpdate, array('question' => $paramsArray['question']));
             $this->db->store($questionUpdate);
 
             // New answers will have always a random key generated to avoid interference with
@@ -224,16 +222,15 @@ class Questions extends FeaturesAbstract
     {
         foreach ($answers as $key => $value) {
             $answer = $this->db->getById('answers', $key);
-            $answer = $answer[0];
 
-            if ($answer->isEmpty()) {
-                $newAnswer = $this->db->addRows('answers', array('qid' => $qid, 'answer' => $value));
+            if ($answer[0]->isEmpty()) {
+                $newAnswer = $this->db->addRows('answers', array(array('qid' => $qid, 'answer' => $value)));
                 $this->db->store($newAnswer);
             }
 
             if ($answer->answer != $value) {
-                $answer->answer = $value;
-                $this->db->store(array($answer));
+                $this->db->editRow($answer, array('answer' => $value));
+                $this->db->store($answer);
             }
         }
     }

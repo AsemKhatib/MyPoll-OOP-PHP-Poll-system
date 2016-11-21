@@ -70,6 +70,18 @@ class RedBeanDB implements DBInterface
     }
 
     /**
+     * @param array $modelArray
+     * @param array $dataArray
+     *
+     * @return array
+     */
+    public function editRow($modelArray, $dataArray)
+    {
+        $modelArray[0]->import($dataArray);
+        return $modelArray;
+    }
+
+    /**
      * @param array $rows
      *
      * @return array

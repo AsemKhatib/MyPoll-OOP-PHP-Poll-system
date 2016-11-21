@@ -37,6 +37,14 @@ interface DBInterface
     public function addRows($table, $rows);
 
     /**
+     * @param array $modelArray
+     * @param array $dataArray
+     *
+     * @return array
+     */
+    public function editRow($modelArray, $dataArray);
+
+    /**
      * @param array $rows
      *
      * @return array
