@@ -85,6 +85,7 @@ class AdminIndex
     {
         if ($this->login->isLoggedIn()) {
             echo General::ref($this->settings->getLogPage());
+            exit;
         }
 
         echo $this->twig->render(

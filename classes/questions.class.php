@@ -83,7 +83,7 @@ class Questions extends FeaturesAbstract
     public function addExecute($paramsArray)
     {
         try {
-            $questionToAdd = $this->db->addRows('questions', array('question' => $paramsArray['question']));
+            $questionToAdd = $this->db->addRows('questions', array(array('question' => $paramsArray['question'])));
             $store = $this->db->store($questionToAdd);
             $qid = $this->db->getID($store);
             $this->addAnswers($paramsArray['answers'], $qid);
