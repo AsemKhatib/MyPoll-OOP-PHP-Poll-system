@@ -96,10 +96,9 @@ class Users extends FeaturesAbstract
     private function addUser($user, $password, $email)
     {
         $newUser = $this->db->addRows('users', array(
-            'user_name' => $user,
-            'user_pass' => password_hash($password, PASSWORD_DEFAULT),
-            'email' => $email
-        ));
+            array('user_name' => $user, 'user_pass' => password_hash($password, PASSWORD_DEFAULT), 'email' => $email)
+            )
+        );
         $this->db->store($newUser);
         echo 'User Added successfully';
     }
@@ -206,11 +205,14 @@ class Users extends FeaturesAbstract
     private function editUser($id, $user, $password, $email)
     {
         $userUpdate = $this->db->getById('users', $id);
-        $userUpdate = $userUpdate[0];
 
-        $userUpdate['user_name'] = $user;
-        if (!empty($password)) $userUpdate['user_pass'] = password_hash($password, PASSWORD_DEFAULT);
-        $userUpdate['email'] = $email;
+        $newPassword = password_hash($password, PASSWORD_DEFAULT);
+
+        if (!empty($password)) {
+            $this->db->editRow($userUpdate, array('user_name' => $user, 'user_pass' => $newPassword, 'email' => $email));
+        } else {
+            $this->db->editRow($userUpdate, array('user_name' => $user, 'email' => $email));
+        }
 
         $this->db->store($userUpdate);
         echo "User edited successfully";

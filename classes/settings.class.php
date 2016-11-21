@@ -4,7 +4,6 @@ namespace MyPoll\Classes;
 
 use MyPoll\Classes\Database\DBInterface;
 use Exception;
-use RedBeanPHP\Facade;
 use Twig_Environment;
 
 /**
@@ -167,6 +166,7 @@ class Settings
     public function edit()
     {
         $settings = $this->processSettings($this->id);
+        $settings = $settings[0];
 
         return $this->twig->render('edit_settings.html', array(
             'id' => $settings->id,
@@ -187,13 +187,14 @@ class Settings
     {
         try {
             $settings = $this->db->getById('settings', $this->id);
-            $settings = $settings[0];
-            $settings->site_name = $settingsArr['site_name'];
-            $settings->site_resultsnumber = $settingsArr['site_resultsnumber'];
-            $settings->site_cookies = $settingsArr['site_cookies'];
-            $settings->site_cache = $settingsArr['site_cache'];
-            $settings->site_maxanswers = $settingsArr['site_maxanswers'];
-            $this->db->store(array($settings));
+            $this->db->editRow($settings, array(
+                'site_name' => $settingsArr['site_name'],
+                'site_resultsnumber' => $settingsArr['site_resultsnumber'],
+                'site_cookies' => $settingsArr['site_cookies'],
+                'site_cache' => $settingsArr['site_cache'],
+                'site_maxanswers' => $settingsArr['site_maxanswers']
+            ));
+            $this->db->store($settings);
             echo "Settings edited successfully";
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();
