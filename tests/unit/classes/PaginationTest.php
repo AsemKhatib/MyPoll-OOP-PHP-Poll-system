@@ -2,58 +2,89 @@
 
 namespace MyPoll\Tests\Unit\Classes;
 
+use Mockery as m;
+use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Pagination;
 use PHPUnit_Framework_TestCase;
 
 class PaginationTest extends PHPUnit_Framework_TestCase
 {
-    /** @var  Pagination */
-    protected $pagination;
 
     /**
-     * @param string $table
-     * @param string $method
      * @param mixed $return
      *
-     * @return \PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject
+     * @return Pagination
      */
-    protected function finderMock($table, $method, $return)
+    private function getResultsMethod($return)
     {
-        $finderMock = $this->createMock('\RedBeanPHP\Finder');
-        $finderMock = $finderMock
-            ->expects(self::any())
-            ->method($method)
-            ->with($table)
-            ->will($this->returnValue($return));
-        return $finderMock;
+        $database = m::mock(RedBeanDB::class);
+        $database->shouldReceive('find')->once()->withAnyArgs()->andReturn($return);
+        $pagination = new Pagination($database);
+
+        return $pagination;
     }
 
     /**
-     * @param string $method
-     * @param mixed $return
-     *
-     * @return \PHPUnit_Framework_MockObject_Builder_InvocationMocker|\PHPUnit_Framework_MockObject_MockObject
+     * @return Pagination
      */
-    protected function dbMock($method, $return)
+    private function getPagesNumberMethod()
     {
-        $dbMock = $this->createMock('\MyPoll\Classes\RedBeanDB');
-        $dbMock = $dbMock
-            ->expects(self::any())
-            ->method($method)
-            ->will($this->returnValue($return));
-        return $dbMock;
+        $database = m::mock(RedBeanDB::class);
+        $pagination = new Pagination($database);
+
+        return $pagination;
     }
 
-    protected function setUp()
+    public function testGetResultsSuccess1()
     {
-        $a = 0;
+        $pagination = $this->getResultsMethod(array());
+        $pagination->setParams('answer', 10, 0, 10);
+
+        $this->assertInternalType('array', $pagination->getResults());
     }
 
-    public function testGetResults()
+    public function testGetResultsSuccess2()
     {
-        $this->pagination = new Pagination($this->dbMock('getFinder', $this->finderMock('questions', 'find', 7)));
-        $this->pagination->setParams('questions', 3, 1, 2);
-        $this->assertInternalType('int', $this->pagination->getResults());
-        $this->assertEquals(7, $this->pagination->getResults());
+        $pagination = $this->getResultsMethod(array());
+        $pagination->setParams('answer', 1, 0, 6);
+
+        $this->assertInternalType('array', $pagination->getResults());
     }
+
+    public function testGetResultsFail()
+    {
+        $pagination = $this->getResultsMethod(null);
+        $pagination->setParams('answer', 1, 0, 6);
+
+        $this->assertNotInternalType('array', $pagination->getResults());
+    }
+
+    public function testgetPagesNumberSuccess1()
+    {
+        $pagination = $this->getPagesNumberMethod();
+        $pagination->setParams('answer', 10, 0, 6);
+
+        $this->assertInternalType('int', $pagination->getPagesNumber());
+        $this->assertEquals(1, $pagination->getPagesNumber());
+
+    }
+
+    public function testgetPagesNumberSuccess2()
+    {
+        $pagination = $this->getPagesNumberMethod();
+        $pagination->setParams('answer', 1, 0, 6);
+
+        $this->assertInternalType('int', $pagination->getPagesNumber());
+        $this->assertEquals(6, $pagination->getPagesNumber());
+    }
+
+    public function testgetPagesNumberFail()
+    {
+        $pagination = $this->getPagesNumberMethod();
+        $pagination->setParams('answer', 1, 0, 0);
+
+        $this->assertInternalType('int', $pagination->getPagesNumber());
+        $this->assertEquals(0, $pagination->getPagesNumber());
+    }
+
 }

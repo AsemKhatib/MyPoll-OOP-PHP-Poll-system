@@ -12,7 +12,7 @@ use MyPoll\Classes\Database\DBInterface;
 class Pagination
 {
     /** @var  DBInterface */
-    protected $db;
+    protected $database;
     /** @var  string */
     protected $DBTable;
     /** @var  int */
@@ -25,11 +25,11 @@ class Pagination
     /**
      * Pagination constructor.
      *
-     * @param DBInterface $db
+     * @param DBInterface $database
      */
-    public function __construct(DBInterface $db)
+    public function __construct(DBInterface $database)
     {
-        $this->db = $db;
+        $this->database = $database;
     }
 
     /**
@@ -37,6 +37,8 @@ class Pagination
      * @param int    $startPage
      * @param int    $maxResults
      * @param int    $storedNumber
+     *
+     * @return void
      */
     public function setParams($DBTable, $maxResults, $startPage, $storedNumber)
     {
@@ -56,7 +58,6 @@ class Pagination
             $extraSQL = 'ORDER BY id ASC LIMIT ' . $startFrom . ',' . $this->maxResults;
             return $extraSQL;
         }
-        return false;
     }
 
     /**
@@ -64,11 +65,7 @@ class Pagination
      */
     public function getResults()
     {
-        if (!$this->prepareQuery()) {
-            return $this->db->find($this->DBTable);
-        } else {
-            return $this->db->find($this->DBTable, $this->prepareQuery());
-        }
+        return $this->database->find($this->DBTable, $this->prepareQuery());
     }
 
     /**
