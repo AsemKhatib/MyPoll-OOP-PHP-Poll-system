@@ -17,10 +17,10 @@ class Settings
     protected $twig;
 
     /** @var  DBInterface */
-    protected $db;
+    protected $database;
 
     /** @var  int */
-    protected $id;
+    protected $settingsId;
 
     /** @var  string */
     protected $siteName;
@@ -104,41 +104,39 @@ class Settings
      * Settings constructor.
      *
      * @param Twig_Environment $twig
-     * @param DBInterface      $db
-     * @param                  $id
+     * @param DBInterface      $database
+     * @param                  $settingsId
      */
-    public function __construct(Twig_Environment $twig, DBInterface $db, $id)
+    public function __construct(Twig_Environment $twig, DBInterface $database, $settingsId)
     {
-        $this->db = $db;
+        $this->database = $database;
         $this->twig = $twig;
-        $this->id = $id;
+        $this->settingsId = $settingsId;
 
-        $settings = $this->processSettings($this->id);
+        $settings = $this->processSettings($this->settingsId);
         $this->setProperties($settings);
     }
 
     /**
-     * @param  int $id
+     * @param  int $sid
      *
      * @return boolean|array
      */
-    private function checkSettingsExist($id)
+    private function checkSettingsExist($sid)
     {
-        $queryResult = $this->db->getById('settings', $id);
-        if ($queryResult[0]->isEmpty()) {
-            return false;
-        }
+        $queryResult = $this->database->getById('settings', $sid);
+        if (empty($queryResult)) {return false;}
         return $queryResult;
     }
 
     /**
-     * @param  int $id
+     * @param  int $sid
      *
      * @return string|array
      */
-    private function processSettings($id)
+    private function processSettings($sid)
     {
-        $settings = $this->checkSettingsExist($id);
+        $settings = $this->checkSettingsExist($sid);
         if (!$settings) {
             echo General::ref($this->getIndexPage());
         }
@@ -165,7 +163,7 @@ class Settings
      */
     public function edit()
     {
-        $settings = $this->processSettings($this->id);
+        $settings = $this->processSettings($this->settingsId);
         $settings = $settings[0];
 
         return $this->twig->render('edit_settings.html', array(
@@ -186,15 +184,15 @@ class Settings
     public function editExecute($settingsArr)
     {
         try {
-            $settings = $this->db->getById('settings', $this->id);
-            $this->db->editRow($settings, array(
+            $settings = $this->database->getById('settings', $this->settingsId);
+            $this->database->editRow($settings, array(
                 'site_name' => $settingsArr['site_name'],
                 'site_resultsnumber' => $settingsArr['site_resultsnumber'],
                 'site_cookies' => $settingsArr['site_cookies'],
                 'site_cache' => $settingsArr['site_cache'],
                 'site_maxanswers' => $settingsArr['site_maxanswers']
             ));
-            $this->db->store($settings);
+            $this->database->store($settings);
             echo "Settings edited successfully";
         } catch (Exception $e) {
             echo 'Error :' . $e->getMessage();

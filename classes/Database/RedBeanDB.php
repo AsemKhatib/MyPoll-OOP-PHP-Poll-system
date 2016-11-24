@@ -110,7 +110,9 @@ class RedBeanDB implements DBInterface
      */
     public function getById($table, $id)
     {
-        return array(Facade::load($table, $id));
+        $result = Facade::load($table, $id)->export();
+        if($result['id'] == 0) { return array();}
+        return $result;
     }
 
     /**
@@ -130,7 +132,7 @@ class RedBeanDB implements DBInterface
      *
      * @return void
      */
-    public function deleteById($table, $id = null)
+    public function deleteById($table, $id)
     {
         Facade::trash($table, $id);
     }
@@ -156,7 +158,13 @@ class RedBeanDB implements DBInterface
      */
     public function find($table, $sql = null, $bindings = array())
     {
-        return Facade::find($table, $sql, $bindings);
+        $returnArray = array();
+        $beans = Facade::find($table, $sql, $bindings);
+        if (empty($beans)) {return $beans;}
+        foreach ($beans as $bean) {
+            $returnArray[] = $bean->export();
+        }
+        return $returnArray;
     }
 
     /**
@@ -170,7 +178,9 @@ class RedBeanDB implements DBInterface
      */
     public function findOne($table, $sql = null, $bindings = array())
     {
-        return array(Facade::findOne($table, $sql, $bindings));
+        $result = Facade::findOne($table, $sql, $bindings);
+        if ($result == null) {return array();}
+        return $result->export();
     }
 
     /**

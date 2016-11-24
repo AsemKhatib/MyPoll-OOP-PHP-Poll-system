@@ -88,7 +88,7 @@ interface DBInterface
      *
      * @return void
      */
-    public function deleteById($table, $id = null);
+    public function deleteById($table, $id);
 
     /**
      * @param array $rows

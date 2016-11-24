@@ -1,13 +1,18 @@
 {
   "require": {
     "gabordemooij/redbean": "dev-master",
-    "twig/twig": "1.x-dev",
-    "phpunit/phpunit": "5.5.*",
-    "php-di/php-di": "^5.4"
+    "twig/twig": "1.x-dev"
   },
   "autoload": {
     "classmap": [
         "classes"
     ]
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.5.*",
+    "php-di/php-di": "^5.4",
+    "mockery/mockery": "^0.9.6",
+    "object-calisthenics/phpcs-calisthenics-rules": "^2.0",
+    "phpunit/phpunit-skeleton-generator": "*"
   }
 }

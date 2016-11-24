@@ -74,7 +74,7 @@ class AdminIndex
      */
     public function logout()
     {
-        $this->login->Logout();
+        $this->login->logout();
         echo General::ref($this->settings->getIndexPage());
     }
 

@@ -111,7 +111,9 @@ class Login extends Cookie
     {
         if ($this->isSessionExist()) {
             return true;
-        } elseif ($this->isRememberme()) {
+        }
+
+        if ($this->isRememberme()) {
             $this->setupNewCredentials();
             $this->authLogin();
             return true;
