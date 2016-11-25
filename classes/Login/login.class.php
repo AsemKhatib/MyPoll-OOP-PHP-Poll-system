@@ -41,7 +41,7 @@ class Login extends Cookie
         parent::__construct($db);
         $this->users = $users;
         $this->settings = $settings;
-        $this->cookie = General::issetAndNotEmpty($_COOKIE[$this->cookieName]) ? $_COOKIE[$this->cookieName] : null;
+        //$this->cookie = General::issetAndNotEmpty($_COOKIE[$this->cookieName]) ? $_COOKIE[$this->cookieName] : null;
     }
 
     /**
