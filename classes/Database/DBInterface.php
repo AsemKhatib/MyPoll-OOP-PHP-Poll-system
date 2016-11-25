@@ -77,10 +77,11 @@ interface DBInterface
     /**
      * @param string $table
      * @param int    $id
+     * @param string $type
      *
      * @return array
      */
-    public function getById($table, $id);
+    public function getById($table, $id, $type = null);
 
     /**
      * @param string $table
@@ -91,11 +92,12 @@ interface DBInterface
     public function deleteById($table, $id);
 
     /**
+     * @param string $table
      * @param array $rows
      *
      * @return void
      */
-    public function delete($rows);
+    public function deleteAll($table, $rows);
 
     /**
      * @param string $table

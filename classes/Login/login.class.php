@@ -94,11 +94,8 @@ class Login extends Cookie
         if (!$cookie) return false;
         $userLog = $this->getRemembermeMeHash($cookie['token']);
         $user = $this->db->getById('users', $cookie['userID']);
-        $user = $user[0];
-
-        $this->dataSetter(array($user->user_name, $user->id,$user->email));
-
-        $this->db->delete($userLog);
+        $this->dataSetter(array($user['user_name'], $user['id'] ,$user['email']));
+        $this->db->deleteById('rememberme', $userLog['id']);
         $this->unsetCookie();
         $this->rememberMe = true;
         $this->setRememberme($user->id);
@@ -147,7 +144,7 @@ class Login extends Cookie
     {
         if ($this->getCookieData()) {
             $userLog = $this->getRemembermeMeHash($this->getCookieData()['token']);
-            $this->db->delete($userLog);
+            $this->db->deleteById('rememberme', $userLog['id']);
         }
         $this->unsetCookie();
         session_destroy();

@@ -105,13 +105,19 @@ class RedBeanDB implements DBInterface
     /**
      * @param string $table
      * @param int    $id
+     * @param string $type
      *
      * @return array
      */
-    public function getById($table, $id)
+    public function getById($table, $id, $type = null)
     {
-        $result = Facade::load($table, $id)->export();
-        if($result['id'] == 0) { return array();}
+        $resultObject = Facade::load($table, $id);
+        if ($type == 'bean') {
+            $result = ($resultObject->isEmpty()) ? array() : $resultObject;
+            return array($result);
+        }
+        $resultObject->export();
+        $result = ($resultObject['id'] == 0) ? array() : $resultObject;
         return $result;
     }
 
@@ -138,13 +144,16 @@ class RedBeanDB implements DBInterface
     }
 
     /**
+     * @param string $table
      * @param array $rows
      *
      * @return void
      */
-    public function delete($rows)
+    public function deleteAll($table, $rows)
     {
-        Facade::trashAll($rows);
+        foreach ($rows as $row) {
+            Facade::trash($table, $row['id']);
+        }
     }
 
     /**

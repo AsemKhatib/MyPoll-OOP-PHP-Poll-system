@@ -167,15 +167,14 @@ class Questions extends FeaturesAbstract
     public function edit($qid)
     {
         $question = $this->db->getById('questions', $qid);
-        $question = $question[0];
 
-        if ($question->isEmpty()) return General::ref($this->settings->getIndexPage());
+        if (empty($question)) return General::ref($this->settings->getIndexPage());
 
         $answers = $this->db->getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
 
         return $this->twig->render('edit_question.html', array(
             'qid' => $qid,
-            'question' => $question->question,
+            'question' => $question['question'],
             'answers' => $answers
         ));
     }
@@ -199,7 +198,7 @@ class Questions extends FeaturesAbstract
     public function editExecute($paramsArray)
     {
         try {
-            $questionUpdate = $this->db->getById('questions', $paramsArray['qid']);
+            $questionUpdate = $this->db->getById('questions', $paramsArray['qid'], 'bean');
             $this->db->editRow($questionUpdate, array('question' => $paramsArray['question']));
             $this->db->store($questionUpdate);
 
@@ -221,14 +220,14 @@ class Questions extends FeaturesAbstract
     private function editAnswers($answers, $qid)
     {
         foreach ($answers as $key => $value) {
-            $answer = $this->db->getById('answers', $key);
+            $answer = $this->db->getById('answers', $key, 'bean');
 
-            if ($answer[0]->isEmpty()) {
+            if (empty($answer)) {
                 $newAnswer = $this->db->addRows('answers', array(array('qid' => $qid, 'answer' => $value)));
                 $this->db->store($newAnswer);
             }
 
-            if ($answer->answer != $value) {
+            if ($answer['answer'] != $value) {
                 $this->db->editRow($answer, array('answer' => $value));
                 $this->db->store($answer);
             }
@@ -244,7 +243,7 @@ class Questions extends FeaturesAbstract
     {
         $this->db->deleteById('questions', $qid);
         $answersToDelete = $this->db->find('answers', 'qid = :qid', [':qid' => $qid]);
-        $this->db->delete($answersToDelete);
+        $this->db->deleteAll('answers', $answersToDelete);
         echo General::messageSent(
             "The question and all it's answers were successfully deleted",
             $this->settings->getIndexPage()

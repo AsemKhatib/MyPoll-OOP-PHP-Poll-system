@@ -78,9 +78,8 @@ class Cookie
         }
 
         $userLog = $this->getRemembermeMeHash($cookie['token']);
-        $userLog = $userLog[0];
 
-        if (!hash_equals($userLog->hash, $cookie['token'])) {
+        if (!hash_equals($userLog['hash'], $cookie['token'])) {
             return false;
         }
 
@@ -94,7 +93,7 @@ class Cookie
      */
     protected function setRememberme($userID)
     {
-            if ($this->rememberMe) {
+        if ($this->rememberMe) {
             $token = bin2hex(openssl_random_pseudo_bytes(128));
             $newLog = $this->db->addRows('rememberme', array(array('userid' => $userID, 'hash' => $token)));
             $this->db->store($newLog);

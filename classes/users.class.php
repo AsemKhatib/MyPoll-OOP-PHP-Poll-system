@@ -146,14 +146,13 @@ class Users extends FeaturesAbstract
     public function edit($id)
     {
         $user = $this->db->getById('users', $id);
-        $user = $user[0];
 
-        if ($user->isEmpty()) return General::ref($this->settings->getIndexPage());
+        if (empty($user)) return General::ref($this->settings->getIndexPage());
 
         return $this->twig->render('edit_user.html', array(
-            'id' => $user->id,
-            'user' => $user->user_name,
-            'email' => $user->email
+            'id' => $user['id'],
+            'user' => $user['user_name'],
+            'email' => $user['email']
         ));
     }
 
@@ -204,8 +203,7 @@ class Users extends FeaturesAbstract
      */
     private function editUser($id, $user, $password, $email)
     {
-        $userUpdate = $this->db->getById('users', $id);
-
+        $userUpdate = $this->db->getById('users', $id, 'bean');
         $newPassword = password_hash($password, PASSWORD_DEFAULT);
 
         if (!empty($password)) {
@@ -242,7 +240,6 @@ class Users extends FeaturesAbstract
     public function getHash($userName)
     {
         $result = $this->db->findOne('users', 'user_name = :user', [':user' => $userName]);
-        $result = $result[0];
         if (empty($result)) return false;
         return (string) $result['user_pass'];
     }

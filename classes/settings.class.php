@@ -150,12 +150,11 @@ class Settings
      */
     private function setProperties($queryResult)
     {
-        $queryResult = $queryResult[0];
-        $this->siteName = $queryResult->site_name;
-        $this->resultNumber = $queryResult->site_resultsnumber;
-        $this->siteCookies = $queryResult->site_cookies;
-        $this->siteCache = $queryResult->site_cache;
-        $this->siteMaxAnswers = $queryResult->site_maxanswers;
+        $this->siteName = $queryResult['site_name'];
+        $this->resultNumber = $queryResult['site_resultsnumber'];
+        $this->siteCookies = $queryResult['site_cookies'];
+        $this->siteCache = $queryResult['site_cache'];
+        $this->siteMaxAnswers = $queryResult['site_maxanswers'];
     }
 
     /**
@@ -164,15 +163,13 @@ class Settings
     public function edit()
     {
         $settings = $this->processSettings($this->settingsId);
-        $settings = $settings[0];
-
         return $this->twig->render('edit_settings.html', array(
-            'id' => $settings->id,
-            'site_name' => $settings->site_name,
-            'site_resultsnumber' => $settings->site_resultsnumber,
-            'site_cookies' => $settings->site_cookies,
-            'site_cache' => $settings->site_cache,
-            'site_maxanswers' => $settings->site_maxanswers
+            'id' => $settings['id'],
+            'site_name' => $settings['site_name'],
+            'site_resultsnumber' => $settings['site_resultsnumber'],
+            'site_cookies' => $settings['site_cookies'],
+            'site_cache' => $settings['site_cache'],
+            'site_maxanswers' => $settings['site_maxanswers']
         ));
     }
 
@@ -184,7 +181,7 @@ class Settings
     public function editExecute($settingsArr)
     {
         try {
-            $settings = $this->database->getById('settings', $this->settingsId);
+            $settings = $this->database->getById('settings', $this->settingsId, 'bean');
             $this->database->editRow($settings, array(
                 'site_name' => $settingsArr['site_name'],
                 'site_resultsnumber' => $settingsArr['site_resultsnumber'],
