@@ -95,13 +95,35 @@ class Cookie
     {
         if ($this->rememberMe) {
             $token = bin2hex(openssl_random_pseudo_bytes(128));
-            $newLog = $this->db->addRows('rememberme', array(array('userid' => $userID, 'hash' => $token)));
-            $this->db->store($newLog);
-            $newCookie = $userID . ':' . $token;
-            $mac = hash_hmac('sha256', $newCookie, $this::SECRET_KEY);
-            $newCookie .= ':' . $mac;
-            setcookie($this->cookieName, $newCookie, time()+60*$this->cookieExpiryTime);
+            $this->saveToDatabase($userID, $token);
+            $this->createCoockie($userID, $token);
         }
+    }
+
+    /**
+     * @param int $userID
+     * @param string $token
+     *
+     * @return void
+     */
+    protected function saveToDatabase($userID, $token)
+    {
+        $newLog = $this->db->addRows('rememberme', array(array('userid' => $userID, 'hash' => $token)));
+        $this->db->store($newLog);
+    }
+
+    /**
+     * @param int $userID
+     * @param string $token
+     *
+     * @return void
+     */
+    protected function createCoockie($userID, $token)
+    {
+        $newCookie = $userID . ':' . $token;
+        $mac = hash_hmac('sha256', $newCookie, $this::SECRET_KEY);
+        $newCookie .= ':' . $mac;
+        setcookie($this->cookieName, $newCookie, time()+60*$this->cookieExpiryTime);
     }
 
     /**

@@ -39,7 +39,9 @@ class RedBeanDB implements DBInterface
      */
     public function setup()
     {
-        Facade::setup($this->db_dsn, $this->db_user, $this->db_pass);
+        if (!Facade::testConnection()) {
+            Facade::setup($this->db_dsn, $this->db_user, $this->db_pass);
+        }
     }
 
     /**

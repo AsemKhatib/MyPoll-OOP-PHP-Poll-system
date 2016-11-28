@@ -123,7 +123,9 @@ class Login extends Cookie
      */
     private function isSessionExist()
     {
-        if (General::issetAndNotEmpty($_SESSION['user']) && General::issetAndNotEmpty($_SESSION['id'])) return true;
+        if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
+            return true;
+        }
         return false;
     }
 
