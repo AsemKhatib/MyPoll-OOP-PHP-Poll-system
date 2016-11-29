@@ -12,10 +12,10 @@ class Cookie
     const SECRET_KEY = 'secretKeyHere';
 
     /** @var  string */
-    protected $cookie;
+    public $cookie;
 
     /** @var boolean */
-    protected $rememberMe = false;
+    public $rememberMe = false;
 
     /** @var  string */
     protected $cookieName = 'rememberme';
@@ -35,6 +35,17 @@ class Cookie
     public function __construct(DBInterface $db)
     {
         $this->db = $db;
+        $this->setCookie();
+    }
+
+    /**
+     * @return void
+     */
+    protected function setCookie()
+    {
+        if (isset($_COOKIE[$this->cookieName]) && !empty($_COOKIE[$this->cookieName])) {
+            $this->cookie = $_COOKIE[$this->cookieName];
+        }
     }
 
     /**
@@ -70,7 +81,7 @@ class Cookie
             return false;
         }
 
-        $cookie = $this->getCookieData();
+        $cookie = (array) $this->getCookieData();
         $hash_hmac = hash_hmac('sha256', $cookie['userID'] . ':' . $cookie['token'], $this::SECRET_KEY);
 
         if (!hash_equals($hash_hmac, $cookie['mac'])) {
@@ -89,41 +100,63 @@ class Cookie
     /**
      * @param int $userID
      *
-     * @return void
+     * @return boolean
      */
     protected function setRememberme($userID)
     {
         if ($this->rememberMe) {
             $token = bin2hex(openssl_random_pseudo_bytes(128));
-            $this->saveToDatabase($userID, $token);
-            $this->createCoockie($userID, $token);
+            if (!$this->saveToDatabase($userID, $token) || !$this->createCookie($userID, $token)) {
+                return false;
+            }
+            return true;
         }
+        return true;
     }
 
     /**
      * @param int $userID
      * @param string $token
      *
-     * @return void
+     * @return boolean
      */
     protected function saveToDatabase($userID, $token)
     {
         $newLog = $this->db->addRows('rememberme', array(array('userid' => $userID, 'hash' => $token)));
-        $this->db->store($newLog);
+        if (!$this->db->store($newLog)) {
+            return false;
+        }
+        return true;
     }
 
     /**
      * @param int $userID
      * @param string $token
      *
-     * @return void
+     * @return string
      */
-    protected function createCoockie($userID, $token)
+    protected function generateCookieData($userID, $token)
     {
         $newCookie = $userID . ':' . $token;
         $mac = hash_hmac('sha256', $newCookie, $this::SECRET_KEY);
         $newCookie .= ':' . $mac;
-        setcookie($this->cookieName, $newCookie, time()+60*$this->cookieExpiryTime);
+        return $newCookie;
+    }
+
+    /**
+     * @param int $userID
+     * @param string $token
+     *
+     * @return boolean
+     */
+    protected function createCookie($userID, $token)
+    {
+        $cookieData = $this->generateCookieData($userID, $token);
+        if (empty($cookieData)) {
+            return false;
+        }
+        setcookie($this->cookieName, $cookieData, time()+60*$this->cookieExpiryTime);
+        return true;
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace MyPoll\Tests\Unit\Classes;
 
+@session_start();
+
 use DI\Container;
 use Mockery as m;
 use MyPoll\Classes\Database\RedBeanDB;
@@ -18,17 +20,11 @@ class LoginTest extends PHPUnit_Framework_TestCase
      */
     private $container;
 
-    /**
-     * @var Login
-     */
-    private $login;
-
     public function setUp()
     {
         parent::setUp();
         global  $container;
         $this->container = $container;
-        $this->login = $this->getLogin();
     }
 
     public function tearDown()
@@ -37,16 +33,20 @@ class LoginTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $extraArray array
      * @param mixed $return
      *
      * @return RedBeanDB
      */
-    private function getMockObject($return)
+    private function getMockObject($return, $extraArray = null)
     {
         $database = m::mock('MyPoll\Classes\Database\RedBeanDB');
         $database->shouldReceive('getRow')->once()->withAnyArgs()->andReturn($return);
-        $database->shouldReceive('addRows')->once()->withAnyArgs()->andReturnNull();
-        $database->shouldReceive('store')->once()->withAnyArgs()->andReturnNull();
+        if ($extraArray) {
+            foreach ($extraArray as $item) {
+                $database->shouldReceive($item['method'])->once()->withAnyArgs()->andReturn($item['return']);
+            }
+        }
         return $database;
     }
 
@@ -61,12 +61,14 @@ class LoginTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $extraArray array
+     *
      * @return Login
      */
-    private function getLogin()
+    private function getLogin($extraArray = null)
     {
         $login =  new Login(
-            $this->getMockObject($this->getMockData()),
+            $this->getMockObject($this->getMockData(), $extraArray),
             $this->container->get(Users::class),
             $this->container->get(Settings::class)
         );
@@ -76,42 +78,162 @@ class LoginTest extends PHPUnit_Framework_TestCase
 
     public function testCheckSuccess()
     {
-        $this->assertEquals(true, $this->login->check('user', 'password'));
+        $this->assertEquals(true, $this->getLogin()->check('user', 'password'));
+    }
+
+    public function testCheckSuccessWithRememberMe()
+    {
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true)
+        );
+        $login = $this->getLogin($extraArray);
+        $login->rememberMe = true;
+        $this->assertTrue(@$login->check('user', 'password'));
     }
 
     public function testCheckFailWrongPassword()
     {
-        $this->assertEquals(false, $this->login->check('user', 'wrongpassword'));
+        $this->assertEquals(false, $this->getLogin()->check('user', 'wrongpassword'));
     }
 
     public function testCheckFailNoUserAndPasswordSet()
     {
-        $this->assertEquals(false, $this->login->check('', ''));
+        $this->assertEquals(false, $this->getLogin()->check('', ''));
     }
 
-    public function testIsLoggedInSuccess()
+    public function testCheckFailWithRememberMe()
     {
-        $this->login->check('user', 'password');
-        $this->assertEquals(true, $this->login->isLoggedIn());
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => null),
+            array('method' => 'store', 'return' => null)
+        );
+        $login = $this->getLogin($extraArray);
+        $login->rememberMe = true;
+        $this->assertFalse($login->check('user', 'password'));
     }
 
-    public function testIsLoggedInSuccessWithRememberMe()
+    public function testIsLoggedInSuccessWithSession()
     {
-        //$_POST['rememberme'] = 'rememberme';
-        $this->login->check('user', 'password');
-        $this->assertEquals(true, $this->login->isLoggedIn());
+        $this->getLogin()->check('user', 'password');
+        $this->assertEquals(true, $this->getLogin()->isLoggedIn());
     }
 
-    public function testIsLoggedInFailWrongPassword()
+    public function testIsLoggedInFailWrongPasswordWithSession()
     {
-        $this->login->check('user', 'wrongpassword');
-        $this->assertFalse($this->login->isLoggedIn());
+        $this->getLogin()->check('user', 'wrongpassword');
+        $this->assertFalse($this->getLogin()->isLoggedIn());
     }
 
-    public function testIsLoggedInFailNoUserAndPasswordSet()
+    public function testIsLoggedInFailNoUserAndPasswordSetWithSession()
     {
-        $this->login->check('', '');
-        $this->assertFalse($this->login->isLoggedIn());
+        $this->getLogin()->check('', '');
+        $this->assertFalse($this->getLogin()->isLoggedIn());
+    }
+
+    public function testIsLoggedInSuccessWithCookie()
+    {
+        $cookie = '1:44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6:f767b286550f691170905287f4fc0c5234928d3975ca29f5a55a5e59d919d53a';
+        $token = '44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6';
+
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'findOne', 'return' => array('id' => 1, 'userid' => 1, 'hash' => $token)),
+            array('method' => 'getById', 'return' => $this->getMockData()),
+            array('method' => 'deleteById', 'return' => null)
+        );
+        $login = $this->getLogin($extraArray);
+        $login->rememberMe = true;
+        $login->cookie = $cookie;
+        $this->assertTrue(@$login->isLoggedIn());
+    }
+
+    public function testIsLoggedInFailWithMissingCookie()
+    {
+        $cookie = '';
+        $token = '44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6';
+
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'findOne', 'return' => array('id' => 1, 'userid' => 1, 'hash' => $token)),
+            array('method' => 'getById', 'return' => $this->getMockData()),
+            array('method' => 'deleteById', 'return' => null)
+        );
+        $login = $this->getLogin($extraArray);
+        $login->rememberMe = true;
+        $login->cookie = $cookie;
+        $this->assertFalse(@$login->isLoggedIn());
+    }
+
+    public function testIsLoggedInFailWithMissingDatabaseToken()
+    {
+        $cookie = '1:44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6:f767b286550f691170905287f4fc0c5234928d3975ca29f5a55a5e59d919d53a';
+
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'findOne', 'return' => null),
+            array('method' => 'getById', 'return' => $this->getMockData()),
+            array('method' => 'deleteById', 'return' => null)
+        );
+        $login = $this->getLogin($extraArray);
+        $login->rememberMe = true;
+        $login->cookie = $cookie;
+        $this->assertFalse(@$login->isLoggedIn());
+    }
+
+    public function testIsLoggedInFailWithMissingUserIDThatIncludedInTheCookie()
+    {
+        $cookie = '1:44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6:f767b286550f691170905287f4fc0c5234928d3975ca29f5a55a5e59d919d53a';
+        $token = '44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6';
+
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'findOne', 'return' => array('id' => 1, 'userid' => 1, 'hash' => $token)),
+            array('method' => 'getById', 'return' => array()),
+            array('method' => 'deleteById', 'return' => null)
+        );
+        $login = $this->getLogin($extraArray);
+        $login->rememberMe = true;
+        $login->cookie = $cookie;
+        $this->assertFalse(@$login->isLoggedIn());
+    }
+
+    public function testLogoutSuccessWithSession()
+    {
+        $this->assertNotFalse(@$this->getLogin()->logout());
+    }
+
+    public function testLogoutSuccessWithCookie()
+    {
+        $cookie = '1:44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6:f767b286550f691170905287f4fc0c5234928d3975ca29f5a55a5e59d919d53a';
+        $token = '44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6';
+
+        $extraArray = array(
+            array('method' => 'findOne', 'return' => array('id' => 1, 'userid' => 1, 'hash' => $token)),
+            array('method' => 'deleteById', 'return' => null)
+        );
+        $login = $this->getLogin($extraArray);
+        $login->rememberMe = true;
+        $login->cookie = $cookie;
+        $this->assertNotFalse(@$login->logout());
+    }
+
+    public function testLogoutFailWithCookieNoHashFoundInTheDatabase()
+    {
+        $cookie = '1:44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6:f767b286550f691170905287f4fc0c5234928d3975ca29f5a55a5e59d919d53a';
+
+        $extraArray = array(
+            array('method' => 'findOne', 'return' => array()),
+            array('method' => 'deleteById', 'return' => null)
+        );
+        $login = $this->getLogin($extraArray);
+        $login->rememberMe = true;
+        $login->cookie = $cookie;
+        $this->assertFalse(@$login->logout());
     }
 
 }

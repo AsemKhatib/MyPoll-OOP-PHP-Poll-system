@@ -41,7 +41,7 @@ class Login extends Cookie
         parent::__construct($db);
         $this->users = $users;
         $this->settings = $settings;
-        //$this->cookie = General::issetAndNotEmpty($_COOKIE[$this->cookieName]) ? $_COOKIE[$this->cookieName] : null;
+        $this->rememberMe = isset($_POST['rememberme']) ? true : false;
     }
 
     /**
@@ -52,17 +52,13 @@ class Login extends Cookie
      */
     public function check($user, $pass)
     {
-        $this->rememberMe = isset($_POST['rememberme']) ? true : false;
-
         if (General::issetAndNotEmpty($user) && General::issetAndNotEmpty($pass)) {
             $query = 'SELECT * FROM users WHERE user_name = :user AND user_pass = :pass';
             $result = $this->db->getRow($query, [':user' => $user, ':pass' => $this->users->getHash($user)]);
-
             if (!password_verify($pass, $result['user_pass'])) return false;
-
             $this->dataSetter(array($result['user_name'], $result['id'],$result['email']));
             $this->authLogin();
-            $this->setRememberme($this->userID);
+            if (!$this->setRememberme($this->userID)) return false;
             return true;
         }
 
@@ -85,7 +81,7 @@ class Login extends Cookie
     }
 
     /**
-     * @return void|boolean
+     * @return boolean
      */
     protected function setupNewCredentials()
     {
@@ -94,11 +90,14 @@ class Login extends Cookie
         if (!$cookie) return false;
         $userLog = $this->getRemembermeMeHash($cookie['token']);
         $user = $this->db->getById('users', $cookie['userID']);
+        if (empty($user)) return false;
         $this->dataSetter(array($user['user_name'], $user['id'] ,$user['email']));
         $this->db->deleteById('rememberme', $userLog['id']);
         $this->unsetCookie();
         $this->rememberMe = true;
-        $this->setRememberme($user->id);
+        if (!$this->setRememberme($user->id)) return false;
+
+        return true;
     }
 
     /**
@@ -110,8 +109,7 @@ class Login extends Cookie
             return true;
         }
 
-        if ($this->isRememberme()) {
-            $this->setupNewCredentials();
+        if ($this->isRememberme() && $this->setupNewCredentials()) {
             $this->authLogin();
             return true;
         }
@@ -146,6 +144,7 @@ class Login extends Cookie
     {
         if ($this->getCookieData()) {
             $userLog = $this->getRemembermeMeHash($this->getCookieData()['token']);
+            if(empty($userLog)) return false;
             $this->db->deleteById('rememberme', $userLog['id']);
         }
         $this->unsetCookie();
