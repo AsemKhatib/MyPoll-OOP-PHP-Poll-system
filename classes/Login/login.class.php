@@ -137,7 +137,7 @@ class Login extends Cookie
     }
 
     /**
-     * @return void
+     * @return void|boolean
      */
     public function logout()
     {
@@ -148,6 +148,7 @@ class Login extends Cookie
         }
         $this->unsetCookie();
         session_destroy();
+        return true;
     }
 
     /**

@@ -13,6 +13,8 @@ use PHPUnit_Framework_TestCase;
 
 class QuestionsTest extends PHPUnit_Framework_TestCase
 {
+
+    protected $dataArray = array('question' => 'question', 'answers' => array('answer1', 'answer2', 'answer3'));
     /**
      * @var Container
      */
@@ -32,14 +34,12 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @param $extraArray array
-     * @param mixed $return
      *
      * @return RedBeanDB
      */
-    private function getMockObject($return, $extraArray = null)
+    private function getMockObject($extraArray = null)
     {
         $database = m::mock('MyPoll\Classes\Database\RedBeanDB');
-        $database->shouldReceive('getRow')->once()->withAnyArgs()->andReturn($return);
         if ($extraArray) {
             foreach ($extraArray as $item) {
                 $database->shouldReceive($item['method'])->once()->withAnyArgs()->andReturn($item['return']);
@@ -66,7 +66,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
     private function getQuestion($extraArray = null)
     {
         $questions =  new Questions(
-            $this->getMockObject($this->getMockData(), $extraArray),
+            $this->getMockObject($extraArray),
             $this->container->get(Twig_Environment::class),
             $this->container->get(Pagination::class),
             $this->container->get(Settings::class)
@@ -75,8 +75,50 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         return $questions;
     }
 
-    public function testAddSuccess()
+    /**
+     * @expectedException \Twig_Error_Loader
+     */
+    public function testAddFail()
     {
-
+        $this->getQuestion()->add();
     }
+
+    public function testGetPostParamsForAddMethodSuccess()
+    {
+        $_POST['question'] = 'question1111';
+        $_POST['answer'] = array('answer1', 'answer2', 'answer3');
+        $this->assertEquals(
+            array('question' => $_POST['question'], 'answers' => $_POST['answer']),
+            $this->getQuestion()->getPostParamsForAddMethod()
+        );
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Notice
+     */
+    public function testGetPostParamsForAddMethodFailWithNoPostParams()
+    {
+        $this->getQuestion()->getPostParamsForAddMethod();
+    }
+
+    public function testGetPostParamsForAddMethodFailWithEmptyPostParams()
+    {
+        $_POST['question'] = '';
+        $_POST['answer'] = array();
+        $this->assertArrayHasKey('question', $this->getQuestion()->getPostParamsForAddMethod());
+        $this->assertArrayHasKey('answers', $this->getQuestion()->getPostParamsForAddMethod());
+    }
+
+    public function testAddExecuteSuccess()
+    {
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'getID', 'return' => true)
+        );
+
+        $question = $this->getQuestion($extraArray);
+        $this->assertEquals(var_dump($question->addExecute($this->dataArray)), $question->addExecute($this->dataArray));
+    }
+
 }

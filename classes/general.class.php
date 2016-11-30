@@ -2,6 +2,8 @@
 
 namespace MyPoll\Classes;
 
+use Exception;
+
 /**
  * Class General
  *

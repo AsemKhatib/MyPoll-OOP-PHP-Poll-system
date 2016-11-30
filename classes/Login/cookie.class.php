@@ -12,10 +12,10 @@ class Cookie
     const SECRET_KEY = 'secretKeyHere';
 
     /** @var  string */
-    public $cookie;
+    protected $cookie;
 
     /** @var boolean */
-    public $rememberMe = false;
+    protected $rememberMe = false;
 
     /** @var  string */
     protected $cookieName = 'rememberme';

@@ -85,8 +85,8 @@ class LoginTest extends PHPUnit_Framework_TestCase
             array('method' => 'addRows', 'return' => true),
             array('method' => 'store', 'return' => true)
         );
+        $_POST['rememberme'] = true;
         $login = $this->getLogin($extraArray);
-        $login->rememberMe = true;
         $this->assertTrue(@$login->check('user', 'password'));
     }
 
@@ -106,8 +106,8 @@ class LoginTest extends PHPUnit_Framework_TestCase
             array('method' => 'addRows', 'return' => null),
             array('method' => 'store', 'return' => null)
         );
+        $_POST['rememberme'] = true;
         $login = $this->getLogin($extraArray);
-        $login->rememberMe = true;
         $this->assertFalse($login->check('user', 'password'));
     }
 
@@ -141,9 +141,9 @@ class LoginTest extends PHPUnit_Framework_TestCase
             array('method' => 'getById', 'return' => $this->getMockData()),
             array('method' => 'deleteById', 'return' => null)
         );
+        $_POST['rememberme'] = true;
+        $_COOKIE['rememberme'] = $cookie;
         $login = $this->getLogin($extraArray);
-        $login->rememberMe = true;
-        $login->cookie = $cookie;
         $this->assertTrue(@$login->isLoggedIn());
     }
 
@@ -159,9 +159,9 @@ class LoginTest extends PHPUnit_Framework_TestCase
             array('method' => 'getById', 'return' => $this->getMockData()),
             array('method' => 'deleteById', 'return' => null)
         );
+        $_POST['rememberme'] = true;
+        $_COOKIE['rememberme'] = $cookie;
         $login = $this->getLogin($extraArray);
-        $login->rememberMe = true;
-        $login->cookie = $cookie;
         $this->assertFalse(@$login->isLoggedIn());
     }
 
@@ -176,9 +176,9 @@ class LoginTest extends PHPUnit_Framework_TestCase
             array('method' => 'getById', 'return' => $this->getMockData()),
             array('method' => 'deleteById', 'return' => null)
         );
+        $_POST['rememberme'] = true;
+        $_COOKIE['rememberme'] = $cookie;
         $login = $this->getLogin($extraArray);
-        $login->rememberMe = true;
-        $login->cookie = $cookie;
         $this->assertFalse(@$login->isLoggedIn());
     }
 
@@ -194,9 +194,9 @@ class LoginTest extends PHPUnit_Framework_TestCase
             array('method' => 'getById', 'return' => array()),
             array('method' => 'deleteById', 'return' => null)
         );
+        $_POST['rememberme'] = true;
+        $_COOKIE['rememberme'] = $cookie;
         $login = $this->getLogin($extraArray);
-        $login->rememberMe = true;
-        $login->cookie = $cookie;
         $this->assertFalse(@$login->isLoggedIn());
     }
 
@@ -214,9 +214,9 @@ class LoginTest extends PHPUnit_Framework_TestCase
             array('method' => 'findOne', 'return' => array('id' => 1, 'userid' => 1, 'hash' => $token)),
             array('method' => 'deleteById', 'return' => null)
         );
+        $_POST['rememberme'] = true;
+        $_COOKIE['rememberme'] = $cookie;
         $login = $this->getLogin($extraArray);
-        $login->rememberMe = true;
-        $login->cookie = $cookie;
         $this->assertNotFalse(@$login->logout());
     }
 
@@ -228,9 +228,9 @@ class LoginTest extends PHPUnit_Framework_TestCase
             array('method' => 'findOne', 'return' => array()),
             array('method' => 'deleteById', 'return' => null)
         );
+        $_POST['rememberme'] = true;
+        $_COOKIE['rememberme'] = $cookie;
         $login = $this->getLogin($extraArray);
-        $login->rememberMe = true;
-        $login->cookie = $cookie;
         $this->assertFalse(@$login->logout());
     }
 
