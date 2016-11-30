@@ -2,8 +2,6 @@
 
 namespace MyPoll\Tests\Unit\Classes;
 
-@session_start();
-
 use DI\Container;
 use Mockery as m;
 use MyPoll\Classes\Database\RedBeanDB;

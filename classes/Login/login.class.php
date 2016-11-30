@@ -65,7 +65,6 @@ class Login extends Cookie
         return false;
     }
 
-
     /**
      * @param array $data
      *
