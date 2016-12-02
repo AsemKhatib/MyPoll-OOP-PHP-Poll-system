@@ -54,7 +54,7 @@ class Users extends FeaturesAbstract
      */
     public function add()
     {
-        return $this->twig->display('add_user.html');
+        return $this->twig->render('add_user.html');
     }
 
     /**
@@ -243,5 +243,4 @@ class Users extends FeaturesAbstract
         if (empty($result)) return false;
         return (string) $result['user_pass'];
     }
-
 }

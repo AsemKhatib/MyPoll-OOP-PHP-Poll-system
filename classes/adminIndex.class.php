@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use MyPoll\Classes\Login\Login;
+use Exception;
 use Twig_Environment;
 
 /**
@@ -114,7 +115,11 @@ class AdminIndex
     {
         $this->login->checkIsLoggedIn();
         $requestArray = $abstract->getPostParamsForAddMethod();
-        $abstract->addExecute($requestArray);
+        try {
+            echo $abstract->addExecute($requestArray);
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
     }
 
     /**
@@ -176,7 +181,10 @@ class AdminIndex
         $this->login->checkIsLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
-        $abstract->delete($id);
+        echo General::messageSent(
+            $abstract->delete($id),
+            $this->settings->getIndexPage()
+        );
     }
 
     /**
@@ -210,4 +218,5 @@ class AdminIndex
         $is_pie = isset($_GET['is_pie']) ? General::cleanInput('string', $_GET['is_pie']) : null;
         echo $questions->showAnswers($qid, $is_pie);
     }
+
 }

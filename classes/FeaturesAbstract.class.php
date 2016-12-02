@@ -56,7 +56,7 @@ abstract class FeaturesAbstract
     /**
      * @param int $id
      *
-     * @return void
+     * @return string
      */
     abstract public function delete($id);
 

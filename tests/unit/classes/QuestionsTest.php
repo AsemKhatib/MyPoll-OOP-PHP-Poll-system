@@ -9,22 +9,49 @@ use MyPoll\Classes\Pagination;
 use MyPoll\Classes\Questions;
 use MyPoll\Classes\Settings;
 use Twig_Environment;
+use Twig_Loader_Filesystem;
 use PHPUnit_Framework_TestCase;
 
 class QuestionsTest extends PHPUnit_Framework_TestCase
 {
 
-    protected $dataArray = array('question' => 'question', 'answers' => array('answer1', 'answer2', 'answer3'));
+    protected $extraArrayFull = array(
+        array('method' => 'getById', 'return' => array('id' => 1, 'question' => 'test Question')),
+        array('method' => 'getAll', 'return' => array(
+            array('id' => 1, 'qid' => 1, 'answer' => 'answer1', 'votes' => 10),
+            array('id' => 2, 'qid' => 1, 'answer' => 'answer2', 'votes' => 5),
+            array('id' => 3, 'qid' => 1, 'answer' => 'answer3', 'votes' => 20)
+        )),
+    );
+
+    protected $dataArray = array(
+        'question' => 'question',
+        'answers' => array('answer1', 'answer2', 'answer3')
+    );
+
+    protected $dataArrayEdit = array(
+        'qid' => 1,
+        'question' => 'question',
+        'answers_old' => array('answer1', 'answer2', 'answer3')
+    );
+
+
     /**
      * @var Container
      */
     private $container;
+
+    /**
+     * @var Twig_Loader_Filesystem
+     */
+    private $twigLoader;
 
     public function setUp()
     {
         parent::setUp();
         global  $container;
         $this->container = $container;
+        $this->twigLoader = $this->container->get(Twig_Loader_Filesystem::class);
     }
 
     public function tearDown()
@@ -48,31 +75,30 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         return $database;
     }
 
-    private function getMockData()
-    {
-        return array(
-            'id' => 1,
-            'email' => 'email@d.com',
-            'user_name' => 'user',
-            'user_pass' => password_hash('password', PASSWORD_DEFAULT)
-        );
-    }
-
     /**
-     * @param $extraArray array
+     * @param array $extraArrayDB
      *
      * @return Questions
      */
-    private function getQuestion($extraArray = null)
+    private function getQuestion($extraArrayDB = null)
     {
         $questions =  new Questions(
-            $this->getMockObject($extraArray),
+            $this->getMockObject($extraArrayDB),
             $this->container->get(Twig_Environment::class),
             $this->container->get(Pagination::class),
             $this->container->get(Settings::class)
         );
 
         return $questions;
+    }
+
+    public function testAddSuccess()
+    {
+        $this->twigLoader->addPath('admin/template/');
+        $this->assertContains(
+            '<input type="hidden" id="callBack" value="addExecute">',
+            $this->getQuestion()->add()
+        );
     }
 
     /**
@@ -114,11 +140,190 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'addRows', 'return' => true),
             array('method' => 'store', 'return' => true),
-            array('method' => 'getID', 'return' => true)
+            array('method' => 'getID', 'return' => 1)
         );
 
         $question = $this->getQuestion($extraArray);
-        $this->assertEquals(var_dump($question->addExecute($this->dataArray)), $question->addExecute($this->dataArray));
+        $this->assertEquals('Question Added successfully', $question->addExecute($this->dataArray));
+    }
+
+    public function testAddExecuteFailWithWrongGetID()
+    {
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'getID', 'return' => false)
+        );
+
+        $question = $this->getQuestion($extraArray);
+        $this->assertEquals(
+            'Something went wrong while trying to add the question',
+            $question->addExecute($this->dataArray)
+        );
+    }
+
+    public function testAddExecuteFailWithFalseAddAnswers()
+    {
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => array()),
+            array('method' => 'getID', 'return' => 1)
+        );
+
+        $question = $this->getQuestion($extraArray);
+        $this->assertEquals(
+            'Something went wrong while trying to add the answers of this question',
+            $question->addExecute($this->dataArray)
+        );
+    }
+
+
+    public function testShowSuccess()
+    {
+        $extraArray = array(array('method' => 'count', 'return' => 10));
+        $this->twigLoader->addPath('admin/template/');
+        $this->assertContains('<div class="show_poll">', $this->getQuestion($extraArray)->show());
+    }
+
+    /**
+     * @expectedException \Twig_Error_Loader
+     */
+    public function testShowFailWithTwig()
+    {
+        $extraArray = array(array('method' => 'count', 'return' => false));
+        $this->getQuestion($extraArray)->show();
+    }
+
+    public function testShowAnswersSuccess()
+    {
+        $this->twigLoader->addPath('admin/template/');
+        $this->assertContains(
+            'function drawChart()',
+            $this->getQuestion(array($this->extraArrayFull[1]))->showAnswers(1, true)
+        );
+    }
+
+    public function testShowAnswersFailEmptyArray()
+    {
+        $extraArray = array(
+            array('method' => 'getAll', 'return' => array()));
+
+        $this->assertFalse($this->getQuestion($extraArray)->showAnswers(1, 'true'));
+    }
+
+    /**
+     * @expectedException \Twig_Error_Loader
+     */
+    public function testShowAnswersFailWithTwig()
+    {
+        $extraArray = array(array('method' => 'getAll', 'return' => array(1, 2, 3)));
+        $this->getQuestion($extraArray)->showAnswers(1, 'true');
+    }
+
+    public function testEditSuccess()
+    {
+        $this->twigLoader->addPath('admin/template/');
+        $this->assertContains(
+            '<input type="hidden" id="callBack" value="editExecute">',
+            $this->getQuestion($this->extraArrayFull)->edit(1)
+        );
+    }
+
+    /**
+     * @expectedException \Twig_Error_Loader
+     */
+    public function testEditFail()
+    {
+        $this->getQuestion($this->extraArrayFull)->edit(1);
+    }
+
+    public function testGetPostParamsForEditMethodSuccess()
+    {
+        $_POST['qid'] = '1';
+        $_POST['question'] = 'question1111';
+        $_POST['answer'] = array('answer1', 'answer2', 'answer3');
+        $this->assertEquals(
+            array('qid' => $_POST['qid'], 'question' => $_POST['question'], 'answers_old' => $_POST['answer']),
+            $this->getQuestion()->getPostParamsForEditMethod()
+        );
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Notice
+     */
+    public function testGetPostParamsForEditMethodFailWithNoPostParams()
+    {
+        $this->getQuestion()->getPostParamsForEditMethod();
+    }
+
+    public function testGetPostParamsForEditMethodFailWithEmptyPostParams()
+    {
+        $_POST['qid'] = '';
+        $_POST['question'] = '';
+        $_POST['answer'] = array();
+        $this->assertArrayHasKey('question', $this->getQuestion()->getPostParamsForEditMethod());
+        $this->assertArrayHasKey('answers_old', $this->getQuestion()->getPostParamsForEditMethod());
+        $this->assertArrayHasKey('qid', $this->getQuestion()->getPostParamsForEditMethod());
+    }
+
+    public function testEditExecuteSuccess()
+    {
+        $extraArray = array(
+            array('method' => 'getById', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'getID', 'return' => 1)
+        );
+
+        $question = $this->getQuestion($extraArray);
+        $this->assertEquals('Question edited successfully', $question->editExecute($this->dataArrayEdit));
+    }
+
+    public function testEditExecuteFailWithQuestionEdit()
+    {
+        $extraArray = array(
+            array('method' => 'getById', 'return' => true),
+            array('method' => 'editRow', 'return' => array()),
+            array('method' => 'store', 'return' => array()),
+            array('method' => 'getID', 'return' => 1)
+        );
+
+        $question = $this->getQuestion($extraArray);
+        $this->assertEquals(
+            'Something went wrong while trying to edit the question',
+            $question->editExecute($this->dataArrayEdit)
+        );
+    }
+
+    public function testEditExecuteFailWithAnswersEdit()
+    {
+        $extraArray = array(
+            array('method' => 'getById', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'store', 'return' => array()),
+            array('method' => 'getID', 'return' => 1)
+        );
+
+        $question = $this->getQuestion($extraArray);
+        $this->assertEquals(
+            'Something went wrong while trying to edit the answers of this question',
+            $question->editExecute($this->dataArrayEdit)
+        );
+    }
+
+    public function testDeleteSuccess()
+    {
+        $extraArray = array(
+            array('method' => 'deleteById', 'return' => true),
+            array('method' => 'find', 'return' => true),
+            array('method' => 'deleteAll', 'return' => true)
+        );
+
+        $this->assertEquals(
+            'The question and all its answers were successfully deleted',
+            $this->getQuestion($extraArray)->delete(1)
+        );
     }
 
 }
