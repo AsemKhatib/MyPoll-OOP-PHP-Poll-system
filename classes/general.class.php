@@ -27,7 +27,7 @@ class General
     }
 
     /**
-     * @param $url
+     * @param string $url
      *
      * @return string
      */
@@ -42,8 +42,9 @@ class General
      *
      * @return string
      */
-    public static function messageSent($msg, $url = "")
+    public static function messageSent($msg, $url = null)
     {
+        if (!$msg) {return false;}
         if (!empty($url)) {
             return '<meta http-equiv="refresh" content="2; url=' . $url . '">' . $msg;
         }
