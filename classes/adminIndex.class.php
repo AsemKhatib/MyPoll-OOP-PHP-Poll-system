@@ -103,7 +103,11 @@ class AdminIndex
     public function add(FeaturesAbstract $abstract)
     {
         $this->login->checkIsLoggedIn();
-        echo $abstract->add();
+        try {
+            echo $abstract->add();
+        } catch (Exception $e) {
+            echo 'Error :' . $e->getMessage();
+        }
     }
 
     /**
@@ -118,7 +122,7 @@ class AdminIndex
         try {
             echo $abstract->addExecute($requestArray);
         } catch (Exception $e) {
-            echo $e->getMessage();
+            echo 'Error :' . $e->getMessage();
         }
     }
 
@@ -132,19 +136,29 @@ class AdminIndex
         $this->login->checkIsLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
-        echo $abstract->edit($id);
+        try {
+            echo $abstract->edit($id);
+        } catch (Exception $e) {
+            echo 'Error :' . $e->getMessage();
+        }
     }
 
     /**
      * @param FeaturesAbstract $abstract
      *
      * @return string
+
+     * @throws Exception
      */
     public function editExecute(FeaturesAbstract $abstract)
     {
         $this->login->checkIsLoggedIn();
         $requestArray = $abstract->getPostParamsForEditMethod();
-        echo $abstract->editExecute($requestArray);
+        try {
+            echo $abstract->editExecute($requestArray);
+        } catch (Exception $e) {
+            echo 'Error :' . $e->getMessage();
+        }
     }
 
     /**
@@ -180,10 +194,7 @@ class AdminIndex
         $this->login->checkIsLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
-        echo General::messageSent(
-            $abstract->delete($id),
-            $this->settings->getIndexPage()
-        );
+        echo General::messageSent($abstract->delete($id), $this->settings->getIndexPage());
     }
 
     /**

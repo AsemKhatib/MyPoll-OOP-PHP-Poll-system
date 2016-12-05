@@ -159,34 +159,42 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Question Added successfully', $question->addExecute($this->dataArray));
     }
 
-    public function testAddExecuteFailWithWrongGetID()
-    {
-        $extraArray = array(
-            array('method' => 'addRows', 'return' => true),
-            array('method' => 'store', 'return' => true),
-            array('method' => 'getID', 'return' => false)
-        );
-
-        $question = $this->getQuestion($extraArray);
-        $this->assertEquals(
-            'Something went wrong while trying to add the question',
-            $question->addExecute($this->dataArray)
-        );
-    }
-
-    public function testAddExecuteFailWithFalseAddAnswers()
+    public function testAddExecuteFailWithAddQuestion()
     {
         $extraArray = array(
             array('method' => 'addRows', 'return' => true),
             array('method' => 'store', 'return' => array()),
-            array('method' => 'getID', 'return' => 1)
+            array('method' => 'getID', 'return' => false)
         );
 
-        $question = $this->getQuestion($extraArray);
-        $this->assertEquals(
-            'Something went wrong while trying to add the answers of this question',
-            $question->addExecute($this->dataArray)
+        try {
+            $this->getQuestion($extraArray)->addExecute($this->dataArray);
+        } catch (\Exception $e) {
+            $this->assertEquals(
+                'Something went wrong while trying to add the question',
+                $e->getMessage()
+            );
+        }
+    }
+
+    public function testAddExecuteFailWithAddAnswers()
+    {
+        $extraArray = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'getID', 'return' => true),
+            array('method' => 'addRows', 'return' => array()),
+            array('method' => 'store', 'return' => array()),
         );
+
+        try {
+            $this->getQuestion($extraArray)->addExecute($this->dataArray);
+        } catch (\Exception $e) {
+            $this->assertEquals(
+                'Something went wrong while trying to add the answers of the new question',
+                $e->getMessage()
+            );
+        }
     }
 
 
@@ -292,21 +300,44 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Question edited successfully', $question->editExecute($this->dataArrayEdit));
     }
 
+
     public function testEditExecuteFailWithQuestionEdit()
     {
         $extraArray = array(
             array('method' => 'getById', 'return' => true),
             array('method' => 'editRow', 'return' => array()),
-            array('method' => 'addRows', 'return' => array()),
-            array('method' => 'store', 'return' => array()),
-            array('method' => 'getID', 'return' => 1)
+            array('method' => 'store', 'return' => array())
         );
 
-        $question = $this->getQuestion($extraArray);
-        $this->assertEquals(
-            'Something went wrong while trying to edit the question',
-            $question->editExecute($this->dataArrayEdit)
+        try {
+            $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
+        } catch (\Exception $e) {
+            $this->assertEquals(
+                'Something went wrong while trying to edit the question',
+                $e->getMessage()
+            );
+        }
+    }
+
+    public function testEditExecuteFailWithAnswersAdd()
+    {
+        $extraArray = array(
+            array('method' => 'getById', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'store', 'return' => true),
+            array('method' => 'getById', 'return' => array(0 => [])),
+            array('method' => 'addRows', 'return' => array()),
+            array('method' => 'store', 'return' => array())
         );
+
+        try {
+            $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
+        } catch (\Exception $e) {
+            $this->assertEquals(
+                'Something went wrong while trying to add new answers to this question',
+                $e->getMessage()
+            );
+        }
     }
 
     public function testEditExecuteFailWithAnswersEdit()
@@ -315,16 +346,19 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'getById', 'return' => true),
             array('method' => 'editRow', 'return' => true),
             array('method' => 'store', 'return' => true),
-            array('method' => 'addRows', 'return' => array()),
-            array('method' => 'store', 'return' => array()),
-            array('method' => 'getID', 'return' => 1)
+            array('method' => 'getById', 'return' => array(0 => array('answer' => 'b'))),
+            array('method' => 'editRow', 'return' => array()),
+            array('method' => 'store', 'return' => array())
         );
 
-        $question = $this->getQuestion($extraArray);
-        $this->assertEquals(
-            'Something went wrong while trying to edit the answers of this question',
-            $question->editExecute($this->dataArrayEdit)
-        );
+        try {
+            $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
+        } catch (\Exception $e) {
+            $this->assertEquals(
+                'Something went wrong while trying to edit the answers of this question',
+                $e->getMessage()
+            );
+        }
     }
 
     public function testDeleteSuccess()

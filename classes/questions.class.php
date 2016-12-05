@@ -79,25 +79,22 @@ class Questions extends FeaturesAbstract
      * @param array $paramsArray
      *
      * @return string
+     *
+     * @throws Exception
      */
     public function addExecute($paramsArray)
     {
         $qid = $this->db->getID($this->addQuestion($paramsArray));
-
-        if (gettype($qid) != 'integer') {
-            return 'Something went wrong while trying to add the question';
-        }
-
-        if (!$this->addAnswers($paramsArray['answers'], $qid)) {
-            return 'Something went wrong while trying to add the answers of this question';
-        }
+        $this->addAnswers($paramsArray['answers'], $qid);
         return 'Question Added successfully';
     }
 
     /**
      * @param array $paramsArray
      *
-     * @return array|boolean
+     * @return array
+     *
+     * @throws Exception
      */
 
     private function addQuestion($paramsArray)
@@ -105,7 +102,7 @@ class Questions extends FeaturesAbstract
         $questionToAdd = $this->db->addRows('questions', array(array('question' => $paramsArray['question'])));
         $store = $this->db->store($questionToAdd);
         if (empty($store)) {
-            return false;
+            throw new Exception('Something went wrong while trying to add the question');
         }
         return $store;
     }
@@ -114,7 +111,9 @@ class Questions extends FeaturesAbstract
      * @param array $answers
      * @param int   $qid
      *
-     * @return boolean
+     * @return void
+     *
+     * @throws Exception
      */
     private function addAnswers($answers, $qid)
     {
@@ -125,9 +124,8 @@ class Questions extends FeaturesAbstract
         $answersToAdd = $this->db->addRows('answers', $answersArray);
         $store = $this->db->store($answersToAdd);
         if (empty($store)) {
-            return false;
+            throw new Exception('Something went wrong while trying to add the answers of the new question');
         }
-        return true;
     }
 
     /**
@@ -212,7 +210,7 @@ class Questions extends FeaturesAbstract
     }
 
     /**
-     * @param int$qid
+     * @param int $qid
      * @param array $question
      * @param array $answers
      *
@@ -242,6 +240,8 @@ class Questions extends FeaturesAbstract
      * @param array $paramsArray
      *
      * @return string
+     *
+     * @throws Exception
      */
     public function editExecute($paramsArray)
     {
@@ -249,16 +249,11 @@ class Questions extends FeaturesAbstract
         $this->db->editRow($questionUpdate, array('question' => $paramsArray['question']));
         $questionStore = $this->db->store($questionUpdate);
 
-        $editAnswers = $this->editAnswers($paramsArray['answers_old'], $paramsArray['qid']);
-
         if (empty($questionStore)) {
-            return 'Something went wrong while trying to edit the question';
+            throw new Exception('Something went wrong while trying to edit the question');
         }
 
-        if (!$editAnswers) {
-            return 'Something went wrong while trying to edit the answers of this question';
-        }
-
+        $this->editAnswers($paramsArray['answers_old'], $paramsArray['qid']);
         return 'Question edited successfully';
     }
 
@@ -266,31 +261,52 @@ class Questions extends FeaturesAbstract
      * @param array $answers
      * @param int   $qid
      *
-     * @return boolean
+     * @return void
+     *
+     * @throws Exception
      */
     private function editAnswers($answers, $qid)
     {
         foreach ($answers as $key => $value) {
             $answer = $this->db->getById('answers', $key, 'bean');
-            $answer = $answer[0];
-
-            if (empty($answer)) {
-                $newAnswer = $this->db->addRows('answers', array(array('qid' => $qid, 'answer' => $value)));
-                $store = $this->db->store($newAnswer);
-                if (empty($store)) {
-                    return false;
-                }
+            if (empty($answer[0])) {
+                $this->addExtraAnswer($qid, $value);
             }
-
-            if (!empty($answer) && $answer['answer'] != $value) {
-                $newAnswer = $this->db->editRow(array($answer), array('answer' => $value));
-                $store = $this->db->store($newAnswer);
-                if (empty($store)) {
-                    return false;
-                }
+            if (!empty($answer[0]) && $answer[0]['answer'] != $value) {
+                $this->editExistedAnswer($answer, $value);
             }
         }
-        return true;
+    }
+
+    /**
+     * @param int $qid
+     * @param string $value
+     *
+     * @throws Exception
+     */
+    private function addExtraAnswer($qid, $value)
+    {
+        $newAnswer = $this->db->addRows('answers', array(array('qid' => $qid, 'answer' => $value)));
+        $store = $this->db->store($newAnswer);
+        if (empty($store)) {
+            throw new Exception('Something went wrong while trying to add new answers to this question');
+        }
+    }
+
+    /**
+     * @param array $answer
+     * @param string $value
+     *
+     * @throws Exception
+     */
+    private function editExistedAnswer($answer, $value)
+    {
+        $answer = $answer[0];
+        $newAnswer = $this->db->editRow(array($answer), array('answer' => $value));
+        $store = $this->db->store($newAnswer);
+        if (empty($store)) {
+            throw new Exception('Something went wrong while trying to edit the answers of this question');
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace MyPoll\Classes\Database;
 
 use RedBeanPHP\Facade;
+use Exception;
 
 class RedBeanDB implements DBInterface
 {
@@ -76,11 +77,16 @@ class RedBeanDB implements DBInterface
      * @param array $dataArray
      *
      * @return array
+     *
+     * @throws \Exception
      */
     public function editRow($modelArray, $dataArray)
     {
-        $modelArray[0]->import($dataArray);
-        return $modelArray;
+        $bean = $modelArray[0];
+        if (is_array($bean)) {
+            throw new Exception('The sub array should not be of type Array');
+        }
+        return array($bean->import($dataArray));
     }
 
     /**
@@ -118,7 +124,7 @@ class RedBeanDB implements DBInterface
             $result = ($resultObject->isEmpty()) ? array() : $resultObject;
             return array($result);
         }
-        $resultObject->export();
+        $resultObject = $resultObject->export();
         $result = ($resultObject['id'] == 0) ? array() : $resultObject;
         return $result;
     }
