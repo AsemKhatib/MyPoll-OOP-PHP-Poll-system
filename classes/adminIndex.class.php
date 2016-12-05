@@ -138,13 +138,13 @@ class AdminIndex
     /**
      * @param FeaturesAbstract $abstract
      *
-     * @return string|void
+     * @return string
      */
     public function editExecute(FeaturesAbstract $abstract)
     {
         $this->login->checkIsLoggedIn();
         $requestArray = $abstract->getPostParamsForEditMethod();
-        $abstract->editExecute($requestArray);
+        echo $abstract->editExecute($requestArray);
     }
 
     /**
@@ -161,12 +161,11 @@ class AdminIndex
     /**
      * @param Settings $settings
      *
-     * @return string|void
+     * @return string
      */
     public function editExecuteSettings(Settings $settings)
     {
         $this->login->checkIsLoggedIn();
-
         $settingsArr = General::cleanInput('array', $_POST['settings']);
         $settings->editExecute($settingsArr);
     }

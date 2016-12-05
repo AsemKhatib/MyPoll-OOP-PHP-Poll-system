@@ -272,6 +272,7 @@ class Questions extends FeaturesAbstract
     {
         foreach ($answers as $key => $value) {
             $answer = $this->db->getById('answers', $key, 'bean');
+            $answer = $answer[0];
 
             if (empty($answer)) {
                 $newAnswer = $this->db->addRows('answers', array(array('qid' => $qid, 'answer' => $value)));
@@ -281,9 +282,9 @@ class Questions extends FeaturesAbstract
                 }
             }
 
-            if ($answer['answer'] != $value) {
-                $this->db->editRow($answer, array('answer' => $value));
-                $store = $this->db->store($answer);
+            if (!empty($answer) && $answer['answer'] != $value) {
+                $newAnswer = $this->db->editRow(array($answer), array('answer' => $value));
+                $store = $this->db->store($newAnswer);
                 if (empty($store)) {
                     return false;
                 }

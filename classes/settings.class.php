@@ -114,7 +114,9 @@ class Settings
         $this->settingsId = $settingsId;
 
         $settings = $this->processSettings($this->settingsId);
-        $this->setProperties($settings);
+        if (is_array($settings) && !empty($settings)) {
+            $this->setProperties($settings);
+        }
     }
 
     /**
@@ -125,7 +127,9 @@ class Settings
     private function checkSettingsExist($sid)
     {
         $queryResult = $this->database->getById('settings', $sid);
-        if (empty($queryResult)) {return false;}
+        if (empty($queryResult)) {
+            return false;
+        }
         return $queryResult;
     }
 
@@ -138,7 +142,10 @@ class Settings
     {
         $settings = $this->checkSettingsExist($sid);
         if (!$settings) {
-            echo General::ref($this->getIndexPage());
+            return General::messageSent(
+                'The Setting with this ID could not be found in the system',
+                $this->getIndexPage()
+            );
         }
         return $settings;
     }
@@ -163,6 +170,9 @@ class Settings
     public function edit()
     {
         $settings = $this->processSettings($this->settingsId);
+        if (gettype($settings) == 'string') {
+            return $settings;
+        }
         return $this->twig->render('edit_settings.html', array(
             'id' => $settings['id'],
             'site_name' => $settings['site_name'],
@@ -176,24 +186,25 @@ class Settings
     /**
      * @param array $settingsArr
      *
-     * @return void
+     * @return string
      */
     public function editExecute($settingsArr)
     {
-        try {
-            $settings = $this->database->getById('settings', $this->settingsId, 'bean');
-            $this->database->editRow($settings, array(
-                'site_name' => $settingsArr['site_name'],
-                'site_resultsnumber' => $settingsArr['site_resultsnumber'],
-                'site_cookies' => $settingsArr['site_cookies'],
-                'site_cache' => $settingsArr['site_cache'],
-                'site_maxanswers' => $settingsArr['site_maxanswers']
-            ));
-            $this->database->store($settings);
-            echo "Settings edited successfully";
-        } catch (Exception $e) {
-            echo 'Error :' . $e->getMessage();
+        $settings = $this->database->getById('settings', $this->settingsId, 'bean');
+
+        $this->database->editRow($settings, array(
+            'site_name' => $settingsArr['site_name'],
+            'site_resultsnumber' => $settingsArr['site_resultsnumber'],
+            'site_cookies' => $settingsArr['site_cookies'],
+            'site_cache' => $settingsArr['site_cache'],
+            'site_maxanswers' => $settingsArr['site_maxanswers']
+        ));
+
+        $store = $this->database->store($settings);
+        if (empty($store)) {
+            return "Something went wrong while trying to edit the settings";
         }
+        return "Settings edited successfully";
     }
 
     /**

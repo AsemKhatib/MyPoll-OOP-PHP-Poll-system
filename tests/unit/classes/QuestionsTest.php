@@ -76,6 +76,18 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @return Pagination
+     */
+    private function getMockPagination()
+    {
+        $pagination = m::mock('MyPoll\Classes\Pagination');
+        $pagination->shouldReceive('setParams')->once()->withAnyArgs()->andReturn(true);
+        $pagination->shouldReceive('getResults')->once()->withAnyArgs()->andReturn(true);
+        $pagination->shouldReceive('getPagesNumber')->once()->withAnyArgs()->andReturn(true);
+        return $pagination;
+    }
+
+    /**
      * @param array $extraArrayDB
      *
      * @return Questions
@@ -85,7 +97,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $questions =  new Questions(
             $this->getMockObject($extraArrayDB),
             $this->container->get(Twig_Environment::class),
-            $this->container->get(Pagination::class),
+            $this->getMockPagination(),
             $this->container->get(Settings::class)
         );
 
@@ -180,7 +192,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     public function testShowSuccess()
     {
-        $extraArray = array(array('method' => 'count', 'return' => 10));
+        $extraArray = array(array('method' => 'count', 'return' => 10), array('method' => 'find', 'return' => true));
         $this->twigLoader->addPath('admin/template/');
         $this->assertContains('<div class="show_poll">', $this->getQuestion($extraArray)->show());
     }
@@ -271,6 +283,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'getById', 'return' => true),
             array('method' => 'editRow', 'return' => true),
+            array('method' => 'addRows', 'return' => true),
             array('method' => 'store', 'return' => true),
             array('method' => 'getID', 'return' => 1)
         );
@@ -284,6 +297,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'getById', 'return' => true),
             array('method' => 'editRow', 'return' => array()),
+            array('method' => 'addRows', 'return' => array()),
             array('method' => 'store', 'return' => array()),
             array('method' => 'getID', 'return' => 1)
         );
@@ -301,6 +315,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'getById', 'return' => true),
             array('method' => 'editRow', 'return' => true),
             array('method' => 'store', 'return' => true),
+            array('method' => 'addRows', 'return' => array()),
             array('method' => 'store', 'return' => array()),
             array('method' => 'getID', 'return' => 1)
         );
