@@ -46,7 +46,7 @@ class AdminIndex
     /**
      * @param FeaturesAbstract $abstract
      *
-     * @return string
+     * @return void
      */
     public function show(FeaturesAbstract $abstract)
     {
@@ -60,7 +60,7 @@ class AdminIndex
     }
 
     /**
-     * @return void|string
+     * @return void
      */
     public function check()
     {
@@ -70,7 +70,7 @@ class AdminIndex
         if (!$this->login->check($username, $password)) {
             echo General::messageSent('Wrong Username or Password', $this->settings->getIndexPage());
         } else {
-            echo General::Ref($this->settings->getLogPage());
+            echo General::ref($this->settings->getLogPage());
         }
     }
 
@@ -84,7 +84,7 @@ class AdminIndex
     }
 
     /**
-     * @return string
+     * @return void
      */
     public function defaultAction()
     {
@@ -102,7 +102,7 @@ class AdminIndex
     /**
      * @param FeaturesAbstract $abstract
      *
-     * @return string
+     * @return void
      */
     public function add(FeaturesAbstract $abstract)
     {
@@ -117,7 +117,7 @@ class AdminIndex
     /**
      * @param FeaturesAbstract $abstract
      *
-     * @return string
+     * @return void
      */
     public function addExecute(FeaturesAbstract $abstract)
     {
@@ -133,7 +133,7 @@ class AdminIndex
     /**
      * @param FeaturesAbstract $abstract
      *
-     * @return string
+     * @return void
      */
     public function edit(FeaturesAbstract $abstract)
     {
@@ -150,7 +150,7 @@ class AdminIndex
     /**
      * @param FeaturesAbstract $abstract
      *
-     * @return string
+     * @return void
 
      * @throws Exception
      */
@@ -168,7 +168,7 @@ class AdminIndex
     /**
      * @param Settings $settings
      *
-     * @return string
+     * @return void
      */
     public function editSettings(Settings $settings)
     {
@@ -179,7 +179,7 @@ class AdminIndex
     /**
      * @param Settings $settings
      *
-     * @return string
+     * @return void
      */
     public function editExecuteSettings(Settings $settings)
     {
@@ -195,7 +195,7 @@ class AdminIndex
     /**
      * @param FeaturesAbstract $abstract
      *
-     * @return string
+     * @return void
      */
     public function delete(FeaturesAbstract $abstract)
     {
@@ -208,7 +208,7 @@ class AdminIndex
     /**
      * @param Questions $questions
      *
-     * @return string
+     * @return void
      */
     public function deleteAnswer(Questions $questions)
     {
@@ -226,7 +226,7 @@ class AdminIndex
     /**
      * @param Questions $questions
      *
-     * @return string
+     * @return void
      */
     public function answersShow(Questions $questions)
     {
@@ -236,5 +236,4 @@ class AdminIndex
         $is_pie = isset($_GET['is_pie']) ? General::cleanInput('string', $_GET['is_pie']) : null;
         echo $questions->showAnswers($qid, $is_pie);
     }
-
 }

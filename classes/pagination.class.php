@@ -50,7 +50,7 @@ class Pagination
     }
 
     /**
-     * @return bool
+     * @return string|bool
      */
     private function prepareQuery()
     {
@@ -59,6 +59,7 @@ class Pagination
             $extraSQL = 'ORDER BY id ASC LIMIT ' . $startFrom . ',' . $this->maxResults;
             return $extraSQL;
         }
+        return false;
     }
 
     /**

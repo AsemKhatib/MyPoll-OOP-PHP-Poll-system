@@ -5,7 +5,6 @@ namespace MyPoll\Classes;
 use Exception;
 use MyPoll\Classes\Database\DBInterface;
 use Twig_Environment;
-use RedBeanPHP\Facade;
 
 /**
  * Class Users
