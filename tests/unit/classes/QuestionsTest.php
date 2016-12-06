@@ -214,6 +214,21 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $this->getQuestion($extraArray)->show();
     }
 
+    public function testShowFailWithEmptyFindResult()
+    {
+        $extraArray = array(array('method' => 'count', 'return' => 10), array('method' => 'find', 'return' => array()));
+        $this->twigLoader->addPath('admin/template/');
+
+        try {
+            $this->getQuestion($extraArray)->show();
+        } catch (\Exception $e) {
+            $this->assertEquals(
+                'An error occurred while trying to fetch rows for Pagination',
+                $e->getMessage()
+            );
+        }
+    }
+
     public function testShowAnswersSuccess()
     {
         $this->twigLoader->addPath('admin/template/');

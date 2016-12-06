@@ -62,22 +62,6 @@ class Settings
     /**
      * @return int
      */
-    public function getSiteCache()
-    {
-        return $this->siteCache;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSiteCookies()
-    {
-        return $this->siteCookies;
-    }
-
-    /**
-     * @return int
-     */
     public function getResultNumber()
     {
         return $this->resultNumber;
@@ -207,12 +191,14 @@ class Settings
     }
 
     /**
-     * @return void
+     * @return void|boolean
      */
     public function checkCache()
     {
-        if ($this->getSiteCache() == 1) {
+        if ($this->siteCache == 1) {
             $this->twig->setCache('../cache');
+            return true;
         }
+        return false;
     }
 }

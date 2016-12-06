@@ -17,7 +17,7 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
         'site_name' => 'System V 1.0',
         'site_resultsnumber' => 10,
         'site_cookies' => 0,
-        'site_cache' => 0,
+        'site_cache' => 1,
         'site_maxanswers' => 4
     );
 
@@ -144,6 +144,31 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
                 $e->getMessage()
             );
         }
+    }
+
+    public function testCheckCacheSuccess()
+    {
+        $extraArray = array(
+            array('method' => 'getById', 'return' => $this->dataArray)
+        );
+        $this->assertTrue($this->getSettings(1, $extraArray)->checkCache());
+    }
+
+    public function testCheckCacheFail()
+    {
+        $dataArray = array(
+            'id' => 1,
+            'site_name' => 'System V 1.0',
+            'site_resultsnumber' => 10,
+            'site_cookies' => 0,
+            'site_cache' => 0,
+            'site_maxanswers' => 4
+        );
+
+        $extraArray = array(
+            array('method' => 'getById', 'return' => $dataArray)
+        );
+        $this->assertFalse($this->getSettings(1, $extraArray)->checkCache());
     }
 
 }

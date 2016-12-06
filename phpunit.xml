@@ -7,4 +7,10 @@
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+    <!-- Prevent coverage reports from looking in tests, vendors, config folders -->
+    <filter>
+        <whitelist>
+            <directory suffix=".php">./classes/</directory>
+        </whitelist>
+    </filter>
 </phpunit>
