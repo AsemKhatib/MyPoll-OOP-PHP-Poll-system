@@ -15,7 +15,7 @@ use RedBeanPHP\Facade;
 class Users extends FeaturesAbstract
 {
     /** @var DBInterface */
-    protected $db;
+    protected $database;
 
     /** @var Twig_Environment */
     protected $twig;
@@ -32,17 +32,25 @@ class Users extends FeaturesAbstract
     /** @var  int */
     protected $adminID = 1;
 
+    const INVALID_EMAIL = 'The email address that you are trying to use is invalid or empty';
+
+    const USER_OR_EMAIL_EXIST = 'User name or Email that you are trying to use is already Exist in the database';
+
     /**
      * Users constructor.
      *
-     * @param DBInterface      $db
+     * @param DBInterface      $database
      * @param Twig_Environment $twig
      * @param Pagination       $pagination
      * @param Settings         $settings
      */
-    public function __construct(DBInterface $db, Twig_Environment $twig, Pagination $pagination, Settings $settings)
-    {
-        $this->db = $db;
+    public function __construct(
+        DBInterface $database,
+        Twig_Environment $twig,
+        Pagination $pagination,
+        Settings $settings
+    ) {
+        $this->database = $database;
         $this->twig = $twig;
         $this->pagination = $pagination;
         $this->settings = $settings;
@@ -75,16 +83,12 @@ class Users extends FeaturesAbstract
      */
     public function addExecute($paramsArray)
     {
-        try {
-            if (!$paramsArray['email']) {
-                echo 'The email address that you are trying to use is invalid or empty';
-            } elseif ($this->checkIsExist($paramsArray['user'], $paramsArray['email'])) {
-                echo 'User name or Email that you are trying to use is already Exist in the database';
-            } else {
-                $this->addUser($paramsArray['user'], $paramsArray['password'], $paramsArray['email']);
-            }
-        } catch (Exception $e) {
-            echo 'Error :' . $e->getMessage();
+        if (!$paramsArray['email']) {
+            return self::INVALID_EMAIL;
+        } elseif ($this->checkIsExist($paramsArray['user'], $paramsArray['email'])) {
+            return self::USER_OR_EMAIL_EXIST;
+        } else {
+            return $this->addUser($paramsArray['user'], $paramsArray['password'], $paramsArray['email']);
         }
     }
 
@@ -92,15 +96,29 @@ class Users extends FeaturesAbstract
      * @param string $user
      * @param string $password
      * @param string $email
+     *
+     * @return string
+     *
+     * @throws Exception
      */
     private function addUser($user, $password, $email)
     {
-        $newUser = $this->db->addRows('users', array(
-            array('user_name' => $user, 'user_pass' => password_hash($password, PASSWORD_DEFAULT), 'email' => $email)
+        $newUser = $this->database->addRows(
+            'users',
+            array(
+                array(
+                    'user_name' => $user,
+                    'user_pass' => password_hash($password, PASSWORD_DEFAULT),
+                    'email' => $email
+                )
             )
         );
-        $this->db->store($newUser);
-        echo 'User Added successfully';
+
+        if (empty($this->database->store($newUser))) {
+            throw new Exception('Something went wrong while trying to add the user');
+        }
+
+        return 'User Added successfully';
     }
 
     /**
@@ -112,7 +130,7 @@ class Users extends FeaturesAbstract
      */
     private function checkIsExist($user, $email, $id = -1)
     {
-        $checkIskExist = $this->db->find(
+        $checkIskExist = $this->database->find(
             'users',
             'id != :id AND (user_name = :user OR email = :email)',
             array(':user' => $user, ':email' => $email, ':id' => $id)
@@ -129,12 +147,13 @@ class Users extends FeaturesAbstract
      */
     public function show($startPage = 0)
     {
-        $this->pagination->setParams('users', $this->maxResults, $startPage, $this->db->count('users'));
+        $this->pagination->setParams('users', $this->maxResults, $startPage, $this->database->count('users'));
         return $this->twig->render(
             'show_user.html',
             array(
                 'results' => $this->pagination->getResults(),
-                'pagesNumber' => $this->pagination->getPagesNumber())
+                'pagesNumber' => $this->pagination->getPagesNumber()
+            )
         );
     }
 
@@ -145,9 +164,14 @@ class Users extends FeaturesAbstract
      */
     public function edit($id)
     {
-        $user = $this->db->getById('users', $id);
+        $user = $this->database->getById('users', $id);
 
-        if (empty($user)) return General::ref($this->settings->getIndexPage());
+        if (empty($user)) {
+            return General::messageSent(
+                'The user is not exist in the system',
+                $this->settings->getIndexPage() . '?do=show&route=users'
+            );
+        }
 
         return $this->twig->render('edit_user.html', array(
             'id' => $user['id'],
@@ -175,21 +199,17 @@ class Users extends FeaturesAbstract
      */
     public function editExecute($paramsArray)
     {
-        try {
-            if (!$paramsArray['email']) {
-                echo 'The email address that you are trying to use is invalid or empty';
-            } elseif ($this->checkIsExist($paramsArray['user'], $paramsArray['email'], $paramsArray['id'])) {
-                echo 'User name or Email that you are trying to use is already Exist in the database';
-            } else {
-                $this->editUser(
-                    $paramsArray['id'],
-                    $paramsArray['user'],
-                    $paramsArray['password'],
-                    $paramsArray['email']
-                );
-            }
-        } catch (Exception $e) {
-            echo 'Error :' . $e->getMessage();
+        if (!$paramsArray['email']) {
+            return self::INVALID_EMAIL;
+        } elseif ($this->checkIsExist($paramsArray['user'], $paramsArray['email'], $paramsArray['id'])) {
+            return self::USER_OR_EMAIL_EXIST;
+        } else {
+            return $this->editUser(
+                $paramsArray['id'],
+                $paramsArray['user'],
+                $paramsArray['password'],
+                $paramsArray['email']
+            );
         }
     }
 
@@ -200,20 +220,28 @@ class Users extends FeaturesAbstract
      * @param string $email
      *
      * @return string
+     *
+     * @throws Exception
      */
     private function editUser($id, $user, $password, $email)
     {
-        $userUpdate = $this->db->getById('users', $id, 'bean');
+        $userUpdate = $this->database->getById('users', $id, 'bean');
         $newPassword = password_hash($password, PASSWORD_DEFAULT);
 
         if (!empty($password)) {
-            $this->db->editRow($userUpdate, array('user_name' => $user, 'user_pass' => $newPassword, 'email' => $email));
+            $this->database->editRow(
+                $userUpdate,
+                array('user_name' => $user, 'user_pass' => $newPassword, 'email' => $email)
+            );
         } else {
-            $this->db->editRow($userUpdate, array('user_name' => $user, 'email' => $email));
+            $this->database->editRow($userUpdate, array('user_name' => $user, 'email' => $email));
         }
 
-        $this->db->store($userUpdate);
-        echo "User edited successfully";
+        if (empty($this->database->store($userUpdate))) {
+            throw new Exception('Something went wrong while trying to edit the user');
+        }
+
+        return 'User edited successfully';
     }
 
     /**
@@ -226,10 +254,10 @@ class Users extends FeaturesAbstract
         if ($id == $this->adminID) {
             $message = 'Admin user could not be deleted';
         } else {
-            $this->db->deleteById('users', $id);
+            $this->database->deleteById('users', $id);
             $message = 'The user with the ID ' . $id . ' has been deleted successfully';
         }
-        echo General::messageSent($message, $this->settings->getIndexPage() . '?do=show&route=users');
+        return General::messageSent($message, $this->settings->getIndexPage() . '?do=show&route=users');
     }
 
     /**
@@ -239,8 +267,10 @@ class Users extends FeaturesAbstract
      */
     public function getHash($userName)
     {
-        $result = $this->db->findOne('users', 'user_name = :user', [':user' => $userName]);
-        if (empty($result)) return false;
+        $result = $this->database->findOne('users', 'user_name = :user', [':user' => $userName]);
+        if (empty($result)) {
+            return false;
+        }
         return (string) $result['user_pass'];
     }
 }

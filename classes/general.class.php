@@ -12,7 +12,6 @@ use Exception;
 
 class General
 {
-
     /**
      * @param mixed $var
      *
@@ -24,6 +23,16 @@ class General
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param Exception $e
+     *
+     * @return string
+     */
+    public static function printException(Exception $e)
+    {
+        return 'Error :' . $e->getMessage() . ' In ' . $e->getFile() . ' And line ' . $e->getLine();
     }
 
     /**
@@ -44,7 +53,9 @@ class General
      */
     public static function messageSent($msg, $url = null)
     {
-        if (!$msg) {return false;}
+        if (!$msg) {
+            return false;
+        }
         if (!empty($url)) {
             return '<meta http-equiv="refresh" content="2; url=' . $url . '">' . $msg;
         }

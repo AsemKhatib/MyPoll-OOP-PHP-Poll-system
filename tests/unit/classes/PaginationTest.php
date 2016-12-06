@@ -37,7 +37,7 @@ class PaginationTest extends PHPUnit_Framework_TestCase
 
     public function testGetResultsSuccess1()
     {
-        $pagination = $this->getResultsMethod(array());
+        $pagination = $this->getResultsMethod(array(0 => 'bean1', 1 => 'bean2', 2 => 'bean3'));
         $pagination->setParams('answer', 10, 0, 10);
 
         $this->assertInternalType('array', $pagination->getResults());
@@ -45,45 +45,48 @@ class PaginationTest extends PHPUnit_Framework_TestCase
 
     public function testGetResultsSuccess2()
     {
-        $pagination = $this->getResultsMethod(array());
-        $pagination->setParams('answer', 1, 0, 6);
+        $pagination = $this->getResultsMethod(array(0 => 'bean1', 1 => 'bean2', 2 => 'bean3'));
+        $pagination->setParams('answer', 1, 2, 6);
 
         $this->assertInternalType('array', $pagination->getResults());
     }
 
     public function testGetResultsFail()
     {
-        $pagination = $this->getResultsMethod(null);
+        $pagination = $this->getResultsMethod(array());
         $pagination->setParams('answer', 1, 0, 6);
 
-        $this->assertNotInternalType('array', $pagination->getResults());
+        try {
+            $pagination->getResults();
+        } catch (\Exception $exception) {
+            $this->assertEquals(
+                'An error occurred while trying to fetch rows for Pagination',
+                $exception->getMessage()
+            );
+        }
     }
 
-    public function testgetPagesNumberSuccess1()
+    public function testGetPagesNumberSuccess1()
     {
         $pagination = $this->getPagesNumberMethod();
         $pagination->setParams('answer', 10, 0, 6);
 
-        $this->assertInternalType('int', $pagination->getPagesNumber());
         $this->assertEquals(1, $pagination->getPagesNumber());
-
     }
 
-    public function testgetPagesNumberSuccess2()
+    public function testGetPagesNumberSuccess2()
     {
         $pagination = $this->getPagesNumberMethod();
-        $pagination->setParams('answer', 1, 0, 6);
+        $pagination->setParams('answer', 1, 2, 6);
 
-        $this->assertInternalType('int', $pagination->getPagesNumber());
         $this->assertEquals(6, $pagination->getPagesNumber());
     }
 
-    public function testgetPagesNumberFail()
+    public function testGetPagesNumberFail()
     {
         $pagination = $this->getPagesNumberMethod();
         $pagination->setParams('answer', 1, 0, 0);
 
-        $this->assertInternalType('int', $pagination->getPagesNumber());
         $this->assertEquals(0, $pagination->getPagesNumber());
     }
 

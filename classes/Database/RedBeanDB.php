@@ -165,7 +165,7 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * Return Array of Beans
+     * Return an Array of Beans or empty array in case of no results
      *
      * @param string $table
      * @param string   $sql
@@ -177,15 +177,16 @@ class RedBeanDB implements DBInterface
     {
         $returnArray = array();
         $beans = Facade::find($table, $sql, $bindings);
-        if (empty($beans)) {return $beans;}
-        foreach ($beans as $bean) {
-            $returnArray[] = $bean->export();
+        if (!empty($beans)) {
+            foreach ($beans as $bean) {
+                $returnArray[] = $bean->export();
+            }
         }
         return $returnArray;
     }
 
     /**
-     * Return the first Bean only
+     * Return the first Bean only or Null in case of no results
      *
      * @param string $table
      * @param string   $sql
@@ -196,7 +197,9 @@ class RedBeanDB implements DBInterface
     public function findOne($table, $sql = null, $bindings = array())
     {
         $result = Facade::findOne($table, $sql, $bindings);
-        if ($result == null) {return array();}
+        if ($result == null) {
+            return array();
+        }
         return $result->export();
     }
 

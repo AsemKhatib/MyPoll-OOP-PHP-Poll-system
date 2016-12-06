@@ -52,7 +52,11 @@ class AdminIndex
     {
         $this->login->checkIsLoggedIn();
         $startPage = isset($_GET['startPage']) ? General::cleanInput('int', $_GET['startPage']) : null;
-        echo $abstract->show($startPage);
+        try {
+            echo $abstract->show($startPage);
+        } catch (Exception $e) {
+            echo General::printException($e);
+        }
     }
 
     /**
@@ -106,7 +110,7 @@ class AdminIndex
         try {
             echo $abstract->add();
         } catch (Exception $e) {
-            echo 'Error :' . $e->getMessage();
+            echo General::printException($e);
         }
     }
 
@@ -122,7 +126,7 @@ class AdminIndex
         try {
             echo $abstract->addExecute($requestArray);
         } catch (Exception $e) {
-            echo 'Error :' . $e->getMessage();
+            echo General::printException($e);
         }
     }
 
@@ -139,7 +143,7 @@ class AdminIndex
         try {
             echo $abstract->edit($id);
         } catch (Exception $e) {
-            echo 'Error :' . $e->getMessage();
+            echo General::printException($e);
         }
     }
 
@@ -157,7 +161,7 @@ class AdminIndex
         try {
             echo $abstract->editExecute($requestArray);
         } catch (Exception $e) {
-            echo 'Error :' . $e->getMessage();
+            echo General::printException($e);
         }
     }
 
@@ -181,7 +185,11 @@ class AdminIndex
     {
         $this->login->checkIsLoggedIn();
         $settingsArr = General::cleanInput('array', $_POST['settings']);
-        $settings->editExecute($settingsArr);
+        try {
+            echo $settings->editExecute($settingsArr);
+        } catch (Exception $e) {
+            echo General::printException($e);
+        }
     }
 
     /**

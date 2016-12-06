@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use MyPoll\Classes\Database\DBInterface;
+use Exception;
 
 /**
  * Class Pagination
@@ -62,9 +63,15 @@ class Pagination
 
     /**
      * @return array
+     *
+     * @throws Exception
      */
     public function getResults()
     {
+        $result = $this->database->find($this->DBTable, $this->prepareQuery());
+        if (empty($result)) {
+            throw new Exception('An error occurred while trying to fetch rows for Pagination');
+        }
         return $this->database->find($this->DBTable, $this->prepareQuery());
     }
 

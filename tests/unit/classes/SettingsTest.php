@@ -135,7 +135,15 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
         );
         $settings = $this->getSettings(1, $extraArray);
         $_POST['settings'] = $this->dataArray;
-        $this->assertEquals('Something went wrong while trying to edit the settings', $settings->editExecute($_POST['settings']));
+
+        try {
+            $settings->editExecute($_POST['settings']);
+        } catch (\Exception $e) {
+            $this->assertEquals(
+                'Something went wrong while trying to edit the settings',
+                $e->getMessage()
+            );
+        }
     }
 
 }

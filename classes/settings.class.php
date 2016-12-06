@@ -112,11 +112,7 @@ class Settings
         $this->database = $database;
         $this->twig = $twig;
         $this->settingsId = $settingsId;
-
-        $settings = $this->processSettings($this->settingsId);
-        if (is_array($settings) && !empty($settings)) {
-            $this->setProperties($settings);
-        }
+        $this->processSettings($this->settingsId);
     }
 
     /**
@@ -147,6 +143,7 @@ class Settings
                 $this->getIndexPage()
             );
         }
+        $this->setProperties($settings);
         return $settings;
     }
 
@@ -170,7 +167,7 @@ class Settings
     public function edit()
     {
         $settings = $this->processSettings($this->settingsId);
-        if (gettype($settings) == 'string') {
+        if (!is_array($settings)) {
             return $settings;
         }
         return $this->twig->render('edit_settings.html', array(
@@ -187,6 +184,8 @@ class Settings
      * @param array $settingsArr
      *
      * @return string
+     *
+     * @throws Exception
      */
     public function editExecute($settingsArr)
     {
@@ -200,11 +199,11 @@ class Settings
             'site_maxanswers' => $settingsArr['site_maxanswers']
         ));
 
-        $store = $this->database->store($settings);
-        if (empty($store)) {
-            return "Something went wrong while trying to edit the settings";
+        if (empty($this->database->store($settings))) {
+            throw new Exception('Something went wrong while trying to edit the settings');
         }
-        return "Settings edited successfully";
+
+        return 'Settings edited successfully';
     }
 
     /**

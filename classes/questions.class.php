@@ -301,7 +301,6 @@ class Questions extends FeaturesAbstract
      */
     private function editExistedAnswer($answer, $value)
     {
-        $answer = $answer[0];
         $newAnswer = $this->db->editRow(array($answer), array('answer' => $value));
         $store = $this->db->store($newAnswer);
         if (empty($store)) {
