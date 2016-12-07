@@ -11,6 +11,7 @@ use MyPoll\Classes\Settings;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 use PHPUnit_Framework_TestCase;
+use Exception;
 
 class QuestionsTest extends PHPUnit_Framework_TestCase
 {
@@ -159,6 +160,10 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Question Added successfully', $question->addExecute($this->dataArray));
     }
 
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Something went wrong while trying to add the question
+     */
     public function testAddExecuteFailWithAddQuestion()
     {
         $extraArray = array(
@@ -167,16 +172,13 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'getID', 'return' => false)
         );
 
-        try {
-            $this->getQuestion($extraArray)->addExecute($this->dataArray);
-        } catch (\Exception $e) {
-            $this->assertEquals(
-                'Something went wrong while trying to add the question',
-                $e->getMessage()
-            );
-        }
+        $this->getQuestion($extraArray)->addExecute($this->dataArray);
     }
 
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Something went wrong while trying to add the answers of the new question
+     */
     public function testAddExecuteFailWithAddAnswers()
     {
         $extraArray = array(
@@ -187,14 +189,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'store', 'return' => array()),
         );
 
-        try {
-            $this->getQuestion($extraArray)->addExecute($this->dataArray);
-        } catch (\Exception $e) {
-            $this->assertEquals(
-                'Something went wrong while trying to add the answers of the new question',
-                $e->getMessage()
-            );
-        }
+        $this->getQuestion($extraArray)->addExecute($this->dataArray);
     }
 
 
@@ -216,7 +211,11 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     public function testShowFailWithEmptyFindResult()
     {
-        $extraArray = array(array('method' => 'count', 'return' => 10), array('method' => 'find', 'return' => array()));
+        $extraArray = array(
+            array('method' => 'count', 'return' => 10),
+            array('method' => 'find', 'return' => array())
+        );
+
         $this->twigLoader->addPath('admin/template/');
 
         try {
@@ -296,9 +295,27 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $_POST['qid'] = '';
         $_POST['question'] = '';
         $_POST['answer'] = array();
-        $this->assertArrayHasKey('question', $this->getQuestion()->getPostParamsForEditMethod());
-        $this->assertArrayHasKey('answers_old', $this->getQuestion()->getPostParamsForEditMethod());
-        $this->assertArrayHasKey('qid', $this->getQuestion()->getPostParamsForEditMethod());
+
+        $this->assertEquals(
+            array(
+                'qid' => '',
+                'question' => '',
+                'answers_old' => array()
+            ),
+            $this->getQuestion()->getPostParamsForEditMethod()
+        );
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error
+     */
+    public function testGetPostParamsForEditMethodFailWithEmptyPostParamsWithUndefinedArray()
+    {
+        $_POST['qid'] = '';
+        $_POST['question'] = '';
+        $_POST['answer'] = '';
+
+        $this->getQuestion()->getPostParamsForEditMethod();
     }
 
     public function testEditExecuteSuccess()
@@ -315,7 +332,10 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Question edited successfully', $question->editExecute($this->dataArrayEdit));
     }
 
-
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Something went wrong while trying to edit the question
+     */
     public function testEditExecuteFailWithQuestionEdit()
     {
         $extraArray = array(
@@ -324,16 +344,13 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'store', 'return' => array())
         );
 
-        try {
-            $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
-        } catch (\Exception $e) {
-            $this->assertEquals(
-                'Something went wrong while trying to edit the question',
-                $e->getMessage()
-            );
-        }
+        $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
     }
 
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Something went wrong while trying to add new answers to this question
+     */
     public function testEditExecuteFailWithAnswersAdd()
     {
         $extraArray = array(
@@ -345,16 +362,13 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'store', 'return' => array())
         );
 
-        try {
-            $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
-        } catch (\Exception $e) {
-            $this->assertEquals(
-                'Something went wrong while trying to add new answers to this question',
-                $e->getMessage()
-            );
-        }
+        $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
     }
 
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Something went wrong while trying to edit the answers of this question
+     */
     public function testEditExecuteFailWithAnswersEdit()
     {
         $extraArray = array(
@@ -366,14 +380,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'store', 'return' => array())
         );
 
-        try {
-            $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
-        } catch (\Exception $e) {
-            $this->assertEquals(
-                'Something went wrong while trying to edit the answers of this question',
-                $e->getMessage()
-            );
-        }
+        $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
     }
 
     public function testDeleteSuccess()

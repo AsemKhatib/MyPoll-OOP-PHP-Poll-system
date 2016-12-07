@@ -5,9 +5,6 @@ namespace MyPoll\Classes;
 use DI\Container;
 use Mockery as m;
 use MyPoll\Classes\Database\RedBeanDB;
-use MyPoll\Classes\Pagination;
-use MyPoll\Classes\Users;
-use MyPoll\Classes\Settings;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 use PHPUnit_Framework_TestCase;
@@ -24,12 +21,6 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     );
 
     protected $dataArray = array('user' => 'user', 'password' => 'password', 'email' => 'ebaa@eee.com');
-
-    protected $dataArrayEdit = array(
-        'qid' => 1,
-        'question' => 'question',
-        'answers_old' => array('answer1', 'answer2', 'answer3')
-    );
 
     /**
      * @var Container
@@ -153,6 +144,10 @@ class UsersTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('User Added successfully', $user->addExecute($this->dataArray));
     }
 
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Something went wrong while trying to add the user
+     */
     public function testAddExecuteFailWithException()
     {
         $extraArray = array(
@@ -162,21 +157,12 @@ class UsersTest extends \PHPUnit_Framework_TestCase
             array('method' => 'find', 'return' => false)
         );
 
-        try {
-            $this->getUsers($extraArray)->addExecute($this->dataArray);
-        } catch (\Exception $e) {
-            $this->assertEquals(
-                'Something went wrong while trying to add the user',
-                $e->getMessage()
-            );
-        }
+        $this->getUsers($extraArray)->addExecute($this->dataArray);
     }
 
     public function testAddExecuteFailWithExistedEmailOrUser()
     {
         $extraArray = array(
-            array('method' => 'addRows', 'return' => true),
-            array('method' => 'store', 'return' => array()),
             // true here means that the data are existed already in the database
             array('method' => 'find', 'return' => true)
         );
@@ -240,13 +226,210 @@ class UsersTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testEditFailwithEmptyUser()
+    public function testEditFailWithEmptyUser()
     {
+        $extraArrayFull = array(array('method' => 'getById', 'return' => array()));
+
         $this->twigLoader->addPath('admin/template/');
-        $this->assertContains(
-            '<input type="hidden" id="route" value="users">',
-            $this->getUsers($this->extraArrayFull)->edit(2)
+        $this->assertEquals(
+            '<meta http-equiv="refresh" content="2; url=index.php?do=show&route=users">The user is not exist in the system',
+            $this->getUsers($extraArrayFull)->edit(2)
         );
     }
 
+    public function testGetPostParamsForEditMethodSuccess()
+    {
+        $_POST['user_id'] = 1;
+        $_POST['user_name'] = 'userName';
+        $_POST['user_password'] = 'password';
+        $_POST['user_email'] = 'email@email.com';
+        $this->assertEquals(
+            array(
+                'id' => $_POST['user_id'],
+                'user' => $_POST['user_name'],
+                'password' => $_POST['user_password'],
+                'email' => $_POST['user_email']
+            ),
+            $this->getUsers()->getPostParamsForEditMethod()
+        );
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Notice
+     */
+    public function testGetPostParamsForEditMethodFailWithNoPostParams()
+    {
+        $this->getUsers()->getPostParamsForEditMethod();
+    }
+
+    public function testGetPostParamsForEditMethodFailWithEmptyPostParams()
+    {
+        $_POST['user_id'] = '';
+        $_POST['user_name'] = '';
+        $_POST['user_password'] = '';
+        $_POST['user_email'] = '';
+
+        $this->assertEquals(
+            array(
+                'id' => '',
+                'user' => '',
+                'password' => false,
+                'email' => '',
+            ),
+            $this->getUsers()->getPostParamsForEditMethod()
+        );
+    }
+
+    public function testEditExecuteSuccess()
+    {
+
+        $dataArrayEdit = array(
+        'id' => 2,
+        'user' => 'testUser',
+        'password' => 'testPass',
+        'email' => 'test@email.com'
+        );
+
+        $extraArray = array(
+            array('method' => 'find', 'return' => false),
+            array('method' => 'getById', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'store', 'return' => true)
+        );
+
+        $user = $this->getUsers($extraArray);
+        $this->assertEquals('User edited successfully', $user->editExecute($dataArrayEdit));
+    }
+
+    public function testEditExecuteSuccessWithEmptyPassword()
+    {
+
+        $dataArrayEdit = array(
+            'id' => 2,
+            'user' => 'testUser',
+            'password' => '',
+            'email' => 'test@email.com'
+        );
+
+        $extraArray = array(
+            array('method' => 'find', 'return' => false),
+            array('method' => 'getById', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'store', 'return' => true)
+        );
+
+        $user = $this->getUsers($extraArray);
+        $this->assertEquals('User edited successfully', $user->editExecute($dataArrayEdit));
+    }
+
+    /**
+     * @expectedException \Exception
+     * @expectedExceptionMessage Something went wrong while trying to edit the user
+     */
+    public function testEditExecuteFailWithException()
+    {
+        $dataArrayEdit = array(
+            'id' => 2,
+            'user' => 'testUser',
+            'password' => 'testPass',
+            'email' => 'test@email.com'
+        );
+
+        $extraArray = array(
+            array('method' => 'find', 'return' => false),
+            array('method' => 'getById', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'store', 'return' => false)
+        );
+
+        $this->getUsers($extraArray)->editExecute($dataArrayEdit);
+    }
+
+    public function testEditExecuteFailWithExistedEmailOrUser()
+    {
+        $dataArrayEdit = array(
+            'id' => 2,
+            'user' => 'testUser',
+            'password' => 'testPass',
+            'email' => General::cleanInput('email', 'test@ddd.com')
+        );
+
+        $extraArray = array(
+            // true here means that the data are existed already in the database
+            array('method' => 'find', 'return' => true)
+        );
+
+        $user = $this->getUsers($extraArray);
+
+        $this->assertEquals(
+            $user::USER_OR_EMAIL_EXIST,
+            $user->editExecute($dataArrayEdit)
+        );
+    }
+
+    public function testEditExecuteFailWithInvalidEmail()
+    {
+
+        $dataArrayEdit = array(
+            'id' => 2,
+            'user' => 'testUser',
+            'password' => 'testPass',
+            'email' => General::cleanInput('email', 'test@')
+        );
+
+        $user = $this->getUsers();
+        $this->assertEquals($user::INVALID_EMAIL, $user->editExecute($dataArrayEdit));
+    }
+
+    public function testDeleteSuccess()
+    {
+        $extraArray = array(
+            array('method' => 'deleteById', 'return' => true)
+        );
+        $id = 2;
+        $msg = 'The user with the ID ' . $id . ' has been deleted successfully';
+        $url = 'index.php?do=show&route=users';
+        $this->assertEquals(
+            '<meta http-equiv="refresh" content="2; url=' . $url . '">' . $msg,
+            $this->getUsers($extraArray)->delete($id)
+        );
+    }
+
+    public function testDeleteFailWithAdminID()
+    {
+        $extraArray = array(
+            array('method' => 'deleteById', 'return' => true)
+        );
+        $id = 1;
+        $msg = 'Admin user could not be deleted';
+        $url = 'index.php?do=show&route=users';
+        $this->assertEquals(
+            '<meta http-equiv="refresh" content="2; url=' . $url . '">' . $msg,
+            $this->getUsers($extraArray)->delete($id)
+        );
+    }
+
+    public function testGetHashSuccess()
+    {
+        $extraArray = array(
+            array('method' => 'findOne', 'return' => array('user_pass' => 'hashedPass'))
+        );
+
+        $this->assertEquals(
+            'hashedPass',
+            $this->getUsers($extraArray)->getHash('user')
+        );
+    }
+
+    public function testGetHashFailNoResultFound()
+    {
+        $extraArray = array(
+            array('method' => 'findOne', 'return' => array())
+        );
+
+        $this->assertFalse($this->getUsers($extraArray)->getHash('user'));
+    }
 }
