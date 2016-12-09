@@ -55,10 +55,14 @@ class Login extends Cookie
         if (General::issetAndNotEmpty($user) && General::issetAndNotEmpty($pass)) {
             $query = 'SELECT * FROM users WHERE user_name = :user AND user_pass = :pass';
             $result = $this->db->getRow($query, [':user' => $user, ':pass' => $this->users->getHash($user)]);
-            if (!password_verify($pass, $result['user_pass'])) return false;
+            if (!password_verify($pass, $result['user_pass'])) {
+                return false;
+            }
             $this->dataSetter(array($result['user_name'], $result['id'],$result['email']));
             $this->authLogin();
-            if (!$this->setRememberme($this->userID)) return false;
+            if (!$this->setRememberme($this->userID)) {
+                return false;
+            }
             return true;
         }
 
@@ -86,15 +90,21 @@ class Login extends Cookie
     {
         $cookie = $this->getCookieData();
 
-        if (!$cookie) return false;
+        if (!$cookie) {
+            return false;
+        }
         $userLog = $this->getRemembermeMeHash($cookie['token']);
         $user = $this->db->getById('users', $cookie['userID']);
-        if (empty($user)) return false;
+        if (empty($user)) {
+            return false;
+        }
         $this->dataSetter(array($user['user_name'], $user['id'] ,$user['email']));
         $this->db->deleteById('rememberme', $userLog['id']);
         $this->unsetCookie();
         $this->rememberMe = true;
-        if (!$this->setRememberme($user->id)) return false;
+        if (!$this->setRememberme($user->id)) {
+            return false;
+        }
 
         return true;
     }
@@ -143,7 +153,9 @@ class Login extends Cookie
     {
         if ($this->getCookieData()) {
             $userLog = $this->getRemembermeMeHash($this->getCookieData()['token']);
-            if(empty($userLog)) return false;
+            if (empty($userLog)) {
+                return false;
+            }
             $this->db->deleteById('rememberme', $userLog['id']);
         }
         $this->unsetCookie();
@@ -152,7 +164,7 @@ class Login extends Cookie
     }
 
     /**
-     * @return void|string
+     * @return void
      */
     public function checkIsLoggedIn()
     {

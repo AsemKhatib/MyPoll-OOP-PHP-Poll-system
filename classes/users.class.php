@@ -84,11 +84,13 @@ class Users extends FeaturesAbstract
     {
         if (!$paramsArray['email']) {
             return self::INVALID_EMAIL;
-        } elseif ($this->checkIsExist($paramsArray['user'], $paramsArray['email'])) {
-            return self::USER_OR_EMAIL_EXIST;
-        } else {
-            return $this->addUser($paramsArray['user'], $paramsArray['password'], $paramsArray['email']);
         }
+
+        if ($this->checkIsExist($paramsArray['user'], $paramsArray['email'])) {
+            return self::USER_OR_EMAIL_EXIST;
+        }
+
+        return $this->addUser($paramsArray['user'], $paramsArray['password'], $paramsArray['email']);
     }
 
     /**
@@ -200,16 +202,18 @@ class Users extends FeaturesAbstract
     {
         if (!$paramsArray['email']) {
             return self::INVALID_EMAIL;
-        } elseif ($this->checkIsExist($paramsArray['user'], $paramsArray['email'], $paramsArray['id'])) {
-            return self::USER_OR_EMAIL_EXIST;
-        } else {
-            return $this->editUser(
-                $paramsArray['id'],
-                $paramsArray['user'],
-                $paramsArray['password'],
-                $paramsArray['email']
-            );
         }
+
+        if ($this->checkIsExist($paramsArray['user'], $paramsArray['email'], $paramsArray['id'])) {
+            return self::USER_OR_EMAIL_EXIST;
+        }
+
+        return $this->editUser(
+            $paramsArray['id'],
+            $paramsArray['user'],
+            $paramsArray['password'],
+            $paramsArray['email']
+        );
     }
 
     /**
