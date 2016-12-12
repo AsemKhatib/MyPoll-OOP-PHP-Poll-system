@@ -117,10 +117,10 @@ class Questions extends FeaturesAbstract
      */
     private function addAnswers($answers, $qid)
     {
-        $answersArray = array();
-        foreach ($answers as $newAnswer) {
-            $answersArray[] = array('qid' => $qid, 'answer' => $newAnswer);
-        }
+        $answersArray = array_map(function ($newAnswer) use ($qid) {
+            return array('qid' => $qid, 'answer' => $newAnswer);
+        }, array_values($answers));
+
         $answersToAdd = $this->db->addRows('answers', $answersArray);
         $store = $this->db->store($answersToAdd);
         if (empty($store)) {
@@ -183,9 +183,13 @@ class Questions extends FeaturesAbstract
         }
 
         $sum = array_sum($this->votesArray);
-        foreach ($this->votesArray as $num) {
-            $this->votesPercent[] = @round($num / $sum * 100, 1);
-        }
+//        foreach ($this->votesArray as $num) {
+//            $this->votesPercent[] = @round($num / $sum * 100, 1);
+//        }
+
+        $this->votesPercent = array_map(function ($num) use ($sum) {
+            return @round($num / $sum * 100, 1);
+        }, $this->votesArray);
 
         $this->answersArray = "'" . implode("','", $this->answersArray) . "'";
         $this->votesPercent = implode(',', $this->votesPercent);
