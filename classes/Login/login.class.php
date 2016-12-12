@@ -6,6 +6,7 @@ use MyPoll\Classes\Database\DBInterface;
 use MyPoll\Classes\Users;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\General;
+use Exception;
 
 /**
  * Class Login
@@ -60,9 +61,7 @@ class Login extends Cookie
             }
             $this->dataSetter(array($result['user_name'], $result['id'],$result['email']));
             $this->authLogin();
-            if (!$this->setRememberme($this->userID)) {
-                return false;
-            }
+            $this->setRememberme($this->userID);
             return true;
         }
 
@@ -85,27 +84,22 @@ class Login extends Cookie
 
     /**
      * @return boolean
+     *
+     * @throws Exception
      */
     protected function setupNewCredentials()
     {
         $cookie = $this->getCookieData();
-
-        if (!$cookie) {
-            return false;
-        }
         $userLog = $this->getRemembermeMeHash($cookie['token']);
         $user = $this->db->getById('users', $cookie['userID']);
         if (empty($user)) {
-            return false;
+            throw new Exception('No user that matches the sent cookie has been found in the system');
         }
         $this->dataSetter(array($user['user_name'], $user['id'] ,$user['email']));
         $this->db->deleteById('rememberme', $userLog['id']);
         $this->unsetCookie();
         $this->rememberMe = true;
-        if (!$this->setRememberme($user->id)) {
-            return false;
-        }
-
+        $this->setRememberme($this->userID);
         return true;
     }
 
@@ -147,15 +141,12 @@ class Login extends Cookie
     }
 
     /**
-     * @return void|boolean
+     * @return boolean
      */
     public function logout()
     {
         if ($this->getCookieData()) {
             $userLog = $this->getRemembermeMeHash($this->getCookieData()['token']);
-            if (empty($userLog)) {
-                return false;
-            }
             $this->db->deleteById('rememberme', $userLog['id']);
         }
         $this->unsetCookie();
@@ -164,12 +155,12 @@ class Login extends Cookie
     }
 
     /**
-     * @return void
+     * @return string
      */
-    public function checkIsLoggedIn()
+    public function checkIsNotLoggedIn()
     {
         if (!$this->isLoggedIn()) {
-            echo General::ref($this->settings->getIndexPage());
+            return General::ref($this->settings->getIndexPage());
         }
     }
 }

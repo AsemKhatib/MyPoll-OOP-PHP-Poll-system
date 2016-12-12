@@ -171,5 +171,22 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->getSettings(1, $extraArray)->checkCache());
     }
 
+    public function testLogPage()
+    {
+        $dataArray = array(
+            'id' => 1,
+            'site_name' => 'System V 1.0',
+            'site_resultsnumber' => 10,
+            'site_cookies' => 0,
+            'site_cache' => 0,
+            'site_maxanswers' => 4
+        );
+
+        $extraArray = array(
+            array('method' => 'getById', 'return' => $dataArray)
+        );
+        $this->assertEquals('index.php?do=show&route=questions', $this->getSettings(1, $extraArray)->getLogPage());
+    }
+
 }
 

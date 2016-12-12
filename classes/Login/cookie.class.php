@@ -3,6 +3,7 @@
 namespace MyPoll\Classes\Login;
 
 use MyPoll\Classes\Database\DBInterface;
+use Exception;
 
 class Cookie
 {
@@ -53,7 +54,7 @@ class Cookie
      */
     protected function getCookieData()
     {
-        if (empty($this->cookie)) {
+        if (empty($this->cookie) || !preg_match('/^([0-9]+)(:){1}([a-z0-9]+)(:){1}([a-z0-9]+)$/m', $this->cookie)) {
             return false;
         }
 
@@ -74,44 +75,40 @@ class Cookie
 
     /**
      * @return bool
+     *
+     * @throws Exception
      */
     protected function isRememberme()
     {
-        if (!$this->getCookieData()) {
+        $cookie = $this->getCookieData();
+        if (!$cookie) {
             return false;
         }
-
-        $cookie = (array) $this->getCookieData();
         $hash_hmac = hash_hmac('sha256', $cookie['userID'] . ':' . $cookie['token'], $this::SECRET_KEY);
-
-        if (!hash_equals($hash_hmac, $cookie['mac'])) {
-            return false;
-        }
-
         $userLog = $this->getRemembermeMeHash($cookie['token']);
 
-        if (!hash_equals($userLog['hash'], $cookie['token'])) {
-            return false;
+        if (empty($userLog)) {
+            throw new Exception('No records that matches this cookie hash has been found in the system');
         }
 
+        if (!hash_equals($hash_hmac, $cookie['mac']) || !hash_equals($userLog['hash'], $cookie['token'])) {
+            return false;
+        }
         return true;
     }
 
     /**
      * @param int $userID
      *
-     * @return boolean
+     * @return void
      */
     protected function setRememberme($userID)
     {
         if ($this->rememberMe) {
             $token = bin2hex(openssl_random_pseudo_bytes(128));
-            if (!$this->saveToDatabase($userID, $token) || !$this->createCookie($userID, $token)) {
-                return false;
-            }
-            return true;
+            $this->saveToDatabase($userID, $token);
+            $this->createCookie($userID, $token);
         }
-        return true;
     }
 
     /**
@@ -119,12 +116,14 @@ class Cookie
      * @param string $token
      *
      * @return boolean
+     *
+     * @throws Exception
      */
     protected function saveToDatabase($userID, $token)
     {
         $newLog = $this->db->addRows('rememberme', array(array('userid' => $userID, 'hash' => $token)));
         if (!$this->db->store($newLog)) {
-            return false;
+            throw new Exception('Something went wrong while trying to save cookie in the database');
         }
         return true;
     }
@@ -152,9 +151,6 @@ class Cookie
     protected function createCookie($userID, $token)
     {
         $cookieData = $this->generateCookieData($userID, $token);
-        if (empty($cookieData)) {
-            return false;
-        }
         setcookie($this->cookieName, $cookieData, time()+60*$this->cookieExpiryTime);
         return true;
     }

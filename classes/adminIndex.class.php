@@ -50,7 +50,7 @@ class AdminIndex
      */
     public function show(FeaturesAbstract $abstract)
     {
-        $this->login->checkIsLoggedIn();
+        echo $this->login->checkIsNotLoggedIn();
         $startPage = isset($_GET['startPage']) ? General::cleanInput('int', $_GET['startPage']) : null;
         try {
             echo $abstract->show($startPage);
@@ -106,7 +106,7 @@ class AdminIndex
      */
     public function add(FeaturesAbstract $abstract)
     {
-        $this->login->checkIsLoggedIn();
+        echo $this->login->checkIsNotLoggedIn();
         try {
             echo $abstract->add();
         } catch (Exception $e) {
@@ -121,7 +121,7 @@ class AdminIndex
      */
     public function addExecute(FeaturesAbstract $abstract)
     {
-        $this->login->checkIsLoggedIn();
+        echo $this->login->checkIsNotLoggedIn();
         $requestArray = $abstract->getPostParamsForAddMethod();
         try {
             echo $abstract->addExecute($requestArray);
@@ -137,8 +137,7 @@ class AdminIndex
      */
     public function edit(FeaturesAbstract $abstract)
     {
-        $this->login->checkIsLoggedIn();
-
+        echo $this->login->checkIsNotLoggedIn();
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
         try {
             echo $abstract->edit($id);
@@ -156,7 +155,7 @@ class AdminIndex
      */
     public function editExecute(FeaturesAbstract $abstract)
     {
-        $this->login->checkIsLoggedIn();
+        echo $this->login->checkIsNotLoggedIn();
         $requestArray = $abstract->getPostParamsForEditMethod();
         try {
             echo $abstract->editExecute($requestArray);
@@ -172,7 +171,7 @@ class AdminIndex
      */
     public function editSettings(Settings $settings)
     {
-        $this->login->checkIsLoggedIn();
+        echo $this->login->checkIsNotLoggedIn();
         echo $settings->edit();
     }
 
@@ -183,7 +182,7 @@ class AdminIndex
      */
     public function editExecuteSettings(Settings $settings)
     {
-        $this->login->checkIsLoggedIn();
+        echo $this->login->checkIsNotLoggedIn();
         $settingsArr = General::cleanInput('array', $_POST['settings']);
         try {
             echo $settings->editExecute($settingsArr);
@@ -199,8 +198,7 @@ class AdminIndex
      */
     public function delete(FeaturesAbstract $abstract)
     {
-        $this->login->checkIsLoggedIn();
-
+        echo $this->login->checkIsNotLoggedIn();
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
         echo General::messageSent($abstract->delete($id), $this->settings->getIndexPage());
     }
@@ -212,7 +210,7 @@ class AdminIndex
      */
     public function deleteAnswer(Questions $questions)
     {
-        $this->login->checkIsLoggedIn();
+        echo $this->login->checkIsNotLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
         $questionID = isset($_GET['questionID']) ? General::cleanInput('int', $_GET['questionID']) : null;
@@ -230,8 +228,7 @@ class AdminIndex
      */
     public function answersShow(Questions $questions)
     {
-        $this->login->checkIsLoggedIn();
-
+        echo $this->login->checkIsNotLoggedIn();
         $qid = isset($_GET['qid']) ? General::cleanInput('int', $_GET['qid']) : null;
         $is_pie = isset($_GET['is_pie']) ? General::cleanInput('string', $_GET['is_pie']) : null;
         echo $questions->showAnswers($qid, $is_pie);

@@ -96,4 +96,17 @@ class GeneralTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(General::cleanInput('NoType', 'aaaa'));
     }
 
+    public function testPrintException()
+    {
+        function testException()
+        {
+            return new \Exception('Exception Test');
+        }
+
+        $this->assertEquals(
+            'Error :Exception Test In /var/www/public/mypoll/tests/unit/classes/GeneralTest.php And line 103',
+            General::printException(testException())
+        );
+    }
+
 }
