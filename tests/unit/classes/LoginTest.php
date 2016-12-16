@@ -5,6 +5,7 @@ namespace MyPoll\Tests\Unit\Classes;
 use DI\Container;
 use Mockery as m;
 use MyPoll\Classes\Database\RedBeanDB;
+use MyPoll\Classes\Login\Cookie;
 use MyPoll\Classes\Login\Login;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\Users;
@@ -76,6 +77,7 @@ class LoginTest extends PHPUnit_Framework_TestCase
 
         $login =  new Login(
             $this->getMockObject($data, $extraArray),
+            $this->container->get(Cookie::class),
             $this->container->get(Users::class),
             $this->container->get(Settings::class)
         );
@@ -106,7 +108,7 @@ class LoginTest extends PHPUnit_Framework_TestCase
     {
         $extraArray = array(
             array('method' => 'addRows', 'return' => null),
-            array('method' => 'store', 'return' => null)
+            array('method' => 'store', 'return' => array())
         );
         $_POST['rememberme'] = true;
         $login = $this->getLogin($extraArray);

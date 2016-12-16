@@ -65,6 +65,7 @@ return [
     ),
     Login::class => object()->constructor(
         get(RedBeanDB::class),
+        get(Cookie::class),
         get(Users::class),
         get(Settings::class)
     ),

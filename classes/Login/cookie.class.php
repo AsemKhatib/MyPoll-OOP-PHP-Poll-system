@@ -8,15 +8,16 @@ use Exception;
 class Cookie
 {
     /** @var DBInterface */
-    protected $db;
+    private $db;
 
+    /** @info secret Key to hash the cookie */
     const SECRET_KEY = 'secretKeyHere';
 
     /** @var  string */
     protected $cookie;
 
     /** @var boolean */
-    protected $rememberMe = false;
+    public $rememberMe = false;
 
     /** @var  string */
     protected $cookieName = 'rememberme';
@@ -26,7 +27,7 @@ class Cookie
      *
      * @var int
      */
-    protected $cookieExpiryTime = 60;
+    private $cookieExpiryTime = 60;
 
     /**
      * Cookie constructor.
@@ -42,7 +43,7 @@ class Cookie
     /**
      * @return void
      */
-    protected function setCookie()
+    private function setCookie()
     {
         if (isset($_COOKIE[$this->cookieName]) && !empty($_COOKIE[$this->cookieName])) {
             $this->cookie = $_COOKIE[$this->cookieName];
@@ -52,7 +53,7 @@ class Cookie
     /**
      * @return array|boolean
      */
-    protected function getCookieData()
+    public function getCookieData()
     {
         if (empty($this->cookie) || !preg_match('/^([0-9]+)(:){1}([a-z0-9]+)(:){1}([a-z0-9]+)$/m', $this->cookie)) {
             return false;
@@ -68,7 +69,7 @@ class Cookie
      *
      * @return array
      */
-    protected function getRemembermeMeHash($token)
+    public function getRemembermeMeHash($token)
     {
         return $this->db->findOne('rememberme', 'hash = :hash', [':hash' => $token]);
     }
@@ -78,7 +79,7 @@ class Cookie
      *
      * @throws Exception
      */
-    protected function isRememberme()
+    public function isRememberme()
     {
         $cookie = $this->getCookieData();
         if (!$cookie) {
@@ -102,7 +103,7 @@ class Cookie
      *
      * @return void
      */
-    protected function setRememberme($userID)
+    public function setRememberme($userID)
     {
         if ($this->rememberMe) {
             $token = bin2hex(openssl_random_pseudo_bytes(128));
@@ -112,29 +113,29 @@ class Cookie
     }
 
     /**
-     * @param int $userID
+     * @param int    $userID
      * @param string $token
      *
      * @return boolean
      *
      * @throws Exception
      */
-    protected function saveToDatabase($userID, $token)
+    private function saveToDatabase($userID, $token)
     {
         $newLog = $this->db->addRows('rememberme', array(array('userid' => $userID, 'hash' => $token)));
-        if (!$this->db->store($newLog)) {
+        if (empty($this->db->store($newLog))) {
             throw new Exception('Something went wrong while trying to save cookie in the database');
         }
         return true;
     }
 
     /**
-     * @param int $userID
+     * @param int    $userID
      * @param string $token
      *
      * @return string
      */
-    protected function generateCookieData($userID, $token)
+    private function generateCookieData($userID, $token)
     {
         $newCookie = $userID . ':' . $token;
         $mac = hash_hmac('sha256', $newCookie, $this::SECRET_KEY);
@@ -143,22 +144,22 @@ class Cookie
     }
 
     /**
-     * @param int $userID
+     * @param int    $userID
      * @param string $token
      *
      * @return boolean
      */
-    protected function createCookie($userID, $token)
+    private function createCookie($userID, $token)
     {
         $cookieData = $this->generateCookieData($userID, $token);
-        setcookie($this->cookieName, $cookieData, time()+60*$this->cookieExpiryTime);
+        setcookie($this->cookieName, $cookieData, time() + 60 * $this->cookieExpiryTime);
         return true;
     }
 
     /**
      * @return void
      */
-    protected function unsetCookie()
+    public function unsetCookie()
     {
         unset($_COOKIE[$this->cookieName]);
         unset($this->cookie);

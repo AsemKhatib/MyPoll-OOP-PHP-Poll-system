@@ -9,8 +9,11 @@ use Twig_Environment;
 /**
  * Class AdminIndex
  *
+ * @codeCoverageIgnore
+ *
  * @package MyPoll\Classes
  */
+
 class AdminIndex
 {
     /** @var Twig_Environment */

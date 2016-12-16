@@ -3,6 +3,7 @@
 namespace MyPoll\Classes\Login;
 
 use MyPoll\Classes\Database\DBInterface;
+use MyPoll\Classes\Login\Cookie;
 use MyPoll\Classes\Users;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\General;
@@ -13,8 +14,14 @@ use Exception;
  *
  * @package MyPoll\Classes
  */
-class Login extends Cookie
+class Login
 {
+    /** @var DBInterface */
+    protected $db;
+
+    /** @var Cookie */
+    protected $cookie;
+
     /** @var  Users */
     protected $users;
 
@@ -34,15 +41,17 @@ class Login extends Cookie
      * Login constructor.
      *
      * @param DBInterface $db
+     * @param Cookie $cookie
      * @param Users       $users
      * @param Settings    $settings
      */
-    public function __construct(DBInterface $db, Users $users, Settings $settings)
+    public function __construct(DBInterface $db, Cookie $cookie, Users $users, Settings $settings)
     {
-        parent::__construct($db);
+        $this->db = $db;
+        $this->cookie = $cookie;
         $this->users = $users;
         $this->settings = $settings;
-        $this->rememberMe = isset($_POST['rememberme']) ? true : false;
+        $this->cookie->rememberMe = isset($_POST['rememberme']) ? true : false;
     }
 
     /**
@@ -61,7 +70,7 @@ class Login extends Cookie
             }
             $this->dataSetter(array($result['user_name'], $result['id'],$result['email']));
             $this->authLogin();
-            $this->setRememberme($this->userID);
+            $this->cookie->setRememberme($this->userID);
             return true;
         }
 
@@ -73,33 +82,51 @@ class Login extends Cookie
      *
      * @return void
      */
-    protected function dataSetter($data)
+    private function dataSetter($data)
     {
         list($userName, $userID, $email) = $data;
-
         $this->userName = $userName;
         $this->userID = $userID;
         $this->email = $email;
     }
 
     /**
-     * @return boolean
+     * @return array
      *
      * @throws Exception
      */
-    protected function setupNewCredentials()
+    private function getUserUsingCookie()
     {
-        $cookie = $this->getCookieData();
-        $userLog = $this->getRemembermeMeHash($cookie['token']);
+        $cookie = $this->cookie->getCookieData();
+        $this->deleteOldUserLog($cookie);
         $user = $this->db->getById('users', $cookie['userID']);
         if (empty($user)) {
             throw new Exception('No user that matches the sent cookie has been found in the system');
         }
-        $this->dataSetter(array($user['user_name'], $user['id'] ,$user['email']));
+        return $user;
+    }
+
+    /**
+     * @param array $cookie
+     *
+     * @return void
+     */
+    private function deleteOldUserLog($cookie)
+    {
+        $userLog = $this->cookie->getRemembermeMeHash($cookie['token']);
         $this->db->deleteById('rememberme', $userLog['id']);
-        $this->unsetCookie();
+    }
+
+    /**
+     * @return boolean
+     */
+    private function setupNewCredentials()
+    {
+        $user = $this->getUserUsingCookie();
+        $this->dataSetter(array($user['user_name'], $user['id'] ,$user['email']));
+        $this->cookie->unsetCookie();
         $this->rememberMe = true;
-        $this->setRememberme($this->userID);
+        $this->cookie->setRememberme($this->userID);
         return true;
     }
 
@@ -112,7 +139,7 @@ class Login extends Cookie
             return true;
         }
 
-        if ($this->isRememberme() && $this->setupNewCredentials()) {
+        if ($this->cookie->isRememberme() && $this->setupNewCredentials()) {
             $this->authLogin();
             return true;
         }
@@ -133,7 +160,7 @@ class Login extends Cookie
     /**
      * @return void
      */
-    protected function authLogin()
+    private function authLogin()
     {
         $_SESSION['user'] = $this->userName;
         $_SESSION['id'] = $this->userID;
@@ -145,11 +172,11 @@ class Login extends Cookie
      */
     public function logout()
     {
-        if ($this->getCookieData()) {
-            $userLog = $this->getRemembermeMeHash($this->getCookieData()['token']);
-            $this->db->deleteById('rememberme', $userLog['id']);
+        $cookie = $this->cookie->getCookieData();
+        if ($cookie) {
+            $this->deleteOldUserLog($cookie);
         }
-        $this->unsetCookie();
+        $this->cookie->unsetCookie();
         session_destroy();
         return true;
     }
