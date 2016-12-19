@@ -4,3 +4,4 @@ npm-*
 vendor/
 node_modules/
 cache/
+coverage-report/
