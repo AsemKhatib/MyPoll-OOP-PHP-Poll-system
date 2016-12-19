@@ -81,7 +81,7 @@ class Cookie
         }
 
         $hash_hmac = hash_hmac('sha256', $cookie['userID'] . ':' . $cookie['token'], $this::SECRET_KEY);
-        $userLog = $this->login->rememberMeObj->getRemembermeMeHash($cookie['token']);
+        $userLog = $this->login->getRememberMeObj()->getRemembermeMeHash($cookie['token']);
 
         if (empty($userLog)) {
             throw new Exception('No records that matches this cookie hash has been found in the system');
@@ -102,7 +102,7 @@ class Cookie
     {
         if ($this->rememberMe) {
             $token = bin2hex(openssl_random_pseudo_bytes(128));
-            $this->login->rememberMeObj->saveLogToDatabase($userID, $token);
+            $this->login->getRememberMeObj()->saveLogToDatabase($userID, $token);
             $this->createCookie($userID, $token);
         }
     }
@@ -113,7 +113,7 @@ class Cookie
     public function authorizeNewLogin()
     {
         $this->rememberMe = true;
-        $this->setRememberme($this->login->userID);
+        $this->setRememberme($this->login->getUserID());
         $this->login->authLogin();
     }
 

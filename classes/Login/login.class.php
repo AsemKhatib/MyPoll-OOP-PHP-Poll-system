@@ -3,7 +3,6 @@
 namespace MyPoll\Classes\Login;
 
 use MyPoll\Classes\Database\DBInterface;
-use MyPoll\Classes\Login\RememberMe;
 use MyPoll\Classes\Users;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\General;
@@ -19,7 +18,7 @@ class Login
     protected $db;
 
     /** @var RememberMe  */
-    public $rememberMeObj;
+    protected $rememberMeObj;
 
     /** @var Cookie */
     protected $cookie;
@@ -34,7 +33,7 @@ class Login
     private $userName;
 
     /** @var  int */
-    public $userID;
+    private $userID;
 
     /** @var  string */
     private $email;
@@ -57,6 +56,21 @@ class Login
         $this->cookie->rememberMe = isset($_POST['rememberme']) ? true : false;
     }
 
+    /**
+     * @return RememberMe
+     */
+    public function getRememberMeObj()
+    {
+        return $this->rememberMeObj;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUserID()
+    {
+        return $this->userID;
+    }
 
     /**
      * @param string $user
