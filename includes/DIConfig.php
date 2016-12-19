@@ -3,7 +3,7 @@
 use MyPoll\Classes\AdminIndex;
 use MyPoll\Classes\Database\DBInterface;
 use MyPoll\Classes\Database\RedBeanDB;
-use MyPoll\Classes\Login\Cookie;
+use MyPoll\Classes\Login\RememberMe;
 use MyPoll\Classes\Login\Login;
 use MyPoll\Classes\Pagination;
 use MyPoll\Classes\Questions;
@@ -33,6 +33,7 @@ return [
 
     DBInterface::class => get(DBInterface::class),
     RedBeanDB::class => object()->constructor(get('db_dsn'), get('db_user'), get('db_pass'))->method('setup'),
+    RememberMe::class => object()->constructor(get(RedBeanDB::class)),
 
     Twig_Loader_Filesystem::class => object()->constructor(get('templatePathDir')),
     Twig_Environment::class => object()->constructor(get(Twig_Loader_Filesystem::class), array()),
@@ -65,12 +66,8 @@ return [
     ),
     Login::class => object()->constructor(
         get(RedBeanDB::class),
-        get(Cookie::class),
+        get(RememberMe::class),
         get(Users::class),
         get(Settings::class)
-    ),
-
-    Cookie::class => object()->constructor(
-        get(RedBeanDB::class)
     )
 ];
