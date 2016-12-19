@@ -3,11 +3,10 @@
 namespace MyPoll\Classes\Login;
 
 use MyPoll\Classes\Database\DBInterface;
-use MyPoll\Classes\Login\Cookie;
+use MyPoll\Classes\Login\RememberMe;
 use MyPoll\Classes\Users;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\General;
-use Exception;
 
 /**
  * Class Login
@@ -18,6 +17,9 @@ class Login
 {
     /** @var DBInterface */
     protected $db;
+
+    /** @var RememberMe  */
+    public $rememberMeObj;
 
     /** @var Cookie */
     protected $cookie;
@@ -32,7 +34,7 @@ class Login
     private $userName;
 
     /** @var  int */
-    private $userID;
+    public $userID;
 
     /** @var  string */
     private $email;
@@ -41,18 +43,20 @@ class Login
      * Login constructor.
      *
      * @param DBInterface $db
-     * @param Cookie $cookie
+     * @param RememberMe $rememberMeObj
      * @param Users       $users
      * @param Settings    $settings
      */
-    public function __construct(DBInterface $db, Cookie $cookie, Users $users, Settings $settings)
+    public function __construct(DBInterface $db,RememberMe $rememberMeObj, Users $users, Settings $settings)
     {
         $this->db = $db;
-        $this->cookie = $cookie;
+        $this->rememberMeObj = $rememberMeObj;
+        $this->cookie = new Cookie($this);
         $this->users = $users;
         $this->settings = $settings;
         $this->cookie->rememberMe = isset($_POST['rememberme']) ? true : false;
     }
+
 
     /**
      * @param string $user
@@ -68,7 +72,7 @@ class Login
             if (!password_verify($pass, $result['user_pass'])) {
                 return false;
             }
-            $this->dataSetter(array($result['user_name'], $result['id'],$result['email']));
+            $this->dataSetter(array($result['user_name'], $result['id'], $result['email']));
             $this->authLogin();
             $this->cookie->setRememberme($this->userID);
             return true;
@@ -90,43 +94,15 @@ class Login
         $this->email = $email;
     }
 
-    /**
-     * @return array
-     *
-     * @throws Exception
-     */
-    private function getUserUsingCookie()
-    {
-        $cookie = $this->cookie->getCookieData();
-        $this->deleteOldUserLog($cookie);
-        $user = $this->db->getById('users', $cookie['userID']);
-        if (empty($user)) {
-            throw new Exception('No user that matches the sent cookie has been found in the system');
-        }
-        return $user;
-    }
-
-    /**
-     * @param array $cookie
-     *
-     * @return void
-     */
-    private function deleteOldUserLog($cookie)
-    {
-        $userLog = $this->cookie->getRemembermeMeHash($cookie['token']);
-        $this->db->deleteById('rememberme', $userLog['id']);
-    }
 
     /**
      * @return boolean
      */
     private function setupNewCredentials()
     {
-        $user = $this->getUserUsingCookie();
+        $user = $this->users->getUserUsingCookie($this->cookie->getCookieData());
         $this->dataSetter(array($user['user_name'], $user['id'] ,$user['email']));
-        $this->cookie->unsetCookie();
-        $this->rememberMe = true;
-        $this->cookie->setRememberme($this->userID);
+        $this->unsetLoginCredentials();
         return true;
     }
 
@@ -140,7 +116,7 @@ class Login
         }
 
         if ($this->cookie->isRememberme() && $this->setupNewCredentials()) {
-            $this->authLogin();
+            $this->cookie->authorizeNewLogin();
             return true;
         }
         return false;
@@ -160,7 +136,7 @@ class Login
     /**
      * @return void
      */
-    private function authLogin()
+    public function authLogin()
     {
         $_SESSION['user'] = $this->userName;
         $_SESSION['id'] = $this->userID;
@@ -170,11 +146,11 @@ class Login
     /**
      * @return boolean
      */
-    public function logout()
+    public function unsetLoginCredentials()
     {
         $cookie = $this->cookie->getCookieData();
         if ($cookie) {
-            $this->deleteOldUserLog($cookie);
+            $this->rememberMeObj->deleteOldUserLog($cookie);
         }
         $this->cookie->unsetCookie();
         session_destroy();

@@ -2,13 +2,17 @@
 
 namespace MyPoll\Classes\Login;
 
-use MyPoll\Classes\Database\DBInterface;
 use Exception;
 
+/**
+ * Class Cookie
+ *
+ * @package MyPoll\Classes\Login
+ */
 class Cookie
 {
-    /** @var DBInterface */
-    private $db;
+    /** @var Login */
+    private $login;
 
     /** @info secret Key to hash the cookie */
     const SECRET_KEY = 'secretKeyHere';
@@ -32,11 +36,11 @@ class Cookie
     /**
      * Cookie constructor.
      *
-     * @param DBInterface $db
+     * @param Login $login
      */
-    public function __construct(DBInterface $db)
+    public function __construct(Login $login)
     {
-        $this->db = $db;
+        $this->login = $login;
         $this->setCookie();
     }
 
@@ -65,16 +69,6 @@ class Cookie
     }
 
     /**
-     * @param string $token
-     *
-     * @return array
-     */
-    public function getRemembermeMeHash($token)
-    {
-        return $this->db->findOne('rememberme', 'hash = :hash', [':hash' => $token]);
-    }
-
-    /**
      * @return bool
      *
      * @throws Exception
@@ -85,8 +79,9 @@ class Cookie
         if (!$cookie) {
             return false;
         }
+
         $hash_hmac = hash_hmac('sha256', $cookie['userID'] . ':' . $cookie['token'], $this::SECRET_KEY);
-        $userLog = $this->getRemembermeMeHash($cookie['token']);
+        $userLog = $this->login->rememberMeObj->getRemembermeMeHash($cookie['token']);
 
         if (empty($userLog)) {
             throw new Exception('No records that matches this cookie hash has been found in the system');
@@ -107,27 +102,21 @@ class Cookie
     {
         if ($this->rememberMe) {
             $token = bin2hex(openssl_random_pseudo_bytes(128));
-            $this->saveToDatabase($userID, $token);
+            $this->login->rememberMeObj->saveLogToDatabase($userID, $token);
             $this->createCookie($userID, $token);
         }
     }
 
     /**
-     * @param int    $userID
-     * @param string $token
-     *
-     * @return boolean
-     *
-     * @throws Exception
+     * @return void
      */
-    private function saveToDatabase($userID, $token)
+    public function authorizeNewLogin()
     {
-        $newLog = $this->db->addRows('rememberme', array(array('userid' => $userID, 'hash' => $token)));
-        if (empty($this->db->store($newLog))) {
-            throw new Exception('Something went wrong while trying to save cookie in the database');
-        }
-        return true;
+        $this->rememberMe = true;
+        $this->setRememberme($this->login->userID);
+        $this->login->authLogin();
     }
+
 
     /**
      * @param int    $userID

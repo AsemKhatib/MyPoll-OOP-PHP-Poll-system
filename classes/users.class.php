@@ -276,4 +276,20 @@ class Users extends FeaturesAbstract
         }
         return (string) $result['user_pass'];
     }
+
+    /**
+     * @param array $cookie
+     *
+     * @return array
+     *
+     * @throws Exception
+     */
+    public function getUserUsingCookie($cookie)
+    {
+        $user = $this->database->getById('users', $cookie['userID']);
+        if (empty($user)) {
+            throw new Exception('No user that matches the sent cookie has been found in the system');
+        }
+        return $user;
+    }
 }

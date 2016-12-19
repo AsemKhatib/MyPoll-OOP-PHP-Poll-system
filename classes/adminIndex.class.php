@@ -82,7 +82,7 @@ class AdminIndex
      */
     public function logout()
     {
-        $this->login->logout();
+        $this->login->unsetLoginCredentials();
         echo General::ref($this->settings->getIndexPage());
     }
 
