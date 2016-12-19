@@ -7,6 +7,7 @@ use Mockery as m;
 use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Login\Cookie;
 use MyPoll\Classes\Login\Login;
+use MyPoll\Classes\Login\RememberMe;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\Users;
 use PHPUnit_Framework_TestCase;
@@ -74,15 +75,28 @@ class LoginTest extends PHPUnit_Framework_TestCase
         } else {
             $data = $this->getMockData();
         }
-
         $login =  new Login(
             $this->getMockObject($data, $extraArray),
-            $this->container->get(Cookie::class),
+            $this->getRememberMeObj($extraArray),
             $this->container->get(Users::class),
             $this->container->get(Settings::class)
         );
 
         return $login;
+    }
+
+    /**
+     * @param array $extraArray
+     *
+     * @return RememberMe
+     */
+    private function getRememberMeObj($extraArray = null)
+    {
+        $rememberMe =  new RememberMe(
+            $this->getMockObject($this->getMockData(), $extraArray)
+        );
+
+        return $rememberMe;
     }
 
     public function testCheckSuccess()
@@ -201,16 +215,17 @@ class LoginTest extends PHPUnit_Framework_TestCase
      */
     public function testIsLoggedInFailWithMissingUserIDThatIncludedInTheCookieInSetupNewCredentials()
     {
-        $cookie = '1:44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6:f767b286550f691170905287f4fc0c5234928d3975ca29f5a55a5e59d919d53a';
+        $cookie = '169:44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6:0d8a82eeddc4dacc7eb9223f4009faf346c634447144815f699fbd97e618b02b';
         $token = '44671f25fd6f923905be57edd0caf7457b6f21bd6f940c31114f9b2f54bf997e7597691c0090c8d99a5e68f24a4c1c8ac19ccc175f521b164ddbd3244f8f7a4da8bc7688d7387f2ea5d6bf7c2ed93f4abfbe124fc4eafa220a05da12085b2db389b4daf572205c319039fb2b59e0e639acb80229a4e0686ba862827898f8dba6';
 
         $extraArray = array(
             array('method' => 'addRows', 'return' => true),
             array('method' => 'store', 'return' => true),
-            array('method' => 'findOne', 'return' => array('id' => 1, 'userid' => 1, 'hash' => $token)),
+            array('method' => 'findOne', 'return' => array('id' => 100, 'userid' => 169, 'hash' => $token)),
             array('method' => 'getById', 'return' => array()),
             array('method' => 'deleteById', 'return' => null)
         );
+
         $_POST['rememberme'] = true;
         $_COOKIE['rememberme'] = $cookie;
         $this->getLogin($extraArray)->isLoggedIn();
@@ -218,7 +233,7 @@ class LoginTest extends PHPUnit_Framework_TestCase
 
     public function testLogoutSuccessWithSession()
     {
-        $this->assertNotFalse(@$this->getLogin()->logout());
+        $this->assertNotFalse(@$this->getLogin()->unsetLoginCredentials());
     }
 
     public function testLogoutSuccessWithCookie()
@@ -233,7 +248,7 @@ class LoginTest extends PHPUnit_Framework_TestCase
         $_POST['rememberme'] = true;
         $_COOKIE['rememberme'] = $cookie;
         $login = $this->getLogin($extraArray);
-        $this->assertNotFalse(@$login->logout());
+        $this->assertNotFalse(@$login->unsetLoginCredentials());
     }
 
     public function testCheckIsNotLoggedInInSuccess()
