@@ -8,6 +8,7 @@ use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Pagination;
 use MyPoll\Classes\Questions;
 use MyPoll\Classes\Settings;
+use MyPoll\Classes\Answers;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 use PHPUnit_Framework_TestCase;
@@ -97,6 +98,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
     {
         $questions =  new Questions(
             $this->getMockObject($extraArrayDB),
+            $this->container->get(Answers::class),
             $this->container->get(Twig_Environment::class),
             $this->getMockPagination(),
             $this->container->get(Settings::class)
@@ -239,6 +241,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     public function testShowAnswersFailEmptyArray()
     {
+        $this->twigLoader->addPath('admin/template/');
         $extraArray = array(
             array('method' => 'getAll', 'return' => array()));
 

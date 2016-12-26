@@ -9,6 +9,7 @@ use MyPoll\Classes\Pagination;
 use MyPoll\Classes\Questions;
 use MyPoll\Classes\Settings;
 use MyPoll\Classes\Users;
+use MyPoll\Classes\Answers;
 use function DI\get;
 use function DI\object;
 
@@ -38,6 +39,7 @@ return [
     Twig_Loader_Filesystem::class => object()->constructor(get('templatePathDir')),
     Twig_Environment::class => object()->constructor(get(Twig_Loader_Filesystem::class), array()),
     Pagination::class => object()->constructor(get(RedBeanDB::class)),
+    Answers::class => object()->constructor(get(RedBeanDB::class)),
 
     AdminIndex::class => object()->constructor(
         get(Twig_Environment::class),
@@ -60,6 +62,7 @@ return [
 
     Questions::class => object()->constructor(
         get(RedBeanDB::class),
+        get(Answers::class),
         get(Twig_Environment::class),
         get(Pagination::class),
         get(Settings::class)

@@ -16,6 +16,9 @@ class Questions extends FeaturesAbstract
     /** @var DBInterface */
     protected $db;
 
+    /** @var Answers */
+    protected $answers;
+
     /** @var Twig_Environment */
     protected $twig;
 
@@ -24,18 +27,6 @@ class Questions extends FeaturesAbstract
 
     /** @var  Settings */
     protected $settings;
-
-    /** @var  array */
-    protected $votesArray = array();
-
-    /** @var  array */
-    protected $answersArray = array();
-
-    /** @var  array */
-    protected $votesPercent = array();
-
-    /** @var  array */
-    protected $pieArray = array();
 
     /** @var int */
     protected $maxResults;
@@ -48,13 +39,22 @@ class Questions extends FeaturesAbstract
      * @param Pagination       $pagination
      * @param Settings         $settings
      */
-    public function __construct(DBInterface $db, Twig_Environment $twig, Pagination $pagination, Settings $settings)
+    public function __construct(DBInterface $db, Answers $answers,Twig_Environment $twig, Pagination $pagination, Settings $settings)
     {
         $this->db = $db;
+        $this->answers = $answers;
         $this->twig = $twig;
         $this->pagination = $pagination;
         $this->settings = $settings;
         $this->maxResults = $this->settings->getResultNumber();
+    }
+
+    /**
+     * @return Answers
+     */
+    public function getAnswersObject()
+    {
+        return $this->answers;
     }
 
     /**
@@ -85,7 +85,7 @@ class Questions extends FeaturesAbstract
     public function addExecute($paramsArray)
     {
         $qid = $this->db->getID($this->addQuestion($paramsArray));
-        $this->addAnswers($paramsArray['answers'], $qid);
+        $this->getAnswersObject()->addAnswers($paramsArray['answers'], $qid);
         return 'Question Added successfully';
     }
 
@@ -107,26 +107,6 @@ class Questions extends FeaturesAbstract
         return $store;
     }
 
-    /**
-     * @param array $answers
-     * @param int   $qid
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    private function addAnswers($answers, $qid)
-    {
-        $answersArray = array_map(function ($newAnswer) use ($qid) {
-            return array('qid' => $qid, 'answer' => $newAnswer);
-        }, array_values($answers));
-
-        $answersToAdd = $this->db->addRows('answers', $answersArray);
-        $store = $this->db->store($answersToAdd);
-        if (empty($store)) {
-            throw new Exception('Something went wrong while trying to add the answers of the new question');
-        }
-    }
 
     /**
      * @param int $startPage
@@ -153,47 +133,13 @@ class Questions extends FeaturesAbstract
      */
     public function showAnswers($qid, $is_pie)
     {
-        $answers = $this->db->getAll('SELECT * FROM answers WHERE qid=:qid', [':qid' => $qid]);
+        $getChartArray = $this->getAnswersObject()->getAnswersChart($qid, $is_pie);
 
-        if (empty($answers)) {
+        if (!$getChartArray) {
             return false;
         }
 
-        $this->processAnswersToShow($answers);
-
-        return $this->twig->render('chat_bar.html', array(
-            'answers_arr' => $this->answersArray,
-            'percent' => $this->votesPercent,
-            'is_pie' => $is_pie,
-            'pie_arr' => $this->pieArray
-        ));
-    }
-
-    /**
-     * @param array $answers
-     *
-     * @return void
-     */
-    private function processAnswersToShow($answers)
-    {
-        foreach ($answers as $row) {
-            $this->answersArray[] = $row['answer'];
-            $this->votesArray[] = $row['votes'];
-            $this->pieArray[] = "['" . $row['answer'] . "', " . $row['votes'] . "]";
-        }
-
-        $sum = array_sum($this->votesArray);
-//        foreach ($this->votesArray as $num) {
-//            $this->votesPercent[] = @round($num / $sum * 100, 1);
-//        }
-
-        $this->votesPercent = array_map(function ($num) use ($sum) {
-            return @round($num / $sum * 100, 1);
-        }, $this->votesArray);
-
-        $this->answersArray = "'" . implode("','", $this->answersArray) . "'";
-        $this->votesPercent = implode(',', $this->votesPercent);
-        $this->pieArray = implode(',', $this->pieArray);
+        return $this->twig->render('chart_bar.html', $getChartArray);
     }
 
     /**
@@ -209,7 +155,7 @@ class Questions extends FeaturesAbstract
             return General::ref($this->settings->getIndexPage());
         }
 
-        $answers = $this->db->getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
+        $answers = $this->getAnswersObject()->getAnswersForEdit($qid);
         return $this->renderEdit($qid, $question, $answers);
     }
 
@@ -257,59 +203,8 @@ class Questions extends FeaturesAbstract
             throw new Exception('Something went wrong while trying to edit the question');
         }
 
-        $this->editAnswers($paramsArray['answers_old'], $paramsArray['qid']);
+        $this->getAnswersObject()->editAnswers($paramsArray['answers_old'], $paramsArray['qid']);
         return 'Question edited successfully';
-    }
-
-    /**
-     * @param array $answers
-     * @param int   $qid
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    private function editAnswers($answers, $qid)
-    {
-        foreach ($answers as $key => $value) {
-            $answer = $this->db->getById('answers', $key, 'bean');
-            if (empty($answer[0])) {
-                $this->addExtraAnswer($qid, $value);
-            }
-            if (!empty($answer[0]) && $answer[0]['answer'] != $value) {
-                $this->editExistedAnswer($answer, $value);
-            }
-        }
-    }
-
-    /**
-     * @param int $qid
-     * @param string $value
-     *
-     * @throws Exception
-     */
-    private function addExtraAnswer($qid, $value)
-    {
-        $newAnswer = $this->db->addRows('answers', array(array('qid' => $qid, 'answer' => $value)));
-        $store = $this->db->store($newAnswer);
-        if (empty($store)) {
-            throw new Exception('Something went wrong while trying to add new answers to this question');
-        }
-    }
-
-    /**
-     * @param array $answer
-     * @param string $value
-     *
-     * @throws Exception
-     */
-    private function editExistedAnswer($answer, $value)
-    {
-        $newAnswer = $this->db->editRow(array($answer), array('answer' => $value));
-        $store = $this->db->store($newAnswer);
-        if (empty($store)) {
-            throw new Exception('Something went wrong while trying to edit the answers of this question');
-        }
     }
 
     /**
@@ -320,18 +215,7 @@ class Questions extends FeaturesAbstract
     public function delete($qid)
     {
         $this->db->deleteById('questions', $qid);
-        $answersToDelete = $this->db->find('answers', 'qid = :qid', [':qid' => $qid]);
-        $this->db->deleteAll('answers', $answersToDelete);
+        $this->getAnswersObject()->deleteAllAnswers($qid);
         return 'The question and all its answers were successfully deleted';
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return void
-     */
-    public function deleteAnswer($id)
-    {
-        $this->db->deleteById('answers', $id);
     }
 }
