@@ -91,14 +91,15 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @param array $extraArrayDB
+     * @param array $extraArrayAnswers
      *
      * @return Questions
      */
-    private function getQuestion($extraArrayDB = null)
+    private function getQuestion($extraArrayDB = null, $extraArrayAnswers = null)
     {
         $questions =  new Questions(
             $this->getMockObject($extraArrayDB),
-            $this->container->get(Answers::class),
+            new Answers($this->getMockObject($extraArrayAnswers)),
             $this->container->get(Twig_Environment::class),
             $this->getMockPagination(),
             $this->container->get(Settings::class)
@@ -158,7 +159,12 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'getID', 'return' => 1)
         );
 
-        $question = $this->getQuestion($extraArray);
+        $extraArrayAnswers = array(
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true)
+            );
+
+        $question = $this->getQuestion($extraArray, $extraArrayAnswers);
         $this->assertEquals('Question Added successfully', $question->addExecute($this->dataArray));
     }
 
@@ -186,12 +192,15 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'addRows', 'return' => true),
             array('method' => 'store', 'return' => true),
-            array('method' => 'getID', 'return' => true),
-            array('method' => 'addRows', 'return' => array()),
-            array('method' => 'store', 'return' => array()),
+            array('method' => 'getID', 'return' => true)
         );
 
-        $this->getQuestion($extraArray)->addExecute($this->dataArray);
+        $extraArrayAnswers = array(
+            array('method' => 'addRows', 'return' => array()),
+            array('method' => 'store', 'return' => array())
+            );
+
+        $this->getQuestion($extraArray, $extraArrayAnswers)->addExecute($this->dataArray);
     }
 
 
@@ -232,20 +241,26 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     public function testShowAnswersSuccess()
     {
+        $extraArrayAnswers = array(
+            array('method' => 'getAll', 'return' => array())
+            );
+
         $this->twigLoader->addPath('admin/template/');
         $this->assertContains(
             'function drawChart()',
-            $this->getQuestion(array($this->extraArrayFull[1]))->showAnswers(1, true)
+            $this->getQuestion(array(), array($this->extraArrayFull[1]))->showAnswers(1, true)
         );
     }
 
     public function testShowAnswersFailEmptyArray()
     {
         $this->twigLoader->addPath('admin/template/');
-        $extraArray = array(
-            array('method' => 'getAll', 'return' => array()));
+        $extraArray = array();
+        $extraArrayAnswers = array(
+            array('method' => 'getAll', 'return' => array())
+            );
 
-        $this->assertFalse($this->getQuestion($extraArray)->showAnswers(1, 'true'));
+        $this->assertFalse($this->getQuestion($extraArray, $extraArrayAnswers)->showAnswers(1, 'true'));
     }
 
     /**
@@ -253,8 +268,10 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
      */
     public function testShowAnswersFailWithTwig()
     {
-        $extraArray = array(array('method' => 'getAll', 'return' => array(1, 2, 3)));
-        $this->getQuestion($extraArray)->showAnswers(1, 'true');
+        $extraArrayAnswers = array(
+            array('method' => 'getAll', 'return' => array(1, 2, 3))
+        );
+        $this->getQuestion(array(), $extraArrayAnswers)->showAnswers(1, 'true');
     }
 
     public function testEditSuccess()
@@ -262,7 +279,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $this->twigLoader->addPath('admin/template/');
         $this->assertContains(
             '<input type="hidden" id="callBack" value="editExecute">',
-            $this->getQuestion($this->extraArrayFull)->edit(1)
+            $this->getQuestion(array($this->extraArrayFull[0]), array($this->extraArrayFull[1]))->edit(1)
         );
     }
 
@@ -271,7 +288,10 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
      */
     public function testEditFail()
     {
-        $this->getQuestion($this->extraArrayFull)->edit(1);
+        $extraArray = array(
+            array('method' => 'getAll', 'return' => array(1, 2, 3))
+        );
+        $this->getQuestion(array($this->extraArrayFull[0]), array($this->extraArrayFull[1]))->edit(1);
     }
 
     public function testGetPostParamsForEditMethodSuccess()
@@ -326,12 +346,17 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'getById', 'return' => true),
             array('method' => 'editRow', 'return' => true),
-            array('method' => 'addRows', 'return' => true),
-            array('method' => 'store', 'return' => true),
-            array('method' => 'getID', 'return' => 1)
+            array('method' => 'store', 'return' => true)
         );
 
-        $question = $this->getQuestion($extraArray);
+        $extraArrayAnswers = array(
+            array('method' => 'getById', 'return' => true),
+            array('method' => 'editRow', 'return' => true),
+            array('method' => 'addRows', 'return' => true),
+            array('method' => 'store', 'return' => true)
+            );
+
+        $question = $this->getQuestion($extraArray, $extraArrayAnswers);
         $this->assertEquals('Question edited successfully', $question->editExecute($this->dataArrayEdit));
     }
 
@@ -359,13 +384,16 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'getById', 'return' => true),
             array('method' => 'editRow', 'return' => true),
-            array('method' => 'store', 'return' => true),
+            array('method' => 'store', 'return' => true)
+        );
+
+        $extraArrayAnswers = array(
             array('method' => 'getById', 'return' => array(0 => [])),
             array('method' => 'addRows', 'return' => array()),
             array('method' => 'store', 'return' => array())
         );
 
-        $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
+        $this->getQuestion($extraArray, $extraArrayAnswers)->editExecute($this->dataArrayEdit);
     }
 
     /**
@@ -377,26 +405,32 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'getById', 'return' => true),
             array('method' => 'editRow', 'return' => true),
-            array('method' => 'store', 'return' => true),
+            array('method' => 'store', 'return' => true)
+        );
+
+        $extraArrayAnswers = array(
             array('method' => 'getById', 'return' => array(0 => array('answer' => 'b'))),
             array('method' => 'editRow', 'return' => array()),
             array('method' => 'store', 'return' => array())
         );
 
-        $this->getQuestion($extraArray)->editExecute($this->dataArrayEdit);
+        $this->getQuestion($extraArray, $extraArrayAnswers)->editExecute($this->dataArrayEdit);
     }
 
     public function testDeleteSuccess()
     {
         $extraArray = array(
-            array('method' => 'deleteById', 'return' => true),
+            array('method' => 'deleteById', 'return' => true)
+        );
+
+        $extraArrayAnswers = array(
             array('method' => 'find', 'return' => true),
             array('method' => 'deleteAll', 'return' => true)
         );
 
         $this->assertEquals(
             'The question and all its answers were successfully deleted',
-            $this->getQuestion($extraArray)->delete(1)
+            $this->getQuestion($extraArray, $extraArrayAnswers)->delete(1)
         );
     }
 
