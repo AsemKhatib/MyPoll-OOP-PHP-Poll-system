@@ -2,11 +2,15 @@
 
 namespace MyPoll\Classes\Database;
 
-use RedBeanPHP\Facade;
+use PDO;
+use PDOException;
 use Exception;
 
-class RedBeanDB implements DBInterface
+class PDODB implements DBInterface
 {
+    /** @var  PDO */
+    protected $dbi = false;
+
     /** @var string */
     protected $db_dsn;
 
@@ -40,8 +44,12 @@ class RedBeanDB implements DBInterface
      */
     public function setup()
     {
-        if (!Facade::testConnection()) {
-            Facade::setup($this->db_dsn, $this->db_user, $this->db_pass);
+        if (!$this->dbi) {
+            try {
+                $this->dbi = new PDO($this->db_dsn, $this->db_user, $this->db_pass, $this->db_options);
+            } catch (PDOException $e) {
+                echo 'Connection failed: ' . $e->getMessage();
+            }
         }
     }
 
@@ -52,26 +60,31 @@ class RedBeanDB implements DBInterface
      */
     public function count($dbName)
     {
-        return Facade::count($dbName);
+        return (int) $this->dbi->query('SELECT COUNT(*) FROM ' . $dbName)->fetchColumn();
     }
 
     /**
      * @param string $table
-     * @param array $rows
+     * @param array  $rows
      *
      * @return array
      */
     public function addRows($table, $rows)
     {
-//        $arrayToSave = array();
-//        foreach ($rows as $row) {
-//            $arrayToSave[] = Facade::dispense($table)->import($row);
-//        }
-        $arrayToSave = array_map(function ($row) use ($table) {
-            return Facade::dispense($table)->import($row);
-        }, $rows);
+        return array_walk($rows, array($this, 'addRowsWalk'), $table);
+    }
 
-        return $arrayToSave;
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param string $table
+     *
+     * @return array
+     */
+    private function addRowsWalk($key, $value, $table)
+    {
+        $stmt[] = ('INSERT INTO ' . $table . ' ('. $key .') Values ('. $value .')');
+        return $stmt;
     }
 
     /**
@@ -98,7 +111,15 @@ class RedBeanDB implements DBInterface
      */
     public function store($rows)
     {
-        return Facade::storeAll($rows);
+        $resultsIDs = array();
+
+        foreach ($rows as $statement) {
+            $stmt = $this->dbi->prepare($statement);
+            $stmt->execute();
+            $resultsIDs[] = $stmt->rowCount();
+        }
+
+        return $resultsIDs;
     }
 
     /**
@@ -109,7 +130,9 @@ class RedBeanDB implements DBInterface
      */
     public function getAll($sql, $bindings)
     {
-        return Facade::getAll($sql, $bindings);
+        $stmt = $this->dbi->prepare($sql);
+        $stmt->execute($bindings);
+        return $stmt->fetchAll();
     }
 
     /**
@@ -121,14 +144,9 @@ class RedBeanDB implements DBInterface
      */
     public function getById($table, $id, $type = null)
     {
-        $resultObject = Facade::load($table, $id);
-        if ($type == 'bean') {
-            $result = ($resultObject->isEmpty()) ? array() : $resultObject;
-            return array($result);
-        }
-        $resultObject = $resultObject->export();
-        $result = ($resultObject['id'] == 0) ? array() : $resultObject;
-        return $result;
+        $resultObject = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE id = :id');
+        $resultObject->execute(array(':id' => $id));
+        return $resultObject->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -144,7 +162,7 @@ class RedBeanDB implements DBInterface
 
     /**
      * @param string $table
-     * @param int  $id
+     * @param int    $id
      *
      * @return void
      */
@@ -155,7 +173,7 @@ class RedBeanDB implements DBInterface
 
     /**
      * @param string $table
-     * @param array $rows
+     * @param array  $rows
      *
      * @return void
      */
@@ -173,7 +191,7 @@ class RedBeanDB implements DBInterface
      * Return an Array of Beans or empty array in case of no results
      *
      * @param string $table
-     * @param string   $sql
+     * @param string $sql
      * @param array  $bindings
      *
      * @return array
@@ -197,7 +215,7 @@ class RedBeanDB implements DBInterface
      * Return the first Bean only or Null in case of no results
      *
      * @param string $table
-     * @param string   $sql
+     * @param string $sql
      * @param array  $bindings
      *
      * @return array
@@ -218,12 +236,12 @@ class RedBeanDB implements DBInterface
      */
     public function getID($array)
     {
-        return (int) $array[0];
+        return (int)$array[0];
     }
 
     /**
-     * @param string  $sql
-     * @param array $bindings
+     * @param string $sql
+     * @param array  $bindings
      *
      * @return int
      */

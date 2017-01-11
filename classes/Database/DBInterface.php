@@ -21,12 +21,10 @@ interface DBInterface
 
     /**
      * @param string $table   type of bean we are looking for
-     * @param string $addSQL   additional SQL snippet
-     * @param array  $bindings parameters to bind to SQL
      *
      * @return int
      */
-    public function count($table, $addSQL = '', $bindings = array());
+    public function count($table);
 
     /**
      * @param string $table

@@ -109,7 +109,7 @@ class Answers
 
     public function getAnswersForEdit($qid)
     {
-    	return $this->database->getAll('SELECT * FROM answers WHERE qid=? ORDER BY id', array($qid));
+    	return $this->database->getAll('SELECT * FROM answers WHERE qid=:qid ORDER BY id', [':qid' => $qid]);
     }
 
 
