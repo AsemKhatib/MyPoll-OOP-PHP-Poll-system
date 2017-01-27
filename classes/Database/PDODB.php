@@ -83,7 +83,7 @@ class PDODB implements DBInterface
      */
     private function addRowsWalk($key, $value, $table)
     {
-        $stmt[] = ('INSERT INTO ' . $table . ' ('. $key .') Values ('. $value .')');
+        $stmt[] = 'INSERT INTO ' . $table . ' ('. $key .') Values ('. $value .')';
         return $stmt;
     }
 
@@ -97,11 +97,8 @@ class PDODB implements DBInterface
      */
     public function editRow($modelArray, $dataArray)
     {
-        $bean = $modelArray[0];
-        if (is_array($bean)) {
-            throw new Exception('The sub array should not be of type Array');
-        }
-        return array($bean->import($dataArray));
+        $stmt[] = 'UPDATE INTO ' . $table . ' ('. $key .') Values ('. $value .')';
+        return $stmt;
     }
 
     /**
@@ -144,9 +141,9 @@ class PDODB implements DBInterface
      */
     public function getById($table, $id, $type = null)
     {
-        $resultObject = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE id = :id');
-        $resultObject->execute(array(':id' => $id));
-        return $resultObject->fetch(PDO::FETCH_ASSOC);
+        $result = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE id = :id');
+        $result->execute(array(':id' => $id));
+        return $result->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -157,7 +154,9 @@ class PDODB implements DBInterface
      */
     public function getRow($sql, $bindings = array())
     {
-        return Facade::getRow($sql, $bindings);
+        $result = $this->dbi->prepare($sql);
+        $result->execute($bindings);
+        return $result->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -168,7 +167,7 @@ class PDODB implements DBInterface
      */
     public function deleteById($table, $id)
     {
-        Facade::trash($table, $id);
+        $this->deleteCallBack($id, $table);
     }
 
     /**
@@ -179,12 +178,17 @@ class PDODB implements DBInterface
      */
     public function deleteAll($table, $rows)
     {
-//        foreach ($rows as $row) {
-//            Facade::trash($table, $row['id']);
-//        }
-        array_map(function ($row) use ($table) {
-            Facade::trash($table, $row['id']);
-        }, $rows);
+        array_walk($rows, array($this, 'deleteCallBack'), $table);
+    }
+
+    /**
+     * @param array|int $rows
+     * @param string $table
+     */
+    private function deleteCallBack($rows, $table)
+    {
+        $result = $this->dbi->prepare('DELETE FROM ' . $table . ' WHERE id = :id');
+        $result->execute(array(':id' => $rows['id']));
     }
 
     /**
