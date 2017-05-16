@@ -92,12 +92,22 @@ class PDODB implements DBInterface
      * @param array $dataArray
      *
      * @return array
-     *
-     * @throws \Exception
      */
     public function editRow($modelArray, $dataArray)
     {
-        $stmt[] = 'UPDATE INTO ' . $table . ' ('. $key .') Values ('. $value .')';
+        return array_walk($dataArray, array($this, 'editRowWalk'), $table);
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param string $table
+     *
+     * @return array
+     */
+    public function editRowWalk($key, $value, $table)
+    {
+        $stmt[] = 'UPDATE ' . $table . ' SET '. $key .'='. $value;
         return $stmt;
     }
 

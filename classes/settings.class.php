@@ -191,7 +191,7 @@ class Settings
     }
 
     /**
-     * @return void|boolean
+     * @return boolean
      */
     public function checkCache()
     {
