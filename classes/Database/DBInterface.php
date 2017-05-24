@@ -60,18 +60,6 @@ interface DBInterface
      */
     public function getAll($sql, $bindings);
 
-
-    /**
-     * Convenience function to execute Queries directly and returns multidimensional array
-     * Executes SQL
-     *
-     * @param string $sql      SQL query to execute
-     * @param array  $bindings a list of values to be bound to query parameters
-     *
-     * @return array
-     */
-    public function getRow($sql, $bindings = array());
-
     /**
      * @param string $table
      * @param int    $id
@@ -104,7 +92,7 @@ interface DBInterface
      *
      * @return array
      */
-    public function find($table, $sql = null, $bindings = array());
+    public function find($table, $sql, $bindings = array());
 
     /**
      * @param string $table
@@ -113,7 +101,7 @@ interface DBInterface
      *
      * @return array
      */
-    public function findOne($table, $sql = null, $bindings = array());
+    public function findOne($table, $sql, $bindings = array());
 
 
     /**

@@ -95,19 +95,20 @@ class PDODB implements DBInterface
      */
     public function editRow($modelArray, $dataArray)
     {
-        return array_walk($dataArray, array($this, 'editRowWalk'), $table);
+        $extraData = array('id' => $modelArray['id'], 'table_name' => $modelArray['table_name']);
+        return array_walk($dataArray, array($this, 'editRowWalk'), $extraData);
     }
 
     /**
      * @param string $key
      * @param mixed $value
-     * @param string $table
+     * @param array $extraData
      *
      * @return array
      */
-    public function editRowWalk($key, $value, $table)
+    public function editRowWalk($key, $value, $extraData)
     {
-        $stmt[] = 'UPDATE ' . $table . ' SET '. $key .'='. $value;
+        $stmt[] = 'UPDATE ' . $extraData['table_name'] . ' SET '. $key .'='. $value .' WHERE id='. $extraData['id'] ;
         return $stmt;
     }
 
@@ -119,13 +120,11 @@ class PDODB implements DBInterface
     public function store($rows)
     {
         $resultsIDs = array();
-
         foreach ($rows as $statement) {
             $stmt = $this->dbi->prepare($statement);
             $stmt->execute();
             $resultsIDs[] = $stmt->rowCount();
         }
-
         return $resultsIDs;
     }
 
@@ -153,20 +152,8 @@ class PDODB implements DBInterface
     {
         $result = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE id = :id');
         $result->execute(array(':id' => $id));
-        return $result->fetch(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * @param string $sql      SQL query to execute
-     * @param array  $bindings a list of values to be bound to query parameters
-     *
-     * @return array
-     */
-    public function getRow($sql, $bindings = array())
-    {
-        $result = $this->dbi->prepare($sql);
-        $result->execute($bindings);
-        return $result->fetch(PDO::FETCH_ASSOC);
+        $returnedArray = $result->fetch(PDO::FETCH_ASSOC);
+        return array_merge($returnedArray, array('table_name' => $table));
     }
 
     /**
@@ -210,19 +197,15 @@ class PDODB implements DBInterface
      *
      * @return array
      */
-    public function find($table, $sql = null, $bindings = array())
+    public function find($table, $sql, $bindings = array())
     {
-//        $returnArray = array();
-        $beans = Facade::find($table, $sql, $bindings);
-        if (!empty($beans)) {
-//            foreach ($beans as $bean) {
-//                $returnArray[] = $bean->export();
-//            }
-            $returnArray = array_map(function ($bean) use ($table) {
-                return $bean->export();
-            }, $beans);
+        $query = $this->dbi->prepare('SELECT * FROM '. $table . ' WHERE ' . $sql);
+        $query->execute($bindings);
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        if (empty($result)) {
+            return [];
         }
-        return $returnArray;
+        return $result;
     }
 
     /**
@@ -234,13 +217,15 @@ class PDODB implements DBInterface
      *
      * @return array
      */
-    public function findOne($table, $sql = null, $bindings = array())
+    public function findOne($table, $sql, $bindings = array())
     {
-        $result = Facade::findOne($table, $sql, $bindings);
-        if ($result == null) {
-            return array();
+        $query = $this->dbi->prepare('SELECT * FROM '. $table . ' WHERE ' . $sql . ' LIMIT 1');
+        $query->execute($bindings);
+        $result = $query->fetchAll(PDO::FETCH_ASSOC);
+        if (empty($result)) {
+            return [];
         }
-        return $result->export();
+        return $result;
     }
 
     /**
@@ -261,6 +246,8 @@ class PDODB implements DBInterface
      */
     public function exec($sql, $bindings = array())
     {
-        return Facade::exec($sql, $bindings);
+        $query = $this->dbi->prepare($sql);
+        $query->execute($bindings);
+        return $query->rowCount();
     }
 }

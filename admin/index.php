@@ -13,6 +13,8 @@ $router = isset($_GET['route']) ? General::cleanInput('string', $_GET['route']) 
 
 $adminIndex = $container->get(AdminIndex::class);
 
+//TODO : fix the code here because it's not beautiful nor cool
+
 if (!method_exists($adminIndex, $doAction)) {
     $adminIndex->defaultAction();
 } else {

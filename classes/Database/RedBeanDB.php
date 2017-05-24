@@ -132,17 +132,6 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @param string $sql      SQL query to execute
-     * @param array  $bindings a list of values to be bound to query parameters
-     *
-     * @return array
-     */
-    public function getRow($sql, $bindings = array())
-    {
-        return Facade::getRow($sql, $bindings);
-    }
-
-    /**
      * @param string $table
      * @param int  $id
      *
@@ -178,9 +167,9 @@ class RedBeanDB implements DBInterface
      *
      * @return array
      */
-    public function find($table, $sql = null, $bindings = array())
+    public function find($table, $sql, $bindings = array())
     {
-//        $returnArray = array();
+        $returnArray = array();
         $beans = Facade::find($table, $sql, $bindings);
         if (!empty($beans)) {
 //            foreach ($beans as $bean) {
@@ -202,7 +191,7 @@ class RedBeanDB implements DBInterface
      *
      * @return array
      */
-    public function findOne($table, $sql = null, $bindings = array())
+    public function findOne($table, $sql, $bindings = array())
     {
         $result = Facade::findOne($table, $sql, $bindings);
         if ($result == null) {

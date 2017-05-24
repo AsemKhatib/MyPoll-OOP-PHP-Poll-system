@@ -34,10 +34,11 @@ class Questions extends FeaturesAbstract
     /**
      * Questions constructor.
      *
-     * @param DBInterface      $db
+     * @param DBInterface $db
+     * @param Answers $answers
      * @param Twig_Environment $twig
-     * @param Pagination       $pagination
-     * @param Settings         $settings
+     * @param Pagination $pagination
+     * @param Settings $settings
      */
     public function __construct(DBInterface $db, Answers $answers,Twig_Environment $twig, Pagination $pagination, Settings $settings)
     {
