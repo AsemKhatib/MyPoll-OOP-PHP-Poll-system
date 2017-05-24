@@ -5,6 +5,10 @@ namespace MyPoll\Classes\Database;
 use RedBeanPHP\Facade;
 use Exception;
 
+/**
+ * Class RedBeanDB
+ * @package MyPoll\Classes\Database
+ */
 class RedBeanDB implements DBInterface
 {
     /** @var string */
@@ -63,10 +67,6 @@ class RedBeanDB implements DBInterface
      */
     public function addRows($table, $rows)
     {
-//        $arrayToSave = array();
-//        foreach ($rows as $row) {
-//            $arrayToSave[] = Facade::dispense($table)->import($row);
-//        }
         $arrayToSave = array_map(function ($row) use ($table) {
             return Facade::dispense($table)->import($row);
         }, $rows);
@@ -150,9 +150,6 @@ class RedBeanDB implements DBInterface
      */
     public function deleteAll($table, $rows)
     {
-//        foreach ($rows as $row) {
-//            Facade::trash($table, $row['id']);
-//        }
         array_map(function ($row) use ($table) {
             Facade::trash($table, $row['id']);
         }, $rows);
@@ -172,9 +169,6 @@ class RedBeanDB implements DBInterface
         $returnArray = array();
         $beans = Facade::find($table, $sql, $bindings);
         if (!empty($beans)) {
-//            foreach ($beans as $bean) {
-//                $returnArray[] = $bean->export();
-//            }
             $returnArray = array_map(function ($bean) use ($table) {
                 return $bean->export();
             }, $beans);
