@@ -81,8 +81,9 @@ class Login
     public function check($user, $pass)
     {
         if (General::issetAndNotEmpty($user) && General::issetAndNotEmpty($pass)) {
-            $query = 'SELECT * FROM users WHERE user_name = :user AND user_pass = :pass';
-            $result = $this->db->exec($query, [':user' => $user, ':pass' => $this->users->getHash($user)]);
+            $where= 'user_name = :user AND user_pass = :pass';
+            $binding = [':user' => $user, ':pass' => $this->users->getHash($user)];
+            $result = $this->db->findOne('users', $where, $binding);
             if (!password_verify($pass, $result['user_pass'])) {
                 return false;
             }
