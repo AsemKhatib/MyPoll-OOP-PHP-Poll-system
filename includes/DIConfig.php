@@ -21,7 +21,10 @@ $db_options = array (
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 );
 
-$templatePathDir = 'template/';
+$systemAbsolutePath = __DIR__ . '/../';
+$templatePathDirArray = array(
+    $systemAbsolutePath . '/template/',
+    $systemAbsolutePath . '/admin/template/');
 $settingsId = 1;
 
 return [
@@ -30,7 +33,7 @@ return [
         'users' => get(Users::class),
         'settings' => get(Settings::class)
     ),
-    'templatePathDir' => $templatePathDir,
+    'templatePathDirArray' => $templatePathDirArray,
     'settingsId' => $settingsId,
     'db_dsn' => $db_dsn,
     'db_user' => $db_user,
@@ -40,7 +43,7 @@ return [
     RedBeanDB::class => object()->constructor(get('db_dsn'), get('db_user'), get('db_pass'))->method('setup'),
     RememberMe::class => object()->constructor(get(RedBeanDB::class)),
 
-    Twig_Loader_Filesystem::class => object()->constructor(get('templatePathDir')),
+    Twig_Loader_Filesystem::class => object()->constructor(get('templatePathDirArray')),
     Twig_Environment::class => object()->constructor(get(Twig_Loader_Filesystem::class), array()),
     Pagination::class => object()->constructor(get(RedBeanDB::class)),
     Answers::class => object()->constructor(get(RedBeanDB::class)),
