@@ -4,15 +4,17 @@ namespace MyPoll\Classes\Database;
 
 use PDO;
 use PDOException;
-use Exception;
 
+/**
+ * Class PDODB
+ * @package MyPoll\Classes\Database
+ */
 class PDODB implements DBInterface
 {
     /** @var  PDO */
     protected $dbi = false;
 
     /** @var string */
-    protected $db_dsn;
 
     /** @var string */
     protected $db_user;
@@ -119,7 +121,7 @@ class PDODB implements DBInterface
      */
     public function store($rows)
     {
-        $resultsIDs = array();
+        $resultsIDs = [];
         foreach ($rows as $statement) {
             $stmt = $this->dbi->prepare($statement);
             $stmt->execute();
