@@ -92,7 +92,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
 
     public function testAddSuccess()
     {
-        $this->twigLoader->addPath('admin/template/');
+        
         $this->assertContains('<input type="hidden" id="callBack" value="addExecute">', $this->getUsers()->add());
     }
 
@@ -101,6 +101,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddFail()
     {
+        $this->twigLoader->addPath('/wrongPath/');
         $this->getUsers()->add();
     }
 
@@ -189,7 +190,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     public function testShowSuccess()
     {
         $extraArray = array(array('method' => 'count', 'return' => 10), array('method' => 'find', 'return' => true));
-        $this->twigLoader->addPath('admin/template/');
+        
         $this->assertContains('<div class="inner" id="inner8">User Name</div>', $this->getUsers($extraArray)->show());
     }
 
@@ -198,6 +199,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
      */
     public function testShowFailWithTwig()
     {
+        $this->twigLoader->addPath('/wrongPath/');
         $extraArray = array(array('method' => 'count', 'return' => 10), array('method' => 'find', 'return' => true));
         $this->assertContains('<div class="inner" id="inner8">User Name</div>', $this->getUsers($extraArray)->show());
     }
@@ -205,7 +207,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     public function testShowFailWithEmptyFindResult()
     {
         $extraArray = array(array('method' => 'count', 'return' => 10), array('method' => 'find', 'return' => array()));
-        $this->twigLoader->addPath('admin/template/');
+        
 
         try {
             $this->getUsers($extraArray)->show();
@@ -219,7 +221,7 @@ class UsersTest extends \PHPUnit_Framework_TestCase
 
     public function testEditSuccess()
     {
-        $this->twigLoader->addPath('admin/template/');
+        
         $this->assertContains(
             '<input type="hidden" id="route" value="users">',
             $this->getUsers($this->extraArrayFull)->edit(2)
@@ -229,8 +231,6 @@ class UsersTest extends \PHPUnit_Framework_TestCase
     public function testEditFailWithEmptyUser()
     {
         $extraArrayFull = array(array('method' => 'getById', 'return' => array()));
-
-        $this->twigLoader->addPath('admin/template/');
         $this->assertEquals(
             '<meta http-equiv="refresh" content="2; url=index.php?do=show&route=users">The user is not exist in the system',
             $this->getUsers($extraArrayFull)->edit(2)
@@ -282,7 +282,6 @@ class UsersTest extends \PHPUnit_Framework_TestCase
 
     public function testEditExecuteSuccess()
     {
-
         $dataArrayEdit = array(
         'id' => 2,
         'user' => 'testUser',
@@ -304,7 +303,6 @@ class UsersTest extends \PHPUnit_Framework_TestCase
 
     public function testEditExecuteSuccessWithEmptyPassword()
     {
-
         $dataArrayEdit = array(
             'id' => 2,
             'user' => 'testUser',
@@ -372,7 +370,6 @@ class UsersTest extends \PHPUnit_Framework_TestCase
 
     public function testEditExecuteFailWithInvalidEmail()
     {
-
         $dataArrayEdit = array(
             'id' => 2,
             'user' => 'testUser',

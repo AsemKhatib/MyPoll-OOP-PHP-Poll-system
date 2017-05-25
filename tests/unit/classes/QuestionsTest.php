@@ -110,7 +110,6 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     public function testAddSuccess()
     {
-        $this->twigLoader->addPath('admin/template/');
         $this->assertContains(
             '<input type="hidden" id="callBack" value="addExecute">',
             $this->getQuestion()->add()
@@ -122,6 +121,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
      */
     public function testAddFail()
     {
+        $this->twigLoader->addPath('/wrongPath/');
         $this->getQuestion()->add();
     }
 
@@ -207,7 +207,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
     public function testShowSuccess()
     {
         $extraArray = array(array('method' => 'count', 'return' => 10), array('method' => 'find', 'return' => true));
-        $this->twigLoader->addPath('admin/template/');
+
         $this->assertContains('<div class="show_poll">', $this->getQuestion($extraArray)->show());
     }
 
@@ -216,6 +216,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
      */
     public function testShowFailWithTwig()
     {
+        $this->twigLoader->addPath('/wrongPath/');
         $extraArray = array(array('method' => 'count', 'return' => false));
         $this->getQuestion($extraArray)->show();
     }
@@ -227,7 +228,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'find', 'return' => array())
         );
 
-        $this->twigLoader->addPath('admin/template/');
+
 
         try {
             $this->getQuestion($extraArray)->show();
@@ -245,7 +246,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
             array('method' => 'getAll', 'return' => array())
             );
 
-        $this->twigLoader->addPath('admin/template/');
+
         $this->assertContains(
             'function drawChart()',
             $this->getQuestion(array(), array($this->extraArrayFull[1]))->showAnswers(1, true)
@@ -254,7 +255,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     public function testShowAnswersFailEmptyArray()
     {
-        $this->twigLoader->addPath('admin/template/');
+
         $extraArray = array();
         $extraArrayAnswers = array(
             array('method' => 'getAll', 'return' => array())
@@ -268,6 +269,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
      */
     public function testShowAnswersFailWithTwig()
     {
+        $this->twigLoader->addPath('/wrongPath/');
         $extraArrayAnswers = array(
             array('method' => 'getAll', 'return' => array(1, 2, 3))
         );
@@ -276,7 +278,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
 
     public function testEditSuccess()
     {
-        $this->twigLoader->addPath('admin/template/');
+
         $this->assertContains(
             '<input type="hidden" id="callBack" value="editExecute">',
             $this->getQuestion(array($this->extraArrayFull[0]), array($this->extraArrayFull[1]))->edit(1)
@@ -288,9 +290,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
      */
     public function testEditFail()
     {
-        $extraArray = array(
-            array('method' => 'getAll', 'return' => array(1, 2, 3))
-        );
+        $this->twigLoader->addPath('/wrongPath/');
         $this->getQuestion(array($this->extraArrayFull[0]), array($this->extraArrayFull[1]))->edit(1);
     }
 
