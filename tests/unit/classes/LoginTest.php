@@ -42,7 +42,7 @@ class LoginTest extends PHPUnit_Framework_TestCase
     private function getMockObject($return, $extraArray = null)
     {
         $database = m::mock('MyPoll\Classes\Database\RedBeanDB');
-        $database->shouldReceive('getRow')->once()->withAnyArgs()->andReturn($return);
+        $database->shouldReceive('findOne')->once()->withAnyArgs()->andReturn($return);
         if ($extraArray) {
             foreach ($extraArray as $item) {
                 $database->shouldReceive($item['method'])->once()->withAnyArgs()->andReturn($item['return']);

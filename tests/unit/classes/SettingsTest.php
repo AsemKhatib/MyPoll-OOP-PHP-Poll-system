@@ -81,7 +81,7 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'getById', 'return' => $this->dataArray)
         );
-        $this->twigLoader->addPath('admin/template/');
+        
         $this->assertContains(
             '<input type="hidden" id="callBack" value="editExecuteSettings">',
             $this->getSettings(1, $extraArray)->edit()
@@ -93,7 +93,7 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'getById', 'return' => $this->dataArray)
         );
-        $this->twigLoader->addPath('admin/template/');
+        
         $settings = $this->getSettings(20, $extraArray);
         $settings->edit();
         $this->assertEquals($this->dataArray['site_name'], $settings->getSiteName());
@@ -106,7 +106,7 @@ class SettingsTest extends \PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'getById', 'return' => false)
         );
-        $this->twigLoader->addPath('admin/template/');
+        
         $settings = $this->getSettings(20, $extraArray);
         $this->assertEquals(
             '<meta http-equiv="refresh" content="2; url=' . $settings->getIndexPage() . '">' . 'The Setting with this ID could not be found in the system',
