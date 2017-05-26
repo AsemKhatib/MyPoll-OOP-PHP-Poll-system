@@ -3,4 +3,3 @@ tests/coverage-reports/
 vendor/
 cache/
 composer.lock
-test.php
