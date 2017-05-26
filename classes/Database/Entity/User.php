@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPoll\Classes\Entity;
+namespace MyPoll\Classes\Database\Entity;
 
 /**
  * Class User
