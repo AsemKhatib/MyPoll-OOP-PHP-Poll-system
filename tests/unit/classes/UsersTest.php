@@ -4,6 +4,9 @@ namespace MyPoll\Classes;
 
 use DI\Container;
 use Mockery as m;
+use MyPoll\Classes\Components\General;
+use MyPoll\Classes\Components\Settings;
+use MyPoll\Classes\Components\Users;
 use MyPoll\Classes\Database\RedBeanDB;
 use Twig_Environment;
 use Twig_Loader_Filesystem;

@@ -1,6 +1,6 @@
 <?php
 
-namespace MyPoll\Classes;
+namespace MyPoll\Classes\Components;
 
 use Exception;
 use MyPoll\Classes\Database\DBInterface;

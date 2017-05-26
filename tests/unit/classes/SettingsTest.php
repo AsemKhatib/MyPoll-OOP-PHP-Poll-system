@@ -5,7 +5,7 @@ namespace MyPoll\Tests\Unit\Classes;
 use DI\Container;
 use Mockery as m;
 use MyPoll\Classes\Database\RedBeanDB;
-use MyPoll\Classes\Settings;
+use MyPoll\Classes\Components\Settings;
 use Twig_Environment;
 use Twig_Loader_Filesystem;
 use PHPUnit_Framework_TestCase;

@@ -2,7 +2,7 @@
 
 namespace MyPoll\Tests\Unit\Classes;
 
-use MyPoll\Classes\General;
+use MyPoll\Classes\Components\General;
 
 class GeneralTest extends \PHPUnit_Framework_TestCase
 {

@@ -6,10 +6,10 @@ use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Login\RememberMe;
 use MyPoll\Classes\Login\Login;
 use MyPoll\Classes\Pagination;
-use MyPoll\Classes\Questions;
-use MyPoll\Classes\Settings;
-use MyPoll\Classes\Users;
-use MyPoll\Classes\Answers;
+use MyPoll\Classes\Components\Questions;
+use MyPoll\Classes\Components\Settings;
+use MyPoll\Classes\Components\Users;
+use MyPoll\Classes\Components\Answers;
 use function DI\get;
 use function DI\object;
 

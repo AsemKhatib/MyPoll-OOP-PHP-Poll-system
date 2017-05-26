@@ -7,8 +7,8 @@ use Mockery as m;
 use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Login\Login;
 use MyPoll\Classes\Login\RememberMe;
-use MyPoll\Classes\Settings;
-use MyPoll\Classes\Users;
+use MyPoll\Classes\Components\Settings;
+use MyPoll\Classes\Components\Users;
 use PHPUnit_Framework_TestCase;
 use Exception;
 

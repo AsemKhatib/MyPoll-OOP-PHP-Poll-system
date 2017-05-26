@@ -3,9 +3,9 @@
 namespace MyPoll\Classes\Login;
 
 use MyPoll\Classes\Database\DBInterface;
-use MyPoll\Classes\Users;
-use MyPoll\Classes\Settings;
-use MyPoll\Classes\General;
+use MyPoll\Classes\Components\Users;
+use MyPoll\Classes\Components\Settings;
+use MyPoll\Classes\Components\General;
 
 /**
  * Class Login
