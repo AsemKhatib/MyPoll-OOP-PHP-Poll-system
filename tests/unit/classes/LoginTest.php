@@ -5,7 +5,6 @@ namespace MyPoll\Tests\Unit\Classes;
 use DI\Container;
 use Mockery as m;
 use MyPoll\Classes\Database\RedBeanDB;
-use MyPoll\Classes\Login\Cookie;
 use MyPoll\Classes\Login\Login;
 use MyPoll\Classes\Login\RememberMe;
 use MyPoll\Classes\Settings;
@@ -42,7 +41,7 @@ class LoginTest extends PHPUnit_Framework_TestCase
     private function getMockObject($return, $extraArray = null)
     {
         $database = m::mock('MyPoll\Classes\Database\RedBeanDB');
-        $database->shouldReceive('findOne')->once()->withAnyArgs()->andReturn($return);
+        $database->shouldReceive('findOne')->byDefault()->withAnyArgs()->andReturn($return);
         if ($extraArray) {
             foreach ($extraArray as $item) {
                 $database->shouldReceive($item['method'])->once()->withAnyArgs()->andReturn($item['return']);
