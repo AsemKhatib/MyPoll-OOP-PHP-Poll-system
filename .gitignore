@@ -1,7 +1,6 @@
-.idea
-composer.lock
-npm-*
+.idea/
+tests/coverage-reports/
 vendor/
-node_modules/
 cache/
-coverage-report/
+composer.lock
+test.php
