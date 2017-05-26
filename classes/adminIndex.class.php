@@ -2,6 +2,8 @@
 
 namespace MyPoll\Classes;
 
+use MyPoll\Classes\Components\General;
+use MyPoll\Classes\Components\Settings;
 use MyPoll\Classes\Login\Login;
 use Exception;
 use Twig_Environment;

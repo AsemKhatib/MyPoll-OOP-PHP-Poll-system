@@ -1,7 +1,7 @@
 <?php
 
 use MyPoll\Classes\AdminIndex;
-use MyPoll\Classes\General;
+use MyPoll\Classes\Components\General;
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../includes/Bootstrap.php';
