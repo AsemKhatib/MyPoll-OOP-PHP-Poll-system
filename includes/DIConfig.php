@@ -2,6 +2,7 @@
 
 use MyPoll\Classes\AdminIndex;
 use MyPoll\Classes\Database\DBInterface;
+use MyPoll\Classes\Database\PDODB;
 use MyPoll\Classes\Database\RedBeanDB;
 use MyPoll\Classes\Login\RememberMe;
 use MyPoll\Classes\Login\Login;
@@ -38,15 +39,30 @@ return [
     'db_dsn' => $db_dsn,
     'db_user' => $db_user,
     'db_pass' => $db_pass,
+    'db_options' => $db_options,
+    'db_driver' => get(PDODB::class),
 
     DBInterface::class => get(DBInterface::class),
-    RedBeanDB::class => object()->constructor(get('db_dsn'), get('db_user'), get('db_pass'))->method('setup'),
-    RememberMe::class => object()->constructor(get(RedBeanDB::class)),
+
+    RedBeanDB::class => object()->constructor(
+        get('db_dsn'),
+        get('db_user'),
+        get('db_pass')
+    )->method('setup'),
+
+    PDODB::class => object()->constructor(
+        get('db_dsn'),
+        get('db_user'),
+        get('db_pass'),
+        get('db_options')
+    )->method('setup'),
+
+    RememberMe::class => object()->constructor(get('db_driver')),
 
     Twig_Loader_Filesystem::class => object()->constructor(get('templatePathDirArray')),
     Twig_Environment::class => object()->constructor(get(Twig_Loader_Filesystem::class), array()),
-    Pagination::class => object()->constructor(get(RedBeanDB::class)),
-    Answers::class => object()->constructor(get(RedBeanDB::class)),
+    Pagination::class => object()->constructor(get('db_driver')),
+    Answers::class => object()->constructor(get('db_driver')),
 
     AdminIndex::class => object()->constructor(
         get(Twig_Environment::class),
@@ -61,21 +77,21 @@ return [
     ),
 
     Users::class => object()->constructor(
-        get(RedBeanDB::class),
+        get('db_driver'),
         get(Twig_Environment::class),
         get(Pagination::class),
         get(Settings::class)
     ),
 
     Questions::class => object()->constructor(
-        get(RedBeanDB::class),
+        get('db_driver'),
         get(Answers::class),
         get(Twig_Environment::class),
         get(Pagination::class),
         get(Settings::class)
     ),
     Login::class => object()->constructor(
-        get(RedBeanDB::class),
+        get('db_driver'),
         get(RememberMe::class),
         get(Users::class),
         get(Settings::class)
