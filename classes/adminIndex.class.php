@@ -3,6 +3,7 @@
 namespace MyPoll\Classes;
 
 use MyPoll\Classes\Components\General;
+use MyPoll\Classes\Components\Questions;
 use MyPoll\Classes\Components\Settings;
 use MyPoll\Classes\Login\Login;
 use Exception;
@@ -56,7 +57,7 @@ class AdminIndex
     public function show(FeaturesAbstract $abstract)
     {
         echo $this->login->checkIsNotLoggedIn();
-        $startPage = isset($_GET['startPage']) ? General::cleanInput('int', $_GET['startPage']) : null;
+        $startPage = isset($_GET['startPage']) ? General::cleanInput('int', $_GET['startPage']) : 0;
         try {
             echo $abstract->show($startPage);
         } catch (Exception $e) {
