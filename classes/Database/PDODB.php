@@ -73,20 +73,40 @@ class PDODB implements DBInterface
      */
     public function addRows($table, $rows)
     {
-        return array_walk($rows, array($this, 'addRowsWalk'), $table);
+        $stmt = [];
+        $rows = $rows[0];
+        foreach ($rows as $key => $value) {
+            if (is_array($value)) {
+                $stmt[] = $this->addRowsWalkArray(array_values($value), array_keys($value), $table);
+            } else {
+                $stmt[] = $this->addRowsWalk($value, $key, $table);
+            }
+        }
+        return $stmt;
     }
 
     /**
-     * @param string $key
-     * @param mixed $value
+     * @param array $values
+     * @param array $keys
      * @param string $table
-     *
      * @return array
      */
-    private function addRowsWalk($key, $value, $table)
+    private function addRowsWalkArray($values, $keys, $table)
     {
-        $stmt[] = 'INSERT INTO ' . $table . ' ('. $key .') Values ('. $value .')';
-        return $stmt;
+        $format = 'INSERT INTO %1$s (%2$s) Values ("%3$s")';
+        return sprintf($format, $table, implode(',', $keys), implode('","', $values));
+    }
+
+    /**
+     * @param string $value
+     * @param string $key
+     * @param string $table
+     * @return array
+     */
+    private function addRowsWalk($value, $key, $table)
+    {
+        $format = 'INSERT INTO %1$s (%2$s) Values ("%3$s")';
+        return sprintf($format, $table, $key, $value);
     }
 
     /**
@@ -201,7 +221,7 @@ class PDODB implements DBInterface
      */
     public function find($table, $sql, $bindings = array())
     {
-        $sql = ($sql) ? ' WHERE ' . $sql : '';
+        $sql = ($sql) ? ' ' . $sql : '';
         $query = $this->dbi->prepare('SELECT * FROM '. $table . $sql);
         $query->execute($bindings);
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
