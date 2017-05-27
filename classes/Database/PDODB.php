@@ -201,7 +201,8 @@ class PDODB implements DBInterface
      */
     public function find($table, $sql, $bindings = array())
     {
-        $query = $this->dbi->prepare('SELECT * FROM '. $table . ' WHERE ' . $sql);
+        $sql = ($sql) ? ' WHERE ' . $sql : '';
+        $query = $this->dbi->prepare('SELECT * FROM '. $table . $sql);
         $query->execute($bindings);
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
         if (empty($result)) {
@@ -227,7 +228,7 @@ class PDODB implements DBInterface
         if (empty($result)) {
             return [];
         }
-        return $result;
+        return $result[0];
     }
 
     /**
