@@ -52,7 +52,7 @@ class Answers
             return array('qid' => $qid, 'answer' => $newAnswer);
         }, array_values($answers));
 
-        $answersToAdd = $this->database->addRows('answers', $answersArray);
+        $answersToAdd = $this->database->addRows('answers', array($answersArray));
         $store = $this->database->store($answersToAdd);
         if (empty($store)) {
             throw new Exception('Something went wrong while trying to add the answers of the new question');
