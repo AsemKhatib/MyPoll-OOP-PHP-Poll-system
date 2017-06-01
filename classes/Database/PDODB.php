@@ -74,39 +74,64 @@ class PDODB implements DBInterface
     public function addRows($table, $rows)
     {
         $stmt = [];
+        $bindings = [];
         $rows = $rows[0];
         foreach ($rows as $key => $value) {
             if (is_array($value)) {
-                $stmt[] = $this->addRowsWalkArray(array_values($value), array_keys($value), $table);
+                $keys = array_keys($value);
+                $values = array_values($value);
+                $stmt[] = $this->addRowsWalkArray($keys, $table);
+                $bindings[] = $this->makeBindings($keys, $values);
             } else {
-                $stmt[] = $this->addRowsWalk($value, $key, $table);
+                $stmt[] = $this->addRowsWalk($key, $table);
+                $bindings[] = $this->makeBindings($key, $value);
             }
         }
-        return $stmt;
+        return ['stmt' => $stmt, 'bindings' => $bindings];
     }
 
     /**
+     * @param array $keys
      * @param array $values
+     *
+     * @return array
+     */
+    private function makeBindings($keys, $values)
+    {
+        $bindings = [];
+
+        for($i=0; $i<count($keys); $i++) {
+            $bindings[':' . $keys[$i]] = $values[$i];
+        }
+
+        return $bindings;
+    }
+
+    /**
      * @param array $keys
      * @param string $table
      * @return array
      */
-    private function addRowsWalkArray($values, $keys, $table)
+    private function addRowsWalkArray($keys, $table)
     {
-        $format = 'INSERT INTO %1$s (%2$s) Values ("%3$s")';
-        return sprintf($format, $table, implode(',', $keys), implode('","', $values));
+        $format = 'INSERT INTO %1$s (%2$s) Values (%3$s)';
+        return sprintf(
+            $format,
+            $table,
+            implode(',', $keys),
+            implode(',', array_map(function ($key) { return "':" . $key . "'";}, $keys))
+            );
     }
 
     /**
-     * @param string $value
      * @param string $key
      * @param string $table
      * @return array
      */
-    private function addRowsWalk($value, $key, $table)
+    private function addRowsWalk($key, $table)
     {
-        $format = 'INSERT INTO %1$s (%2$s) Values ("%3$s")';
-        return sprintf($format, $table, $key, $value);
+        $format = 'INSERT INTO %1$s (%2$s) Values (":%3$s")';
+        return sprintf($format, $table, $key, $key);
     }
 
     /**
@@ -117,21 +142,22 @@ class PDODB implements DBInterface
      */
     public function editRow($modelArray, $dataArray)
     {
-        $extraData = array('id' => $modelArray['id'], 'table_name' => $modelArray['table_name']);
-        return array_walk($dataArray, array($this, 'editRowWalk'), $extraData);
+        $id = $modelArray['id'];
+        $table_name = $modelArray['table_name'];
+        $this->editRowWalk($id, $table_name, $dataArray);
     }
 
+
     /**
-     * @param string $key
-     * @param mixed $value
-     * @param array $extraData
+     * @param int $id
+     * @param string $table_name
+     * @param array $dataArray
      *
-     * @return array
+     * @return string
      */
-    public function editRowWalk($key, $value, $extraData)
+    public function editRowWalk($id, $table_name, $dataArray)
     {
-        $stmt[] = 'UPDATE ' . $extraData['table_name'] . ' SET '. $key .'='. $value .' WHERE id='. $extraData['id'] ;
-        return $stmt;
+        return 'UPDATE ' . $table_name . ' SET '. $key .'='. $value .' WHERE id='. $id ;
     }
 
     /**
@@ -142,9 +168,9 @@ class PDODB implements DBInterface
     public function store($rows)
     {
         $resultsIDs = [];
-        foreach ($rows as $statement) {
+        foreach ($rows['stmt'] as $statement) {
             $stmt = $this->dbi->prepare($statement);
-            $stmt->execute();
+            $stmt->execute($rows['bindings']);
             $resultsIDs[] = $stmt->rowCount();
         }
         return $resultsIDs;
@@ -273,4 +299,5 @@ class PDODB implements DBInterface
         $query->execute($bindings);
         return $query->rowCount();
     }
+
 }
