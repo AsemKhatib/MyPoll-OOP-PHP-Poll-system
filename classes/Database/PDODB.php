@@ -73,21 +73,18 @@ class PDODB implements DBInterface
      */
     public function addRows($table, $rows)
     {
-        $stmt = [];
-        $bindings = [];
+        $output= [];
         $rows = $rows[0];
         foreach ($rows as $key => $value) {
             if (is_array($value)) {
                 $keys = array_keys($value);
                 $values = array_values($value);
-                $stmt[] = $this->addRowsWalkArray($keys, $table);
-                $bindings[] = $this->makeBindings($keys, $values);
+                $output[] = ['stmt' => $this->addRowsWalkArray($keys, $table), 'bindings' => $this->makeBindings($keys, $values)];
             } else {
-                $stmt[] = $this->addRowsWalk($key, $table);
-                $bindings[] = $this->makeBindings($key, $value);
+                $output[] = ['stmt' => $this->addRowsWalk($key, $table), 'bindings' => [':' . $key => $value]];
             }
         }
-        return ['stmt' => $stmt, 'bindings' => $bindings];
+        return $output;
     }
 
     /**
@@ -168,10 +165,10 @@ class PDODB implements DBInterface
     public function store($rows)
     {
         $resultsIDs = [];
-        foreach ($rows['stmt'] as $statement) {
-            $stmt = $this->dbi->prepare($statement);
-            $stmt->execute($rows['bindings']);
-            $resultsIDs[] = $stmt->rowCount();
+        foreach ($rows as $statement) {
+            $stmt = $this->dbi->prepare($statement['stmt']);
+            $stmt->execute($statement['bindings']);
+            $resultsIDs[] = $this->dbi->lastInsertId();
         }
         return $resultsIDs;
     }
