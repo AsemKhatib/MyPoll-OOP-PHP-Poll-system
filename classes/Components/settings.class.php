@@ -173,17 +173,17 @@ class Settings
      */
     public function editExecute($settingsArr)
     {
-        $settings = $this->database->getById('settings', $this->settingsId, 'bean');
+        $getSettingsToUpdate = $this->database->getById('settings', $this->settingsId, 'bean');
 
-        $this->database->editRow($settings, array(
+        $updateSettings = $this->database->editRow([$getSettingsToUpdate], [
             'site_name' => $settingsArr['site_name'],
             'site_resultsnumber' => $settingsArr['site_resultsnumber'],
             'site_cookies' => $settingsArr['site_cookies'],
             'site_cache' => $settingsArr['site_cache'],
             'site_maxanswers' => $settingsArr['site_maxanswers']
-        ));
+        ]);
 
-        if (empty($this->database->store($settings))) {
+        if (empty($this->database->store($updateSettings))) {
             throw new Exception('Something went wrong while trying to edit the settings');
         }
 

@@ -87,7 +87,8 @@ class Questions extends FeaturesAbstract
      */
     public function addExecute($paramsArray)
     {
-        $qid = $this->db->getID($this->addQuestion($paramsArray));
+        $this->addQuestion($paramsArray);
+        $qid = $this->db->getLastID('questions');
         $this->getAnswersObject()->addAnswers($paramsArray['answers'], $qid);
         return 'Question Added successfully';
     }
@@ -198,9 +199,9 @@ class Questions extends FeaturesAbstract
      */
     public function editExecute($paramsArray)
     {
-        $questionUpdate = $this->db->getById('questions', $paramsArray['qid'], 'bean');
-        $this->db->editRow($questionUpdate, array('question' => $paramsArray['question']));
-        $questionStore = $this->db->store($questionUpdate);
+        $getQuestionToUpdate = $this->db->getById('questions', $paramsArray['qid'], 'bean');
+        $updateQuestion = $this->db->editRow([$getQuestionToUpdate], ['question' => $paramsArray['question']]);
+        $questionStore = $this->db->store($updateQuestion);
 
         if (empty($questionStore)) {
             throw new Exception('Something went wrong while trying to edit the question');

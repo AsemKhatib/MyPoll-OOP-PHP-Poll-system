@@ -40,17 +40,18 @@ class Users extends FeaturesAbstract
     /**
      * Users constructor.
      *
-     * @param DBInterface      $database
+     * @param DBInterface $database
      * @param Twig_Environment $twig
-     * @param Pagination       $pagination
-     * @param Settings         $settings
+     * @param Pagination $pagination
+     * @param Settings $settings
      */
     public function __construct(
         DBInterface $database,
         Twig_Environment $twig,
         Pagination $pagination,
         Settings $settings
-    ) {
+    )
+    {
         $this->database = $database;
         $this->twig = $twig;
         $this->pagination = $pagination;
@@ -74,7 +75,7 @@ class Users extends FeaturesAbstract
         $user = General::cleanInput('string', $_POST['user_name']);
         $password = General::cleanInput('string', $_POST['user_password']);
         $email = General::cleanInput('email', $_POST['user_email']);
-        return array('user' => $user, 'password' => $password, 'email' => $email);
+        return ['user' => $user, 'password' => $password, 'email' => $email];
     }
 
     /**
@@ -108,13 +109,13 @@ class Users extends FeaturesAbstract
     {
         $newUser = $this->database->addRows(
             'users',
-            array(
-                array(
+            [
+                [
                     'user_name' => $user,
                     'user_pass' => password_hash($password, PASSWORD_DEFAULT),
                     'email' => $email
-                )
-            )
+                ]
+            ]
         );
 
         if (empty($this->database->store($newUser))) {
@@ -125,7 +126,7 @@ class Users extends FeaturesAbstract
     }
 
     /**
-     * @param int    $id
+     * @param int $id
      * @param string $user
      * @param string $email
      *
@@ -136,7 +137,7 @@ class Users extends FeaturesAbstract
         $checkIskExist = $this->database->find(
             'users',
             'id != :id AND (user_name = :user OR email = :email)',
-            array(':user' => $user, ':email' => $email, ':id' => $id)
+            [':user' => $user, ':email' => $email, ':id' => $id]
         );
 
         $result = empty($checkIskExist) ? false : true;
@@ -153,10 +154,10 @@ class Users extends FeaturesAbstract
         $this->pagination->setParams('users', $this->maxResults, $startPage, $this->database->count('users'));
         return $this->twig->render(
             'show_user.html',
-            array(
+            [
                 'results' => $this->pagination->getResults(),
                 'pagesNumber' => $this->pagination->getPagesNumber()
-            )
+            ]
         );
     }
 
@@ -176,11 +177,11 @@ class Users extends FeaturesAbstract
             );
         }
 
-        return $this->twig->render('edit_user.html', array(
+        return $this->twig->render('edit_user.html', [
             'id' => $user['id'],
             'user' => $user['user_name'],
             'email' => $user['email']
-        ));
+        ]);
     }
 
     /**
@@ -192,7 +193,7 @@ class Users extends FeaturesAbstract
         $user = General::cleanInput('string', $_POST['user_name']);
         $password = General::cleanInput('password', $_POST['user_password']);
         $email = General::cleanInput('email', $_POST['user_email']);
-        return array('id' => $id, 'user' => $user, 'password' => $password, 'email' => $email);
+        return ['id' => $id, 'user' => $user, 'password' => $password, 'email' => $email];
     }
 
     /**
@@ -219,7 +220,7 @@ class Users extends FeaturesAbstract
     }
 
     /**
-     * @param int    $id
+     * @param int $id
      * @param string $user
      * @param string $password
      * @param string $email
@@ -230,19 +231,19 @@ class Users extends FeaturesAbstract
      */
     private function editUser($id, $user, $password, $email)
     {
-        $userUpdate = $this->database->getById('users', $id, 'bean');
+        $getUserToUpdate = $this->database->getById('users', $id, 'bean');
         $newPassword = password_hash($password, PASSWORD_DEFAULT);
 
         if (!empty($password)) {
-            $this->database->editRow(
-                $userUpdate,
-                array('user_name' => $user, 'user_pass' => $newPassword, 'email' => $email)
+            $updateUser = $this->database->editRow(
+                [$getUserToUpdate],
+                ['user_name' => $user, 'user_pass' => $newPassword, 'email' => $email]
             );
         } else {
-            $this->database->editRow($userUpdate, array('user_name' => $user, 'email' => $email));
+            $updateUser = $this->database->editRow([$getUserToUpdate], ['user_name' => $user, 'email' => $email]);
         }
 
-        if (empty($this->database->store($userUpdate))) {
+        if (empty($this->database->store($updateUser))) {
             throw new Exception('Something went wrong while trying to edit the user');
         }
 
@@ -276,7 +277,7 @@ class Users extends FeaturesAbstract
         if (empty($result)) {
             return false;
         }
-        return (string) $result['user_pass'];
+        return (string)$result['user_pass'];
     }
 
     /**

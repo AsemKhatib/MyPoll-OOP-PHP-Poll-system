@@ -122,12 +122,12 @@ class Answers
     public function editAnswers($answers, $qid)
     {
         foreach ($answers as $key => $value) {
-            $answer = $this->database->getById('answers', $key, 'bean');
-            if (empty($answer[0])) {
+            $getAnswerToUpdate = $this->database->getById('answers', $key, 'bean');
+            if (empty($getAnswerToUpdate[0])) {
                 $this->addExtraAnswer($qid, $value);
             }
-            if (!empty($answer[0]) && $answer[0]['answer'] != $value) {
-                $this->editExistedAnswer($answer, $value);
+            if (!empty($getAnswerToUpdate[0]) && $getAnswerToUpdate[0]['answer'] != $value) {
+                $this->editExistedAnswer($getAnswerToUpdate, $value);
             }
         }
     }
@@ -155,7 +155,7 @@ class Answers
      */
     private function editExistedAnswer($answer, $value)
     {
-        $newAnswer = $this->database->editRow(array($answer), array('answer' => $value));
+        $newAnswer = $this->database->editRow([$answer], ['answer' => $value]);
         $store = $this->database->store($newAnswer);
         if (empty($store)) {
             throw new Exception('Something went wrong while trying to edit the answers of this question');
