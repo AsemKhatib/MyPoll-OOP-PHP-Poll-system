@@ -140,6 +140,7 @@ class PDODB implements DBInterface
      */
     public function editRow($modelArray, $dataArray)
     {
+        $modelArray = $modelArray[0];
         $output = [];
         $id = $modelArray['id'];
         $table_name = $modelArray['table_name'];
@@ -206,6 +207,7 @@ class PDODB implements DBInterface
     {
         $result = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE id = :id');
         $result->execute(array(':id' => $id));
+        if ($result->rowCount() > 0) return [];
         $returnedArray = $result->fetch(PDO::FETCH_ASSOC);
         return array_merge($returnedArray, array('table_name' => $table));
     }
@@ -307,5 +309,4 @@ class PDODB implements DBInterface
         $query->execute($bindings);
         return $query->rowCount();
     }
-
 }
