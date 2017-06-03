@@ -195,14 +195,16 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @param array $array
+     * @param string $table
      *
      * @return int
+     *
      */
-    public function getID($array)
+    public function getLastID($table = null)
     {
-        return (int) $array[0];
+        return Facade::getInsertID();
     }
+
 
     /**
      * @param string  $sql

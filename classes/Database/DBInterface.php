@@ -105,11 +105,12 @@ interface DBInterface
 
 
     /**
-     * @param array $array
+     * @param string $table
      *
      * @return int
+     *
      */
-    public function getID($array);
+    public function getLastID($table = null);
 
     /**
      * @param string $sql

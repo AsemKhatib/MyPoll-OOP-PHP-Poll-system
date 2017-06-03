@@ -15,6 +15,7 @@ class PDODB implements DBInterface
     protected $dbi = false;
 
     /** @var string */
+    protected $db_dsn;
 
     /** @var string */
     protected $db_user;
@@ -26,7 +27,7 @@ class PDODB implements DBInterface
     protected $db_options;
 
     /**
-     * RedBeanDB constructor.
+     * Pdo constructor.
      *
      * @param string $db_dsn
      * @param string $db_user
@@ -116,7 +117,7 @@ class PDODB implements DBInterface
             $format,
             $table,
             implode(',', $keys),
-            implode(',', array_map(function ($key) { return "':" . $key . "'";}, $keys))
+            implode(',', array_map(function ($key) { return ":" . $key;}, $keys))
             );
     }
 
@@ -127,7 +128,7 @@ class PDODB implements DBInterface
      */
     private function addRowsWalk($key, $table)
     {
-        $format = 'INSERT INTO %1$s (%2$s) Values (":%3$s")';
+        $format = 'INSERT INTO %1$s (%2$s) VALUES (:%3$s)';
         return sprintf($format, $table, $key, $key);
     }
 
@@ -139,22 +140,30 @@ class PDODB implements DBInterface
      */
     public function editRow($modelArray, $dataArray)
     {
+        $output = [];
         $id = $modelArray['id'];
         $table_name = $modelArray['table_name'];
-        $this->editRowWalk($id, $table_name, $dataArray);
+        $keys = array_keys($dataArray);
+        $values = array_values($dataArray);
+        $output[] = ['stmt' => $this->editRowWalk($id, $table_name, $keys), 'bindings' => $this->makeBindings($keys, $values)];
+        return $output;
     }
 
 
     /**
      * @param int $id
      * @param string $table_name
-     * @param array $dataArray
+     * @param array $keys
      *
      * @return string
      */
-    public function editRowWalk($id, $table_name, $dataArray)
+    public function editRowWalk($id, $table_name, $keys)
     {
-        return 'UPDATE ' . $table_name . ' SET '. $key .'='. $value .' WHERE id='. $id ;
+        $dataSet = [];
+        foreach ($keys as $key) {
+            $dataSet[] = $key . '=' . ':' . $key;
+        }
+        return 'UPDATE ' . $table_name . ' SET '. implode(',', $dataSet) .' WHERE id='. $id ;
     }
 
     /**
@@ -168,7 +177,7 @@ class PDODB implements DBInterface
         foreach ($rows as $statement) {
             $stmt = $this->dbi->prepare($statement['stmt']);
             $stmt->execute($statement['bindings']);
-            $resultsIDs[] = $this->dbi->lastInsertId();
+            $resultsIDs[] = $stmt->rowCount();
         }
         return $resultsIDs;
     }
@@ -275,13 +284,15 @@ class PDODB implements DBInterface
     }
 
     /**
-     * @param array $array
+     * @param string $table
      *
      * @return int
      */
-    public function getID($array)
+    public function getLastID($table = null)
     {
-        return (int)$array[0];
+        $query = $this->dbi->prepare('SELECT MAX(id) FROM ' . $table);
+        $query->execute();
+        return $query->fetchColumn();
     }
 
     /**
