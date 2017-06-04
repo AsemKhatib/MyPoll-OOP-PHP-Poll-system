@@ -156,7 +156,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'addRows', 'return' => true),
             array('method' => 'store', 'return' => true),
-            array('method' => 'getID', 'return' => 1)
+            array('method' => 'getLastID', 'return' => 1)
         );
 
         $extraArrayAnswers = array(
@@ -192,7 +192,7 @@ class QuestionsTest extends PHPUnit_Framework_TestCase
         $extraArray = array(
             array('method' => 'addRows', 'return' => true),
             array('method' => 'store', 'return' => true),
-            array('method' => 'getID', 'return' => true)
+            array('method' => 'getLastID', 'return' => true)
         );
 
         $extraArrayAnswers = array(
