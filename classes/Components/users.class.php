@@ -110,11 +110,9 @@ class Users extends FeaturesAbstract
         $newUser = $this->database->addRows(
             'users',
             [
-                [
-                    'user_name' => $user,
-                    'user_pass' => password_hash($password, PASSWORD_DEFAULT),
-                    'email' => $email
-                ]
+                'user_name' => $user,
+                'user_pass' => password_hash($password, PASSWORD_DEFAULT),
+                'email' => $email
             ]
         );
 

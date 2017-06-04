@@ -42,7 +42,7 @@ class Questions extends FeaturesAbstract
      * @param Pagination $pagination
      * @param Settings $settings
      */
-    public function __construct(DBInterface $db, Answers $answers,Twig_Environment $twig, Pagination $pagination, Settings $settings)
+    public function __construct(DBInterface $db, Answers $answers, Twig_Environment $twig, Pagination $pagination, Settings $settings)
     {
         $this->db = $db;
         $this->answers = $answers;
@@ -75,7 +75,7 @@ class Questions extends FeaturesAbstract
     {
         $question = General::cleanInput('string', $_POST['question']);
         $answers = General::cleanInput('array', $_POST['answer']);
-        return array('question' => $question, 'answers' => $answers);
+        return ['question' => $question, 'answers' => $answers];
     }
 
     /**
@@ -103,7 +103,7 @@ class Questions extends FeaturesAbstract
 
     private function addQuestion($paramsArray)
     {
-        $questionToAdd = $this->db->addRows('questions', array(array('question' => $paramsArray['question'])));
+        $questionToAdd = $this->db->addRows('questions', ['question' => $paramsArray['question']]);
         $store = $this->db->store($questionToAdd);
         if (empty($store)) {
             throw new Exception('Something went wrong while trying to add the question');
@@ -122,15 +122,15 @@ class Questions extends FeaturesAbstract
         $this->pagination->setParams('questions', $this->maxResults, $startPage, $this->db->count('questions'));
         return $this->twig->render(
             'show_questions.html',
-            array(
+            [
                 'resultsp' => $this->pagination->getResults(),
                 'pagesNumber' => $this->pagination->getPagesNumber()
-            )
+            ]
         );
     }
 
     /**
-     * @param int    $qid
+     * @param int $qid
      * @param string $is_pie
      *
      * @return string|boolean
@@ -172,11 +172,11 @@ class Questions extends FeaturesAbstract
      */
     private function renderEdit($qid, $question, $answers)
     {
-        return $this->twig->render('edit_question.html', array(
+        return $this->twig->render('edit_question.html', [
             'qid' => $qid,
             'question' => $question['question'],
             'answers' => $answers
-        ));
+        ]);
     }
 
     /**
@@ -187,7 +187,7 @@ class Questions extends FeaturesAbstract
         $qid = General::cleanInput('int', $_POST['qid']);
         $question = General::cleanInput('string', $_POST['question']);
         $answers = General::cleanInput('array', $_POST['answer']);
-        return array('qid' => $qid, 'question' => $question, 'answers_old' => $answers);
+        return ['qid' => $qid, 'question' => $question, 'answers_old' => $answers];
     }
 
     /**

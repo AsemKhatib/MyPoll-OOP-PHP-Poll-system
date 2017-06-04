@@ -67,6 +67,10 @@ class RedBeanDB implements DBInterface
      */
     public function addRows($table, $rows)
     {
+        if(!isset($rows[0])) {
+            $rows = [$rows];
+        }
+
         $arrayToSave = array_map(function ($row) use ($table) {
             return Facade::dispense($table)->import($row);
         }, $rows);

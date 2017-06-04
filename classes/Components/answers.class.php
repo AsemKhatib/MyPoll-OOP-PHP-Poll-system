@@ -52,7 +52,7 @@ class Answers
             return array('qid' => $qid, 'answer' => $newAnswer);
         }, array_values($answers));
 
-        $answersToAdd = $this->database->addRows('answers', array($answersArray));
+        $answersToAdd = $this->database->addRows('answers', $answersArray);
         $store = $this->database->store($answersToAdd);
         if (empty($store)) {
             throw new Exception('Something went wrong while trying to add the answers of the new question');
@@ -140,7 +140,7 @@ class Answers
      */
     private function addExtraAnswer($qid, $value)
     {
-        $newAnswer = $this->database->addRows('answers', array(array('qid' => $qid, 'answer' => $value)));
+        $newAnswer = $this->database->addRows('answers', ['qid' => $qid, 'answer' => $value]);
         $store = $this->database->store($newAnswer);
         if (empty($store)) {
             throw new Exception('Something went wrong while trying to add new answers to this question');

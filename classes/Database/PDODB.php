@@ -75,7 +75,6 @@ class PDODB implements DBInterface
     public function addRows($table, $rows)
     {
         $output= [];
-        $rows = $rows[0];
         foreach ($rows as $key => $value) {
             if (is_array($value)) {
                 $keys = array_keys($value);
@@ -205,9 +204,9 @@ class PDODB implements DBInterface
      */
     public function getById($table, $id, $type = null)
     {
-        $result = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE id = :id');
-        $result->execute(array(':id' => $id));
-        if ($result->rowCount() > 0) return [];
+        $result = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE id=:id');
+        $result->execute([':id' => $id]);
+        if ($result->rowCount() <= 0) return [];
         $returnedArray = $result->fetch(PDO::FETCH_ASSOC);
         return array_merge($returnedArray, array('table_name' => $table));
     }

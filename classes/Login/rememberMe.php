@@ -56,7 +56,7 @@ class RememberMe
      */
     public function saveLogToDatabase($userID, $token)
     {
-        $newLog = $this->database->addRows('rememberme', array(array('userid' => $userID, 'hash' => $token)));
+        $newLog = $this->database->addRows('rememberme', ['userid' => $userID, 'hash' => $token]);
         if (empty($this->database->store($newLog))) {
             throw new Exception('Something went wrong while trying to save cookie in the database');
         }
