@@ -162,9 +162,14 @@ class Answers
         }
     }
 
+    /**
+     * @param $qid
+     *
+     * @return void
+     */
     public function deleteAllAnswers($qid)
     {
-    	$answersToDelete = $this->database->find('answers', 'qid = :qid', [':qid' => $qid]);
+    	$answersToDelete = $this->database->find('answers', ' WHERE qid = :qid', [':qid' => $qid]);
         $this->database->deleteAll('answers', $answersToDelete);
     }
 
