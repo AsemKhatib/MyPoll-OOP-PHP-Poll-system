@@ -230,7 +230,7 @@ class PDODB implements DBInterface
      */
     public function deleteAll($table, $rows)
     {
-        array_walk($rows, array($this, 'deleteCallBack'), $table);
+        array_map(array($this, 'deleteCallBack'), $rows use ($table));
     }
 
     /**
@@ -239,8 +239,9 @@ class PDODB implements DBInterface
      */
     private function deleteCallBack($rows, $table)
     {
+        $id = (is_array($rows)) ? $rows['id'] : (int) $rows;
         $result = $this->dbi->prepare('DELETE FROM ' . $table . ' WHERE id = :id');
-        $result->execute(array(':id' => $rows['id']));
+        $result->execute([':id' => $id]);
     }
 
     /**
@@ -257,10 +258,8 @@ class PDODB implements DBInterface
         $sql = ($sql) ? ' ' . $sql : '';
         $query = $this->dbi->prepare('SELECT * FROM '. $table . $sql);
         $query->execute($bindings);
+        if ($query->rowCount() <= 0) return [];
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
-        if (empty($result)) {
-            return [];
-        }
         return $result;
     }
 
@@ -278,9 +277,7 @@ class PDODB implements DBInterface
         $query = $this->dbi->prepare('SELECT * FROM '. $table . ' WHERE ' . $sql . ' LIMIT 1');
         $query->execute($bindings);
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
-        if (empty($result)) {
-            return [];
-        }
+        if ($query->rowCount() <= 0) return [];
         return $result[0];
     }
 

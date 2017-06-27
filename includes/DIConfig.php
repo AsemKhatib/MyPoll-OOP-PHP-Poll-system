@@ -17,23 +17,23 @@ use function DI\object;
 $db_dsn = 'mysql:host=localhost;dbname=mypoll;charset=utf8';
 $db_user = 'root';
 $db_pass = 'root';
-$db_options = array (
+$db_options = [
     PDO::ATTR_EMULATE_PREPARES => false,
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-);
+];
 
 $systemAbsolutePath = __DIR__ . '/../';
-$templatePathDirArray = array(
+$templatePathDirArray = [
     $systemAbsolutePath . '/template/',
-    $systemAbsolutePath . '/admin/template/');
+    $systemAbsolutePath . '/admin/template/'];
 $settingsId = 1;
 
 return [
-    'routerArray' => array(
+    'routerArray' => [
         'questions' => get(Questions::class),
         'users' => get(Users::class),
         'settings' => get(Settings::class)
-    ),
+    ],
     'templatePathDirArray' => $templatePathDirArray,
     'settingsId' => $settingsId,
     'db_dsn' => $db_dsn,
@@ -60,7 +60,7 @@ return [
     RememberMe::class => object()->constructor(get('db_driver')),
 
     Twig_Loader_Filesystem::class => object()->constructor(get('templatePathDirArray')),
-    Twig_Environment::class => object()->constructor(get(Twig_Loader_Filesystem::class), array()),
+    Twig_Environment::class => object()->constructor(get(Twig_Loader_Filesystem::class), []),
     Pagination::class => object()->constructor(get('db_driver')),
     Answers::class => object()->constructor(get('db_driver')),
 
