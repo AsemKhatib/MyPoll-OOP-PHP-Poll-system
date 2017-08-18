@@ -4,6 +4,7 @@ namespace MyPoll\Classes\Database;
 
 use RedBeanPHP\Facade;
 use Exception;
+use RedBeanPHP\OODBBean;
 
 /**
  * Class RedBeanDB
@@ -88,6 +89,7 @@ class RedBeanDB implements DBInterface
      */
     public function editRow($modelArray, $dataArray)
     {
+        /** @var OODBBean $bean */
         $bean = $modelArray[0];
         if (is_array($bean)) {
             throw new Exception('The sub array should not be of type Array');

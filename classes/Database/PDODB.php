@@ -230,7 +230,7 @@ class PDODB implements DBInterface
      */
     public function deleteAll($table, $rows)
     {
-        array_map(array($this, 'deleteCallBack'), $rows use ($table));
+        array_map(array($this, 'deleteCallBack'), $rows, $table);
     }
 
     /**

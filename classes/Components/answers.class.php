@@ -107,6 +107,10 @@ class Answers
         $this->pieArray = implode(',', $this->pieArray);
     }
 
+    /**
+     * @param $qid
+     * @return array
+     */
     public function getAnswersForEdit($qid)
     {
     	return $this->database->getAll('SELECT * FROM answers WHERE qid=:qid ORDER BY id', [':qid' => $qid]);
