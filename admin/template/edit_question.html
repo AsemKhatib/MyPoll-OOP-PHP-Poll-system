@@ -21,7 +21,7 @@
                 {% if loop.first %}
                 <div><input type="text" name="answer[{{ answer.id }}]" value="{{ answer.answer }}" required><a href="index.php?do=deleteAnswer&route=questions&id={{ answer.id }}&questionID={{ qid }}" class="img_url" onclick="return confirm('Are you sure , want to delete this answer?');"><img src="template/images/delete.png" class="delete_icon" width="16" height="16" alt="Delete Answer" title="Delete Answer"></a></div>
                 {% else %}
-                <div><input type="text" style="margin-left: 166px;" name="answer[{{ answer.id }}]" value="{{ answer.answer }}" required><a href="index.php?do=deleteAnswer&route=questions&id={{ answer.id }}&questionID={{ qid }}" class="img_url" onclick="return confirm('Are you sure , want to delete this answer?');"><img src="template/images/delete.png" class="delete_icon" width="16" height="16" alt="Delete Answer" title="Delete Answer"></a></div>
+                <div><input type="text" style="margin-left: 166px;" name="answer[{{ answer.id }}]" value="{{ answer.answer }}" required><a href="index.php?do=deleteAnswer&route=answers&id={{ answer.id }}&questionID={{ qid }}" class="img_url" onclick="return confirm('Are you sure , want to delete this answer?');"><img src="template/images/delete.png" class="delete_icon" width="16" height="16" alt="Delete Answer" title="Delete Answer"></a></div>
                 {% endif %}
                 {% endfor %}
             </div>

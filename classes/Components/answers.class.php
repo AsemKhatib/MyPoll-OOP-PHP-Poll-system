@@ -12,35 +12,35 @@ use MyPoll\Classes\Database\DBInterface;
  */
 class Answers
 {
-	/** @var DBInterface **/
-	protected $database;
+    /** @var DBInterface * */
+    protected $database;
 
     /** @var  array */
-    protected $votesArray = array();
+    protected $votesArray = [];
 
     /** @var  array */
-    protected $answersArray = array();
+    protected $answersArray = [];
 
     /** @var  array */
-    protected $votesPercent = array();
+    protected $votesPercent = [];
 
     /** @var  array */
-    protected $pieArray = array();
-	
-	/**
+    protected $pieArray = [];
+
+    /**
      * Questions constructor.
      *
-     * @param DBInterface      $database
+     * @param DBInterface $database
      *
      **/
-	public function __construct(DBInterface $database)
-	{
-		$this->database = $database;
-	}
+    public function __construct(DBInterface $database)
+    {
+        $this->database = $database;
+    }
 
     /**
      * @param array $answers
-     * @param int   $qid
+     * @param int $qid
      *
      * @return void
      *
@@ -49,7 +49,7 @@ class Answers
     public function addAnswers($answers, $qid)
     {
         $answersArray = array_map(function ($newAnswer) use ($qid) {
-            return array('qid' => $qid, 'answer' => $newAnswer);
+            return ['qid' => $qid, 'answer' => $newAnswer];
         }, array_values($answers));
 
         $answersToAdd = $this->database->addRows('answers', $answersArray);
@@ -61,7 +61,7 @@ class Answers
 
 
     /**
-     * @param int    $qid
+     * @param int $qid
      * @param string $is_pie
      *
      * @return array|boolean
@@ -76,12 +76,12 @@ class Answers
 
         $this->processAnswersToShow($answers);
 
-        return array(
+        return [
             'answers_arr' => $this->answersArray,
             'percent' => $this->votesPercent,
             'is_pie' => $is_pie,
             'pie_arr' => $this->pieArray
-        );
+        ];
     }
 
     /**
@@ -113,24 +113,24 @@ class Answers
      */
     public function getAnswersForEdit($qid)
     {
-    	return $this->database->getAll('SELECT * FROM answers WHERE qid=:qid ORDER BY id', [':qid' => $qid]);
+        return $this->database->getAll('SELECT * FROM answers WHERE qid=:qid ORDER BY id', [':qid' => $qid]);
     }
 
 
     /**
      * @param array $answers
-     * @param int   $qid
+     * @param int $qid
      *
      * @return void
      */
     public function editAnswers($answers, $qid)
     {
         foreach ($answers as $key => $value) {
-            $getAnswerToUpdate = $this->database->getById('answers', $key, 'bean');
-            if (empty($getAnswerToUpdate[0])) {
+            $getAnswerToUpdate = $this->database->getById('answers', $key);
+            if (empty($getAnswerToUpdate)) {
                 $this->addExtraAnswer($qid, $value);
             }
-            if (!empty($getAnswerToUpdate[0]) && $getAnswerToUpdate[0]['answer'] != $value) {
+            if ($getAnswerToUpdate['answer'] != $value) {
                 $this->editExistedAnswer($getAnswerToUpdate, $value);
             }
         }
@@ -159,7 +159,7 @@ class Answers
      */
     private function editExistedAnswer($answer, $value)
     {
-        $newAnswer = $this->database->editRow([$answer], ['answer' => $value]);
+        $newAnswer = $this->database->editRow($answer, ['answer' => $value]);
         $store = $this->database->store($newAnswer);
         if (empty($store)) {
             throw new Exception('Something went wrong while trying to edit the answers of this question');
@@ -173,7 +173,7 @@ class Answers
      */
     public function deleteAllAnswers($qid)
     {
-    	$answersToDelete = $this->database->find('answers', ' WHERE qid = :qid', [':qid' => $qid]);
+        $answersToDelete = $this->database->find('answers', ' WHERE qid = :qid', [':qid' => $qid]);
         $this->database->deleteAll('answers', $answersToDelete);
     }
 

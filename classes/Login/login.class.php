@@ -17,7 +17,7 @@ class Login
     /** @var DBInterface */
     protected $db;
 
-    /** @var RememberMe  */
+    /** @var RememberMe */
     protected $rememberMeObj;
 
     /** @var Cookie */
@@ -43,10 +43,10 @@ class Login
      *
      * @param DBInterface $db
      * @param RememberMe $rememberMeObj
-     * @param Users       $users
-     * @param Settings    $settings
+     * @param Users $users
+     * @param Settings $settings
      */
-    public function __construct(DBInterface $db,RememberMe $rememberMeObj, Users $users, Settings $settings)
+    public function __construct(DBInterface $db, RememberMe $rememberMeObj, Users $users, Settings $settings)
     {
         $this->db = $db;
         $this->rememberMeObj = $rememberMeObj;
@@ -87,7 +87,7 @@ class Login
             if (!password_verify($pass, $result['user_pass'])) {
                 return false;
             }
-            $this->dataSetter(array($result['user_name'], $result['id'], $result['email']));
+            $this->dataSetter([$result['user_name'], $result['id'], $result['email']]);
             $this->authLogin();
             $this->cookie->setRememberme($this->userID);
             return true;
@@ -116,7 +116,7 @@ class Login
     private function setupNewCredentials()
     {
         $user = $this->users->getUserUsingCookie($this->cookie->getCookieData());
-        $this->dataSetter(array($user['user_name'], $user['id'] ,$user['email']));
+        $this->dataSetter([$user['user_name'], $user['id'], $user['email']]);
         $this->unsetLoginCredentials();
         return true;
     }

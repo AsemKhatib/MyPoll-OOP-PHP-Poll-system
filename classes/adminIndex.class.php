@@ -2,6 +2,7 @@
 
 namespace MyPoll\Classes;
 
+use MyPoll\Classes\Components\Answers;
 use MyPoll\Classes\Components\General;
 use MyPoll\Classes\Components\Questions;
 use MyPoll\Classes\Components\Settings;
@@ -210,17 +211,17 @@ class AdminIndex
     }
 
     /**
-     * @param Questions $questions
-     *
+     * @param Answers $answers
      * @return void
+     *
      */
-    public function deleteAnswer(Questions $questions)
+    public function deleteAnswer(Answers $answers)
     {
         echo $this->login->checkIsNotLoggedIn();
 
         $id = isset($_GET['id']) ? General::cleanInput('int', $_GET['id']) : null;
         $questionID = isset($_GET['questionID']) ? General::cleanInput('int', $_GET['questionID']) : null;
-        $questions->deleteAnswer($id);
+        $answers->deleteAnswer($id);
         echo General::messageSent(
             'Answer deleted successfully',
             $this->settings->getIndexPage() . '?do=edit&route=questions&id=' . $questionID

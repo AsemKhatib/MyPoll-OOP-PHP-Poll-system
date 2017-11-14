@@ -173,9 +173,9 @@ class Settings
      */
     public function editExecute($settingsArr)
     {
-        $getSettingsToUpdate = $this->database->getById('settings', $this->settingsId, 'bean');
+        $getSettingsToUpdate = $this->database->getById('settings', $this->settingsId);
 
-        $updateSettings = $this->database->editRow([$getSettingsToUpdate], [
+        $updateSettings = $this->database->editRow($getSettingsToUpdate, [
             'site_name' => $settingsArr['site_name'],
             'site_resultsnumber' => $settingsArr['site_resultsnumber'],
             'site_cookies' => $settingsArr['site_cookies'],

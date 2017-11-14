@@ -53,14 +53,6 @@ class Questions extends FeaturesAbstract
     }
 
     /**
-     * @return Answers
-     */
-    public function getAnswersObject()
-    {
-        return $this->answers;
-    }
-
-    /**
      * @return string
      */
     public function add()
@@ -89,7 +81,7 @@ class Questions extends FeaturesAbstract
     {
         $this->addQuestion($paramsArray);
         $qid = $this->db->getLastID('questions');
-        $this->getAnswersObject()->addAnswers($paramsArray['answers'], $qid);
+        $this->answers->addAnswers($paramsArray['answers'], $qid);
         return 'Question Added successfully';
     }
 
@@ -137,7 +129,7 @@ class Questions extends FeaturesAbstract
      */
     public function showAnswers($qid, $is_pie)
     {
-        $getChartArray = $this->getAnswersObject()->getAnswersChart($qid, $is_pie);
+        $getChartArray = $this->answers->getAnswersChart($qid, $is_pie);
 
         if (!$getChartArray) {
             return false;
@@ -159,7 +151,7 @@ class Questions extends FeaturesAbstract
             return General::ref($this->settings->getIndexPage());
         }
 
-        $answers = $this->getAnswersObject()->getAnswersForEdit($qid);
+        $answers = $this->answers->getAnswersForEdit($qid);
         return $this->renderEdit($qid, $question, $answers);
     }
 
@@ -199,15 +191,15 @@ class Questions extends FeaturesAbstract
      */
     public function editExecute($paramsArray)
     {
-        $getQuestionToUpdate = $this->db->getById('questions', $paramsArray['qid'], 'bean');
-        $updateQuestion = $this->db->editRow([$getQuestionToUpdate], ['question' => $paramsArray['question']]);
+        $getQuestionToUpdate = $this->db->getById('questions', $paramsArray['qid']);
+        $updateQuestion = $this->db->editRow($getQuestionToUpdate, ['question' => $paramsArray['question']]);
         $questionStore = $this->db->store($updateQuestion);
 
         if (empty($questionStore)) {
             throw new Exception('Something went wrong while trying to edit the question');
         }
 
-        $this->getAnswersObject()->editAnswers($paramsArray['answers_old'], $paramsArray['qid']);
+        $this->answers->editAnswers($paramsArray['answers_old'], $paramsArray['qid']);
         return 'Question edited successfully';
     }
 
@@ -219,7 +211,7 @@ class Questions extends FeaturesAbstract
     public function delete($qid)
     {
         $this->db->deleteById('questions', $qid);
-        $this->getAnswersObject()->deleteAllAnswers($qid);
+        $this->answers->deleteAllAnswers($qid);
         return 'The question and all its answers were successfully deleted';
     }
 }

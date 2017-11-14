@@ -32,6 +32,7 @@ return [
     'routerArray' => [
         'questions' => get(Questions::class),
         'users' => get(Users::class),
+        'answers' => get(Answers::class),
         'settings' => get(Settings::class)
     ],
     'templatePathDirArray' => $templatePathDirArray,

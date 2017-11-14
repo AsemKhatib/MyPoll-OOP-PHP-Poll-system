@@ -57,24 +57,25 @@ class PDODB implements DBInterface
     }
 
     /**
-     * @param string $dbName   type of bean we are looking for
+     * @param string $dbName type of bean we are looking for
      *
      * @return int
      */
     public function count($dbName)
     {
-        return (int) $this->dbi->query('SELECT COUNT(*) FROM ' . $dbName)->fetchColumn();
+        return (int)$this->dbi->query('SELECT COUNT(*) FROM ' . $dbName)->fetchColumn();
     }
 
     /**
      * @param string $table
-     * @param array  $rows
+     * @param array $rows
      *
      * @return array
      */
     public function addRows($table, $rows)
     {
-        $output= [];
+        $output = [];
+        // TODO : the problem here with rows , it adds to separate sql statements for the same row to be added , try to add a new answer to an existed question.
         foreach ($rows as $key => $value) {
             if (is_array($value)) {
                 $keys = array_keys($value);
@@ -97,7 +98,7 @@ class PDODB implements DBInterface
     {
         $bindings = [];
 
-        for($i=0; $i<count($keys); $i++) {
+        for ($i = 0; $i < count($keys); $i++) {
             $bindings[':' . $keys[$i]] = $values[$i];
         }
 
@@ -111,13 +112,15 @@ class PDODB implements DBInterface
      */
     private function addRowsWalkArray($keys, $table)
     {
-        $format = 'INSERT INTO %1$s (%2$s) Values (%3$s)';
+        $format = 'INSERT INTO %1$s (%2$s) VALUES (%3$s)';
         return sprintf(
             $format,
             $table,
             implode(',', $keys),
-            implode(',', array_map(function ($key) { return ":" . $key;}, $keys))
-            );
+            implode(',', array_map(function ($key) {
+                return ":" . $key;
+            }, $keys))
+        );
     }
 
     /**
@@ -132,17 +135,16 @@ class PDODB implements DBInterface
     }
 
     /**
-     * @param array $modelArray
+     * @param array $row
      * @param array $dataArray
      *
      * @return array
      */
-    public function editRow($modelArray, $dataArray)
+    public function editRow($row, $dataArray)
     {
-        $modelArray = $modelArray[0];
         $output = [];
-        $id = $modelArray['id'];
-        $table_name = $modelArray['table_name'];
+        $id = $row['id'];
+        $table_name = $row['table_name'];
         $keys = array_keys($dataArray);
         $values = array_values($dataArray);
         $output[] = ['stmt' => $this->editRowWalk($id, $table_name, $keys), 'bindings' => $this->makeBindings($keys, $values)];
@@ -163,7 +165,7 @@ class PDODB implements DBInterface
         foreach ($keys as $key) {
             $dataSet[] = $key . '=' . ':' . $key;
         }
-        return 'UPDATE ' . $table_name . ' SET '. implode(',', $dataSet) .' WHERE id='. $id ;
+        return 'UPDATE ' . $table_name . ' SET ' . implode(',', $dataSet) . ' WHERE id=' . $id;
     }
 
     /**
@@ -184,7 +186,7 @@ class PDODB implements DBInterface
 
     /**
      * @param string $sql
-     * @param array  $bindings
+     * @param array $bindings
      *
      * @return array
      */
@@ -197,23 +199,23 @@ class PDODB implements DBInterface
 
     /**
      * @param string $table
-     * @param int    $id
-     * @param string $type
+     * @param int $id
      *
      * @return array
      */
-    public function getById($table, $id, $type = null)
+    public function getById($table, $id)
     {
         $result = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE id=:id');
         $result->execute([':id' => $id]);
-        if ($result->rowCount() <= 0) return [];
-        $returnedArray = $result->fetch(PDO::FETCH_ASSOC);
-        return array_merge($returnedArray, array('table_name' => $table));
+        if ($result->rowCount() <= 0) {
+            return [];
+        }
+        return array_merge($result->fetch(PDO::FETCH_ASSOC), ['table_name' => $table]);
     }
 
     /**
      * @param string $table
-     * @param int    $id
+     * @param int $id
      *
      * @return void
      */
@@ -224,13 +226,13 @@ class PDODB implements DBInterface
 
     /**
      * @param string $table
-     * @param array  $rows
+     * @param array $rows
      *
      * @return void
      */
     public function deleteAll($table, $rows)
     {
-        array_map(array($this, 'deleteCallBack'), $rows, $table);
+        array_map([$this, 'deleteCallBack'], $rows, $table);
     }
 
     /**
@@ -239,7 +241,7 @@ class PDODB implements DBInterface
      */
     private function deleteCallBack($rows, $table)
     {
-        $id = (is_array($rows)) ? $rows['id'] : (int) $rows;
+        $id = (is_array($rows)) ? $rows['id'] : (int)$rows;
         $result = $this->dbi->prepare('DELETE FROM ' . $table . ' WHERE id = :id');
         $result->execute([':id' => $id]);
     }
@@ -249,14 +251,14 @@ class PDODB implements DBInterface
      *
      * @param string $table
      * @param string $sql
-     * @param array  $bindings
+     * @param array $bindings
      *
      * @return array
      */
-    public function find($table, $sql, $bindings = array())
+    public function find($table, $sql, $bindings = [])
     {
         $sql = ($sql) ? ' ' . $sql : '';
-        $query = $this->dbi->prepare('SELECT * FROM '. $table . $sql);
+        $query = $this->dbi->prepare('SELECT * FROM ' . $table . $sql);
         $query->execute($bindings);
         if ($query->rowCount() <= 0) return [];
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -268,13 +270,13 @@ class PDODB implements DBInterface
      *
      * @param string $table
      * @param string $sql
-     * @param array  $bindings
+     * @param array $bindings
      *
      * @return array
      */
-    public function findOne($table, $sql, $bindings = array())
+    public function findOne($table, $sql, $bindings = [])
     {
-        $query = $this->dbi->prepare('SELECT * FROM '. $table . ' WHERE ' . $sql . ' LIMIT 1');
+        $query = $this->dbi->prepare('SELECT * FROM ' . $table . ' WHERE ' . $sql . ' LIMIT 1');
         $query->execute($bindings);
         $result = $query->fetchAll(PDO::FETCH_ASSOC);
         if ($query->rowCount() <= 0) return [];
@@ -295,11 +297,11 @@ class PDODB implements DBInterface
 
     /**
      * @param string $sql
-     * @param array  $bindings
+     * @param array $bindings
      *
      * @return int
      */
-    public function exec($sql, $bindings = array())
+    public function exec($sql, $bindings = [])
     {
         $query = $this->dbi->prepare($sql);
         $query->execute($bindings);

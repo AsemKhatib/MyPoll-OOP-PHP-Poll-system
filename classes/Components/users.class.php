@@ -229,16 +229,16 @@ class Users extends FeaturesAbstract
      */
     private function editUser($id, $user, $password, $email)
     {
-        $getUserToUpdate = $this->database->getById('users', $id, 'bean');
+        $getUserToUpdate = $this->database->getById('users', $id);
         $newPassword = password_hash($password, PASSWORD_DEFAULT);
 
         if (!empty($password)) {
             $updateUser = $this->database->editRow(
-                [$getUserToUpdate],
+                $getUserToUpdate,
                 ['user_name' => $user, 'user_pass' => $newPassword, 'email' => $email]
             );
         } else {
-            $updateUser = $this->database->editRow([$getUserToUpdate], ['user_name' => $user, 'email' => $email]);
+            $updateUser = $this->database->editRow($getUserToUpdate, ['user_name' => $user, 'email' => $email]);
         }
 
         if (empty($this->database->store($updateUser))) {

@@ -3,8 +3,6 @@
 namespace MyPoll\Classes\Database;
 
 use RedBeanPHP\Facade;
-use Exception;
-use RedBeanPHP\OODBBean;
 
 /**
  * Class RedBeanDB
@@ -51,7 +49,7 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @param string $dbName   type of bean we are looking for
+     * @param string $dbName type of bean we are looking for
      *
      * @return int
      */
@@ -80,21 +78,19 @@ class RedBeanDB implements DBInterface
     }
 
     /**
-     * @param array $modelArray
+     * @param array $row
      * @param array $dataArray
      *
      * @return array
      *
      * @throws \Exception
      */
-    public function editRow($modelArray, $dataArray)
+    public function editRow($row, $dataArray)
     {
-        /** @var OODBBean $bean */
-        $bean = $modelArray[0];
-        if (is_array($bean)) {
-            throw new Exception('The sub array should not be of type Array');
-        }
-        return array($bean->import($dataArray));
+        $table = $row['table_name'];
+        unset($row['table_name']);
+        $bean = Facade::convertToBean($table, $row);
+        return [$bean->import($dataArray)];
     }
 
     /**
@@ -109,7 +105,7 @@ class RedBeanDB implements DBInterface
 
     /**
      * @param string $sql
-     * @param array  $bindings
+     * @param array $bindings
      *
      * @return array
      */
@@ -120,26 +116,21 @@ class RedBeanDB implements DBInterface
 
     /**
      * @param string $table
-     * @param int    $id
-     * @param string $type
+     * @param int $id
      *
      * @return array
      */
-    public function getById($table, $id, $type = null)
+    public function getById($table, $id)
     {
         $resultObject = Facade::load($table, $id);
-        if ($type == 'bean') {
-            $result = ($resultObject->isEmpty()) ? array() : $resultObject;
-            return array($result);
-        }
         $resultObject = $resultObject->export();
-        $result = ($resultObject['id'] == 0) ? array() : $resultObject;
+        $result = ($resultObject['id'] == 0) ? [] : array_merge($resultObject, ['table_name' => $table]);
         return $result;
     }
 
     /**
      * @param string $table
-     * @param int  $id
+     * @param int $id
      *
      * @return void
      */
@@ -165,14 +156,14 @@ class RedBeanDB implements DBInterface
      * Return an Array of Beans or empty array in case of no results
      *
      * @param string $table
-     * @param string   $sql
-     * @param array  $bindings
+     * @param string $sql
+     * @param array $bindings
      *
      * @return array
      */
-    public function find($table, $sql, $bindings = array())
+    public function find($table, $sql, $bindings = [])
     {
-        $returnArray = array();
+        $returnArray = [];
         $beans = Facade::find($table, $sql, $bindings);
         if (!empty($beans)) {
             $returnArray = array_map(function ($bean) use ($table) {
@@ -186,16 +177,16 @@ class RedBeanDB implements DBInterface
      * Return the first Bean only or Null in case of no results
      *
      * @param string $table
-     * @param string   $sql
-     * @param array  $bindings
+     * @param string $sql
+     * @param array $bindings
      *
      * @return array
      */
-    public function findOne($table, $sql, $bindings = array())
+    public function findOne($table, $sql, $bindings = [])
     {
         $result = Facade::findOne($table, $sql, $bindings);
         if ($result == null) {
-            return array();
+            return [];
         }
         return $result->export();
     }
@@ -213,12 +204,12 @@ class RedBeanDB implements DBInterface
 
 
     /**
-     * @param string  $sql
+     * @param string $sql
      * @param array $bindings
      *
      * @return int
      */
-    public function exec($sql, $bindings = array())
+    public function exec($sql, $bindings = [])
     {
         return Facade::exec($sql, $bindings);
     }

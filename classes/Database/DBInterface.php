@@ -35,12 +35,12 @@ interface DBInterface
     public function addRows($table, $rows);
 
     /**
-     * @param array $modelArray
+     * @param array $row
      * @param array $dataArray
      *
      * @return array
      */
-    public function editRow($modelArray, $dataArray);
+    public function editRow($row, $dataArray);
 
     /**
      * @param array $rows
@@ -63,11 +63,10 @@ interface DBInterface
     /**
      * @param string $table
      * @param int    $id
-     * @param string $type
      *
      * @return array
      */
-    public function getById($table, $id, $type = null);
+    public function getById($table, $id);
 
     /**
      * @param string $table
